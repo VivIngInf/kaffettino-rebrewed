@@ -33,6 +33,7 @@ model User {
   wallets       Wallet[]
   topUps        TopUp[]
   transactions  Transaction[]
+  walletRequests WalletRequest[]
 
   @@unique([email])
   @@map("user")
@@ -141,6 +142,19 @@ model Wallet {
   @@map("wallet")
 }
 
+model WalletRequest {
+  id        Int   @id @default(autoincrement())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aulettaId Int
+  auletta   Auletta  @relation(fields: [aulettaId], references: [id], onDelete: Cascade)
+  status    RequestStatus @default(PENDING)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("wallet_requests")
+}
+
 model Auletta {
   id        Int   @id @default(autoincrement())
   name      String
@@ -155,6 +169,7 @@ model Auletta {
   inventories Inventory[]
   topUps    TopUp[]
   transactions Transaction[]
+  walletRequests WalletRequest[]
 
   @@unique([name])
   @@unique([number])
@@ -217,4 +232,10 @@ enum Role {
   ADMIN
   TREASURER
   SUPERUSER
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }

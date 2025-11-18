@@ -9,11 +9,23 @@ import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
 import permissionsHandler from "../../../utils/permissions-handler.js";
+import walletHandler, {
+  IRequestWalletCreation,
+} from "../../../utils/wallet-handler.js";
 
 const BASE_PATH = "/user";
-const ROLES_NEEDED = [Role.ADMIN];
+const ROLES_NEEDED = {
+  roleChange: [Role.ADMIN],
+  walletRequest: [Role.USER],
+};
+
+interface IWalletRequestBody {
+  userId: string;
+  aulettaId: number;
+}
 
 export default async function userRoutes(fastify: FastifyInstance) {
+  // GET https://localhost:3000/api/v1/user?includeWallets=true
   fastify.get(
     `${BASE_PATH}`,
     { preHandler: sessionMW },
@@ -63,7 +75,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
   fastify.put(
     `${BASE_PATH}/role`,
     {
-      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED)],
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.roleChange)],
     },
     async (request, reply) => {
       try {
@@ -95,6 +107,38 @@ export default async function userRoutes(fastify: FastifyInstance) {
         );
 
         return setRole;
+      } catch (error) {
+        return sendError(reply, { code: 500, error: error });
+      }
+    }
+  );
+
+  // PUT https://localhost:3000/api/v1/user/request-wallet
+  // Content-Type: application/json
+  // { aulettaId: 19283232, userId: "uuidv4" }
+  fastify.put(
+    `${BASE_PATH}/request-wallet`,
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.walletRequest)],
+    },
+    async (request, reply) => {
+      try {
+        const body: IWalletRequestBody =
+          (await request.body) as IWalletRequestBody;
+
+        if (!body.userId || !body.aulettaId)
+          return sendError(reply, {
+            code: 500,
+            message: "Mandatory params 'userId' or 'aulettaId' are missing!",
+          });
+
+        const newWalletRequest: IRequestWalletCreation =
+          await walletHandler.requestWalletCreation(
+            body.userId,
+            body.aulettaId
+          );
+
+        return newWalletRequest;
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
