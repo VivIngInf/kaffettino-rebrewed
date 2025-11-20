@@ -1,6 +1,7 @@
 import { Session } from "../auth.js";
 import { User, Wallet, Role } from "../generated/prisma/client.js";
 import { prisma } from "../plugins/prisma.js";
+import { LogMethod } from "./decorators/logmethod.js";
 
 class PermissionsHandler {
   private prisma: typeof prisma;
@@ -17,6 +18,7 @@ class PermissionsHandler {
     5: Role.SUPERUSER,
   };
 
+  @LogMethod
   /**
    * Retrieves the current role hierarchy configuration.
    *
@@ -26,6 +28,7 @@ class PermissionsHandler {
     return this.roleHierarchy;
   }
 
+  @LogMethod
   /**
    * Returns the hierarchy position of the specified role within the role hierarchy.
    *
@@ -40,6 +43,7 @@ class PermissionsHandler {
     );
   }
 
+  @LogMethod
   /**
    * Verifies whether a user is allowed to change the role of another user based on role hierarchy and identity.
    *
