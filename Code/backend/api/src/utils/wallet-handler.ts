@@ -1,15 +1,28 @@
 import {
   RequestStatus,
+  TopUp,
+  Transaction,
   Wallet,
   WalletRequest,
 } from "../generated/prisma/client.js";
 import { prisma } from "../plugins/prisma.js";
 import { LogMethod } from "./decorators/logmethod.js";
+import { ISearchParams } from "./search-utils.js";
 
 interface ICheckWalletRequest {
   userId?: string[];
   aulettaId?: number[];
   status?: RequestStatus[];
+}
+
+interface IGetWallets extends ISearchParams {
+  userId?: string[];
+  aulettaId?: number[];
+}
+
+interface IGetTopUps extends ISearchParams {
+  userId?: string[];
+  walletId?: string[];
 }
 
 export interface IRequestWalletCreation {
@@ -23,6 +36,71 @@ class WalletHandler {
 
   constructor() {
     this.prisma = prisma;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves a list of wallets based on the provided filter criteria.
+   *
+   * @param params - The filter and pagination options.
+   * @param params.userId - An array of user IDs to filter wallets by.
+   * @param params.aulettaId - An array of auletta IDs to filter wallets by.
+   * @param params.take - The maximum number of wallets to retrieve.
+   * @param params.skip - The number of wallets to skip before starting to collect the result set.
+   * @returns A promise that resolves to an array of `Wallet` objects matching the criteria.
+   */
+  async getWallets({
+    userId,
+    aulettaId,
+    take,
+    skip,
+  }: IGetWallets): Promise<Wallet[]> {
+    const wallets = await this.prisma.wallet.findMany({
+      where: {
+        userId: { in: userId },
+        aulettaId: { in: aulettaId },
+      },
+      skip: skip,
+      take: take,
+    });
+
+    return wallets;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves a list of wallet top-up transactions based on the provided filters.
+   *
+   * @param {IGetTopUps} params - The parameters for fetching wallet top-ups.
+   * @param {string[]} params.userId - An array of user IDs to filter the top-ups.
+   * @param {string[]} params.walletId - An array of wallet IDs to filter the top-ups.
+   * @param {number} params.take - The number of records to retrieve.
+   * @param {number} params.skip - The number of records to skip (for pagination).
+   * @param {number} params.gte - The minimum amount (inclusive) for filtering top-ups.
+   * @param {number} params.lte - The maximum amount (inclusive) for filtering top-ups.
+   * @returns {Promise<TopUp[]>} A promise that resolves to an array of top-up records.
+   */
+  async getWalletTopUps({
+    userId,
+    walletId,
+    take,
+    skip,
+    gte,
+    lte,
+  }: IGetTopUps): Promise<TopUp[]> {
+    const walletTopUps = await this.prisma.topUp.findMany({
+      where: {
+        ...(userId ? { userId: { in: userId } } : {}),
+        ...(walletId ? { walletId: { in: walletId } } : {}),
+        ...(gte || lte
+          ? { amount: { lte: (lte as number) ?? 0, gte: (gte as number) ?? 0 } }
+          : {}),
+      },
+      skip: skip,
+      take: take,
+    });
+
+    return walletTopUps;
   }
 
   @LogMethod
