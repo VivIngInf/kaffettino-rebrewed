@@ -148,6 +148,11 @@ class WalletHandler {
     return walletRequest;
   }
 
+  async topUp(walletId: string, amount: number): Promise<Transaction> {
+    const;
+    return {};
+  }
+
   @LogMethod
   /**
    * Handles the creation of a wallet request for a specific user and auletta.

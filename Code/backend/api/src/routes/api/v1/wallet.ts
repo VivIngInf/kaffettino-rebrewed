@@ -17,6 +17,7 @@ const BASE_PATH = "/wallet";
 const ROLES_NEEDED = {
   getWallets: [Role.TREASURER, Role.ADMIN],
   createWallet: [Role.TREASURER, Role.ADMIN],
+  topUpWallet: [Role.TREASURER, Role.ADMIN],
 };
 
 interface IGetWalletQuery {
@@ -29,6 +30,11 @@ interface IGetWalletQuery {
 interface IGetTopUpsQuery extends IPagination, IRangeSearch {
   userId?: string[];
   walletId?: string[];
+}
+
+interface ITopUpBody {
+  walletId?: string;
+  amount?: number;
 }
 
 export default async function walletRoutes(fastify: FastifyInstance) {
@@ -82,6 +88,45 @@ export default async function walletRoutes(fastify: FastifyInstance) {
         });
 
         return topUps;
+      } catch (error) {
+        return sendError(reply, { code: 500, error: error });
+      }
+    }
+  );
+
+  // POST https://localhost:3000/api/v1/wallet/topup
+  // Content-Type: application/json
+  // { walletId: uuidv4, amount: number }
+  fastify.post(
+    `${BASE_PATH}/topup`,
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.topUpWallet)],
+    },
+    async (request, reply) => {
+      try {
+        const body: ITopUpBody = (await request.body) as ITopUpBody;
+
+        if (!body.walletId || !body.amount)
+          return sendError(reply, {
+            code: 400,
+            message: "Mandatory params 'walletId' or 'amount' are missing!",
+          });
+
+        const userWallets = await walletHandler.getWallets({
+          userId: [request.session.user.id],
+        });
+
+        const userHasWallet = userWallets.filter(
+          (wallet) => wallet.id === body.walletId
+        ).length;
+
+        if (userHasWallet)
+          return sendError(reply, {
+            code: 401,
+            message: "You cannot TopUp youself!",
+          });
+
+        // continuare...
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
