@@ -97,7 +97,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
 
   // POST https://localhost:3000/api/v1/wallet/topup
   // Content-Type: application/json
-  // { walletId: uuidv4, amount: number }
+  // { walletId: uuidv4, amount: number, description: string }
   fastify.post(
     `${BASE_PATH}/topup`,
     {
