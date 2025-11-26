@@ -2,6 +2,7 @@ import fastify, { FastifyReply } from "fastify";
 
 interface IError {
   code: number;
+  response?: string;
   error?: unknown;
   message?: string;
 }
@@ -21,12 +22,17 @@ export const errorCodes: Record<number, string> = {
   503: "Service Unavailable - Server temporarily unavailable or under maintenance",
 };
 
+export const responseCodes: Record<string, string> = {
+  MISSING_PARAMS: "",
+};
+
 /**
  * Sends a standardized error response using Fastify's reply object.
  *
  * @param reply - The Fastify reply instance used to send the response.
  * @param param1 - An object containing error details.
  * @param param1.code - The HTTP status code to send.
+ * @param param1.response - The error code read by client or used to choose the message automatically.
  * @param param1.error - The error object or message to log and include in the response.
  * @param param1.message - An optional custom error message to include in the response.
  * @returns The Fastify reply instance with the error response sent.
@@ -61,11 +67,12 @@ export const errorCodes: Record<number, string> = {
  */
 export default function sendError(
   reply: FastifyReply,
-  { code, error, message }: IError
+  { code, error, response, message }: IError
 ): FastifyReply {
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorObject: IError = {
     code: code,
+    ...(response ? { response: response } : {}),
   };
 
   if (error) console.log(errorMessage);

@@ -35,6 +35,7 @@ interface IGetTopUpsQuery extends IPagination, IRangeSearch {
 interface ITopUpBody {
   walletId?: string;
   amount?: number;
+  description?: string;
 }
 
 export default async function walletRoutes(fastify: FastifyInstance) {
@@ -116,17 +117,23 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           userId: [request.session.user.id],
         });
 
-        const userHasWallet = userWallets.filter(
+        const userOwnsWallet = userWallets.filter(
           (wallet) => wallet.id === body.walletId
         ).length;
 
-        if (userHasWallet)
+        if (userOwnsWallet)
           return sendError(reply, {
             code: 401,
             message: "You cannot TopUp youself!",
           });
 
-        // continuare...
+        const topUp = await walletHandler.topUp(
+          body.walletId,
+          body.amount,
+          body.description
+        );
+
+        return topUp;
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }

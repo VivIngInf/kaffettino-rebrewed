@@ -148,9 +148,39 @@ class WalletHandler {
     return walletRequest;
   }
 
-  async topUp(walletId: string, amount: number): Promise<Transaction> {
-    const;
-    return {};
+  @LogMethod
+  /**
+   * Adds funds to a wallet and records the top-up transaction.
+   *
+   * @param walletId - The unique identifier of the wallet to top up.
+   * @param amount - The amount to add to the wallet balance.
+   * @param description - An optional description for the top-up transaction.
+   * @returns A promise that resolves to the created TopUp record.
+   */
+  async topUp(
+    walletId: string,
+    amount: number,
+    description?: string
+  ): Promise<TopUp> {
+    const createdTopUp = await this.prisma.topUp.create({
+      data: {
+        amount: amount,
+        walletId: walletId,
+        description: description,
+      },
+    });
+
+    if (createdTopUp.amount)
+      await this.prisma.wallet.update({
+        where: {
+          id: walletId,
+        },
+        data: {
+          balance: { increment: createdTopUp.amount },
+        },
+      });
+
+    return createdTopUp;
   }
 
   @LogMethod

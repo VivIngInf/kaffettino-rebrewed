@@ -31,7 +31,6 @@ model User {
   accounts      Account[]
   cards         Card[]
   wallets       Wallet[]
-  topUps        TopUp[]
   transactions  Transaction[]
   walletRequests WalletRequest[]
 
@@ -90,10 +89,6 @@ model TopUp {
   description String?
   walletId  String
   wallet    Wallet   @relation(fields: [walletId], references: [id], onDelete: SetNull)
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  aulettaId Int
-  auletta   Auletta  @relation(fields: [aulettaId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -167,7 +162,6 @@ model Auletta {
   user      User[]
   wallets   Wallet[]
   inventories Inventory[]
-  topUps    TopUp[]
   transactions Transaction[]
   walletRequests WalletRequest[]
 
