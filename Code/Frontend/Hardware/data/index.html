@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-900">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Vivere Kaffettino</title>
+		<link href="./css/output.css" rel="stylesheet">
+	</head>
+	<body class="h-full text-2xl text-white">
+		<form method="post" action="/submitConfigs" class="flex flex-col justify-center text-center items-center gap-10 w-full h-full">
+
+			<div class="flex justify-center">
+				<label for="isEAP" class="mr-5 select-none"> EAP </label>
+				<input type="checkbox" name="isEAP" id="isEAP" value="true" %ISEAP%>
+			</div>
+			
+			<input type="submit" value="submit" class="bg-white text-black px-10 py-5 w-fit rounded-2xl">
+		</form>
+	</body>
+</html>
