@@ -1,4 +1,6 @@
+import { Product } from "../generated/prisma/client";
 import { prisma } from "../plugins/prisma";
+import { LogMethod } from "./decorators/logmethod";
 
 class InventoryHandler {
   private prisma: typeof prisma;
@@ -7,11 +9,14 @@ class InventoryHandler {
     this.prisma = prisma;
   }
 
-  async listInventories() {}
-  async getInventory() {}
-  async insertProduct() {}
-  async removeProduct() {}
-  async assignAuletta() {}
+  @LogMethod
+  async addItems(aulettaId: number, productIds: number[]) {}
+  async removeItems(aulettaId: number, productIds: number[]) {}
+  async listItems(aulettaId: number) {}
+
+  async createProduct(name: string) {}
+  async updateProduct(productId: number, { name }: Product) {}
+  async deleteProduct(productId: number) {}
 }
 
 const inventoryHandler = new InventoryHandler();
