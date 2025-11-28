@@ -3,7 +3,6 @@
 bool serverUp = false;
 AsyncWebServer server(80);
 
-
 // Returns -1 if an error occurred, 0 if successfull
 int startWebServer()
 {
@@ -24,7 +23,36 @@ int startWebServer()
     }
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        request->send(SPIFFS, "/index.html", String(), false);
+        request->send(SPIFFS, "/index.html", String(), false, processor);
+    });
+
+    server.on("/css/output.css", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/css/output.css", "text/css");
+    });
+    
+    server.on("/js/main.js", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(SPIFFS, "/js/main.js", "application/javascript");
+    });
+
+    server.on("/submitConfigs", HTTP_POST, [](AsyncWebServerRequest *request) {
+        
+        if (request->hasParam("isEAP", true)) 
+        {
+            String paramIsEAP = request->getParam("isEAP", true)->value();
+            Serial.println("isEAP value: " + paramIsEAP);
+
+            IS_EAP =  true;
+        }
+        else
+        {
+            Serial.println("isEAP value: " + false);
+            IS_EAP =  false;
+        }
+
+        // Store the new IS_EAP value in flash memory
+        preferences.putBool("IS_EAP", IS_EAP);
+
+        request->send(SPIFFS, "/index.html", String(), false, processor);
     });
 
     server.begin();
@@ -43,3 +71,17 @@ void stopWebServer()
 }
 
 bool isServerOn() { return serverUp; }
+
+// Replaces placeholders in HTML file with relative values
+String processor(const String& var){
+    String processedValue = "";
+
+    if(var == "ISEAP")
+    {
+        processedValue = IS_EAP ? "checked" : "";        
+    }
+
+    Serial.println("Processed value in HTML " + var + ": " + processedValue);        
+    
+    return processedValue;    
+}

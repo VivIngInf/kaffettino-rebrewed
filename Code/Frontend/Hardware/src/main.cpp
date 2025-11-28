@@ -4,13 +4,8 @@
 
 /* ----- WIFI libs ----- */
 
-
 #include <WiFi.h>
 #include <esp_wpa2.h>
-
-/* ----- Storage libs ----- */
-
-#include <Preferences.h>
 
 /* ----- My libs ----- */
 
@@ -18,8 +13,6 @@
 #include "fallbackWebServer.h"
 
 /* ----- Variables ----- */
-
-Preferences preferences;
 
 int connectWifi();
 
@@ -29,6 +22,8 @@ void setup() {
     Serial.begin(115200);
 
     pinMode(2, OUTPUT);
+
+    initConfigs();
 
     // Todo: If the configs are changed in the HTML page, the connectWifi() method should be called
 }

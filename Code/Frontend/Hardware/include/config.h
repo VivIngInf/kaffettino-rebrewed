@@ -1,6 +1,12 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+/* ----- Storage libs ----- */
+
+#include <Preferences.h>
+
+/* ----- Variables ----- */
+
 // Wifi Configuration
 
 extern const char* WIFI_SSID;              // Name of the network used to connect to the API server
@@ -17,5 +23,10 @@ extern const char* EAP_PASSWORD;           // The password of the EAP user
 
 extern const char* FALLBACK_SSID;         // Name of the ESP' broadcast network
 extern const char* FALLBACK_PASSWORD;     // Password of the ESP' broadcast network
+
+// Preferences object
+extern Preferences preferences;
+
+void initConfigs();
 
 #endif

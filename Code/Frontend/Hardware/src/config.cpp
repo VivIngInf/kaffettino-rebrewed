@@ -17,3 +17,17 @@ const char* EAP_PASSWORD = "";  // The password of the EAP user
 const char* FALLBACK_SSID = "Kaffettino";         // Name of the ESP' broadcast network
 const char* FALLBACK_PASSWORD = "";     // Password of the ESP' broadcast network
 
+Preferences preferences;
+
+void initConfigs()
+{
+    // Start the workspace "config" in read and write
+    preferences.begin("config", false);
+
+    // Load IS_EAP or assign false as the default value
+    IS_EAP = preferences.getBool("IS_EAP", false);
+
+    Serial.print("IS_EAP start value: ");
+    Serial.println(IS_EAP);
+
+}

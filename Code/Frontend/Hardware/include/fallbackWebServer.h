@@ -5,11 +5,13 @@
 #include <AsyncTCP.h>
 #include <WiFi.h>
 #include <SPIFFS.h>
-#include <config.h>
+#include <Preferences.h>
+#include "config.h"
 
 extern int startWebServer();
 extern void stopWebServer();
 extern bool isWebServerOn();
+extern String processor(const String& var);
 
 extern bool serverUp;
 
