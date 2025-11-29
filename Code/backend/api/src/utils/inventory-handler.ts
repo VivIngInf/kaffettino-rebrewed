@@ -1,6 +1,23 @@
-import { Product } from "../generated/prisma/client";
+import { BatchPayload } from "@/generated/prisma/internal/prismaNamespace";
+import { Inventory, Product } from "../generated/prisma/client";
 import { prisma } from "../plugins/prisma";
 import { LogMethod } from "./decorators/logmethod";
+
+export interface InventoryItems {
+  inventoryId: number;
+  items: {
+    productId: number;
+    quantity: number;
+    price: number;
+    name?: string;
+  }[];
+}
+
+interface IAddNewProduct {
+  id: number;
+  quantity: number;
+  price: number;
+}
 
 class InventoryHandler {
   private prisma: typeof prisma;
@@ -10,23 +27,169 @@ class InventoryHandler {
   }
 
   @LogMethod
-  async createInventory(aulettaId: number, name: string) {
+  async createInventory(aulettaId: number, name: string): Promise<Inventory> {
     const newInventory = await this.prisma.inventory.create({
       data: {
         name: name,
-        aulettaId: aulettaId
-      }
+        aulettaId: aulettaId,
+      },
     });
+
+    return newInventory;
   }
 
   @LogMethod
-  async addItems(inventoryId: number, productIds: number[]) {
-    
-  }
-  async removeItems(inventoryId: number, productIds: number[]) {}
+  /**
+   * Adds or updates products in the specified inventory.
+   *
+   * For each product in the `products` array:
+   * - If the product already exists in the inventory, its quantity is updated.
+   * - If the product does not exist, it is created with the provided quantity and price.
+   *
+   * @param inventoryId - The ID of the inventory to update.
+   * @param products - An array of products to add or update, each containing an `id`, `quantity`, and `price`.
+   * @returns A promise that resolves to the updated list of inventory items.
+   */
+  async addItems(
+    inventoryId: number,
+    products: IAddNewProduct[]
+  ): Promise<InventoryItems["items"]> {
+    const productIds = products.map((product) => product.id);
+    const existingItems = await this.checkInventoryItems(
+      inventoryId,
+      productIds
+    );
+    const existingItemsIds = existingItems.map((item) => item.productId);
+    const nonExistingItems = products.filter(
+      (product) => !existingItemsIds.includes(product.id)
+    );
 
-  async checkInventoryItems(inventoryId: number, productIds: number[])
-  async listItems(aulettaId: number) {}
+    const itemsUpdated: InventoryItems["items"] = await Promise.all([
+      ...existingItems.map((item) =>
+        this.prisma.product_Inventory.update({
+          where: {
+            productId_inventoryId: {
+              productId: item.productId,
+              inventoryId: inventoryId,
+            },
+          },
+          data: {
+            quantity:
+              products.find((product) => product.id === item.productId)
+                ?.quantity ?? item.quantity,
+          },
+        })
+      ),
+      ...nonExistingItems.map((item) =>
+        this.prisma.product_Inventory.create({
+          data: {
+            productId: item.id,
+            quantity: item.quantity,
+            price: item.price,
+            inventoryId: inventoryId,
+          },
+        })
+      ),
+    ]);
+
+    return itemsUpdated;
+  }
+
+  @LogMethod
+  /**
+   * Removes specified products from an inventory.
+   *
+   * Checks if the given product IDs exist in the specified inventory,
+   * then deletes those products from the inventory.
+   *
+   * @param inventoryId - The ID of the inventory to remove items from.
+   * @param productIds - An array of product IDs to be removed from the inventory.
+   * @returns A promise that resolves to a BatchPayload indicating the number of records deleted.
+   */
+  async removeItems(
+    inventoryId: number,
+    productIds: number[]
+  ): Promise<BatchPayload> {
+    const existingProductIds = (
+      await this.checkInventoryItems(inventoryId, productIds)
+    ).map((item) => item.productId);
+
+    const removed = await this.prisma.product_Inventory.deleteMany({
+      where: {
+        productId: { in: existingProductIds },
+      },
+    });
+
+    return removed;
+  }
+
+  @LogMethod
+  /**
+   * Checks and retrieves items from a specific inventory that match the provided product IDs.
+   *
+   * @param inventoryId - The ID of the inventory to search within.
+   * @param productIds - An array of product IDs to filter the inventory items.
+   * @returns A promise that resolves to an array of inventory items matching the given product IDs.
+   */
+  async checkInventoryItems(
+    inventoryId: number,
+    productIds: number[]
+  ): Promise<InventoryItems["items"]> {
+    const inventoryItems = (await this.listItems([inventoryId])).find(
+      (inventory) => inventory.inventoryId == inventoryId
+    );
+    const filteredItems = inventoryItems?.items.filter((item) =>
+      productIds.includes(item.productId)
+    );
+
+    return filteredItems ?? [];
+  }
+
+  @LogMethod
+  /**
+   * Retrieves and groups inventory items by their inventory IDs.
+   *
+   * Given an array of inventory IDs, this method queries the database for matching
+   * product inventory records, including product names. The results are grouped by
+   * inventory ID, with each group containing its associated items.
+   *
+   * @param inventoryIds - Array of inventory IDs to fetch items for.
+   * @returns A promise that resolves to an array of grouped inventory items, where each group
+   *          contains the inventory ID and its corresponding items.
+   */
+  async listItems(inventoryIds: number[]): Promise<InventoryItems[]> {
+    const items = await this.prisma.product_Inventory.findMany({
+      where: {
+        inventoryId: { in: inventoryIds },
+      },
+      select: {
+        inventoryId: true,
+        productId: true,
+        quantity: true,
+        price: true,
+        product: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    const inventories = new Set(items.map((item) => item.inventoryId));
+    const groupedItems: InventoryItems[] = Array.from(inventories, (inv) => ({
+      inventoryId: inv,
+      items: items
+        .filter((item) => item.inventoryId === inv)
+        .map((item) => ({
+          price: item.price,
+          productId: item.productId,
+          quantity: item.quantity,
+          name: item.product.name,
+        })),
+    }));
+
+    return groupedItems;
+  }
 
   @LogMethod
   /**
