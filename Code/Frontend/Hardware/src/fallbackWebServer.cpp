@@ -1,4 +1,5 @@
 #include "fallbackWebServer.h"
+#include "connectivity.h"
 
 bool serverUp = false;
 AsyncWebServer server(80);
@@ -35,24 +36,79 @@ int startWebServer()
     });
 
     server.on("/submitConfigs", HTTP_POST, [](AsyncWebServerRequest *request) {
-        
+
+        bool atLeastOneChange = false;
+
         if (request->hasParam("isEAP", true)) 
         {
             String paramIsEAP = request->getParam("isEAP", true)->value();
             Serial.println("isEAP value: " + paramIsEAP);
 
             IS_EAP =  true;
+            atLeastOneChange = true;
         }
         else
         {
             Serial.println("isEAP value: " + false);
             IS_EAP =  false;
+            atLeastOneChange = true;
         }
 
-        // Store the new IS_EAP value in flash memory
-        preferences.putBool("IS_EAP", IS_EAP);
+        if(request->hasParam("wifiSSID", true))
+        {
+            String paramWifiSSID = request->getParam("wifiSSID", true)->value();
+            Serial.println("Wifi SSID value: " + paramWifiSSID);
+
+            WIFI_SSID = paramWifiSSID;
+            atLeastOneChange = true;
+        }
+
+        if(request->hasParam("eapUsername", true))
+        {
+            String paramEapUsername = request->getParam("eapUsername", true)->value();
+            Serial.println("EAP username value: " + paramEapUsername);
+
+            EAP_USERNAME = paramEapUsername;
+            atLeastOneChange = true;
+        }
+
+        if(request->hasParam("eapPassword", true))
+        {
+            String paramEapPassword = request->getParam("eapPassword", true)->value();
+            Serial.println("EAP password value: " + paramEapPassword);
+
+            EAP_PASSWORD = paramEapPassword;
+            atLeastOneChange = true;
+        }
+
+        if(request->hasParam("wifiPassword", true))
+        {
+            String paramWifiPassword = request->getParam("wifiPassword", true)->value();
+            Serial.println("Wifi password value: " + paramWifiPassword);
+
+            WIFI_PASSWORD = paramWifiPassword;
+            atLeastOneChange = true;
+        }
 
         request->send(SPIFFS, "/index.html", String(), false, processor);
+
+        if(atLeastOneChange)
+        {
+            preferences.begin("config", false);
+
+            // Store the new values in flash memory
+            preferences.putBool("IS_EAP", IS_EAP);
+            preferences.putString("WIFI_SSID", WIFI_SSID);
+            preferences.putString("EAP_USERNAME", EAP_USERNAME);
+            preferences.putString("EAP_PASSWORD", EAP_PASSWORD);
+            preferences.putString("WIFI_PASSWORD", WIFI_PASSWORD);
+
+            preferences.end();
+            
+            tryConnectWifi(); // Retries to connect to wifi
+            stopWebServer();
+        }
+
     });
 
     server.begin();
@@ -79,6 +135,10 @@ String processor(const String& var){
     if(var == "ISEAP")
     {
         processedValue = IS_EAP ? "checked" : "";        
+    }
+    else if (var == "WIFI_SSID")
+    {
+        processedValue = WIFI_SSID;
     }
 
     Serial.println("Processed value in HTML " + var + ": " + processedValue);        

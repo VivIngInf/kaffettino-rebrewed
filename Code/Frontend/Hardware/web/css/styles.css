@@ -2,3 +2,7 @@
 
 /* Importa le direttive base di Tailwind */
 @import "tailwindcss";
+
+.hidden{
+    display: none;
+}
