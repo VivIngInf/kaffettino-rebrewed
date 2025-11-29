@@ -2,11 +2,16 @@
 #include "config.h"
 #include "fallbackWebServer.h"
 
+bool isConnecting = false;
+
 // Tries to connect to wifi and handles all errors
 void tryConnectWifi()
 {
     int maxRetries = 5;
     int currentRetry = 1;
+    int connectTimeout = 15000;  // 15 seconds timeout to avoid crashes
+
+    isConnecting = true;
 
     // If the module isn't connected, or the connection went away, we should try to reconnect
     while (WiFi.status() != WL_CONNECTED && currentRetry <= maxRetries)
@@ -16,15 +21,14 @@ void tryConnectWifi()
         Serial.print("Trying to connect, try number: ");
         Serial.println(currentRetry);
 
-
         switch (status)
         {
             case -2:  // Config error
-                Serial.println("Config error, fallback to AP mode.");
+                Serial.println("Config error, retrying...");
                 delay(2000);
                 break;
             case -1:  // Network error
-                Serial.println("Network error, fallback to AP mode.");
+                Serial.println("Network error, retrying...");
                 delay(2000);
                 break;
             default:
@@ -39,12 +43,26 @@ void tryConnectWifi()
     if (currentRetry >= maxRetries)
     {
         Serial.println("Maximum connection retries reached. Switching to fallback server.");
-        startWebServer(); 
+
+        if (startWebServer() < 0)
+        {
+            Serial.println("Internal server error!");
+            // Todo: Handle SPIFFS error
+            // Todo: Handle Bind error
+        }
+
     }
+
+    if(WiFi.status() == WL_CONNECTED)
+    {
+        isConnecting = false;
+        Serial.println("No more in connecting status, entering the main loop");
+    }
+
 
 }
 
-// Returns -3 in case of internal error, -2 in case of config error, -1 in case of network error, 0 in case of success
+// Returns -2 in case of config error, -1 in case of network error, 0 in case of success
 int connectWifi()
 {
     bool wifiError = false;

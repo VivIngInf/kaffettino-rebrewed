@@ -10,4 +10,6 @@ void tryConnectWifi();
 int connectWifi();
 bool isConnected();
 
+extern bool isConnecting;
+
 #endif

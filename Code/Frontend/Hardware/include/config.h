@@ -28,5 +28,6 @@ extern String FALLBACK_PASSWORD;     // Password of the ESP' broadcast network
 extern Preferences preferences;
 
 void initConfigs();
+void saveConfigs();
 
 #endif

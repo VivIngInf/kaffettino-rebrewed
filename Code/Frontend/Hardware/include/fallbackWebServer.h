@@ -12,8 +12,11 @@ extern int startWebServer();
 extern void stopWebServer();
 extern bool isWebServerOn();
 extern String processor(const String& var);
+extern void handleNewConfigs(AsyncWebServerRequest *request);
+
 
 extern bool serverUp;
+extern bool hasNewConfigs;
 
 // Create the server object and use HTTP's default port 
 extern AsyncWebServer server;

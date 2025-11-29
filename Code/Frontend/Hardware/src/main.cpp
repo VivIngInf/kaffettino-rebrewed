@@ -27,8 +27,21 @@ void loop() {
 
     if(!isConnected())
     {
+        if(!serverUp)
+            tryConnectWifi();
+
+        delay(1000);
+    }
+
+    // If we aren't connected we should try to reconnect
+    if(!isConnected())
+    {
         delay(2000);
-        // TODO: reconnect if the connection went away
+        
+        /*// But only if we aren't already tryign to reconnect
+        if(!isConnecting)
+            tryConnectWifi();*/
+
         return;
     }
 
