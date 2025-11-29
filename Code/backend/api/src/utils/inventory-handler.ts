@@ -10,8 +10,22 @@ class InventoryHandler {
   }
 
   @LogMethod
-  async addItems(aulettaId: number, productIds: number[]) {}
-  async removeItems(aulettaId: number, productIds: number[]) {}
+  async createInventory(aulettaId: number, name: string) {
+    const newInventory = await this.prisma.inventory.create({
+      data: {
+        name: name,
+        aulettaId: aulettaId
+      }
+    });
+  }
+
+  @LogMethod
+  async addItems(inventoryId: number, productIds: number[]) {
+    
+  }
+  async removeItems(inventoryId: number, productIds: number[]) {}
+
+  async checkInventoryItems(inventoryId: number, productIds: number[])
   async listItems(aulettaId: number) {}
 
   @LogMethod

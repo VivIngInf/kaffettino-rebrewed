@@ -209,6 +209,7 @@ model Product_Inventory {
 
 model Inventory {
   id        Int   @id @default(autoincrement())
+  name      String 
   aulettaId Int
   auletta   Auletta  @relation(fields: [aulettaId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
@@ -217,6 +218,7 @@ model Inventory {
   transactions Transaction[]
   products   Product_Inventory[]
 
+  @@unique([name])
   @@map("inventory")
 }
 
