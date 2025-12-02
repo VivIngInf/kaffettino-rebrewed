@@ -24,18 +24,12 @@ void initConfigs()
     // Start the workspace "config" in read and write
     preferences.begin("config", false);
 
-    /*// Load values
+    // Load values
     IS_EAP = preferences.getBool("IS_EAP", false);
     WIFI_SSID = preferences.getString("WIFI_SSID", "");
     WIFI_PASSWORD = preferences.getString("WIFI_PASSWORD", "");
     EAP_USERNAME = preferences.getString("EAP_USERNAME", "");
-    EAP_PASSWORD = preferences.getString("EAP_PASSWORD", "");*/
-
-    IS_EAP = "";
-    WIFI_SSID = "";
-    WIFI_PASSWORD = "";
-    EAP_USERNAME = "";
-    EAP_PASSWORD = "";
+    EAP_PASSWORD = preferences.getString("EAP_PASSWORD", "");
 
     Serial.print("WIFI_SSID start value: ");
     Serial.println(WIFI_SSID);

@@ -1,6 +1,6 @@
 #include "connectivity.h"
 #include "config.h"
-#include "fallbackWebServer.h"
+#include "configWebServer.h"
 
 bool isConnecting = false;
 
@@ -8,10 +8,11 @@ bool isConnecting = false;
 void tryConnectWifi()
 {
     int maxRetries = 5;
-    int currentRetry = 1;
-    int connectTimeout = 15000;  // 15 seconds timeout to avoid crashes
+    int currentRetry = 1;    
 
     isConnecting = true;
+
+    WiFi.disconnect(true);
 
     // If the module isn't connected, or the connection went away, we should try to reconnect
     while (WiFi.status() != WL_CONNECTED && currentRetry <= maxRetries)
@@ -39,26 +40,20 @@ void tryConnectWifi()
         currentRetry++;
     }
 
+    
     // If we reach the max retries, start the fallback server and await for user input
     if (currentRetry >= maxRetries)
     {
-        Serial.println("Maximum connection retries reached. Switching to fallback server.");
-
-        if (startWebServer() < 0)
-        {
-            Serial.println("Internal server error!");
-            // Todo: Handle SPIFFS error
-            // Todo: Handle Bind error
-        }
-
+        Serial.println("Maximum connection retries reached. Please change credentials.");
+        // TODO: Write to screen something for the end user
     }
 
-    if(WiFi.status() == WL_CONNECTED)
+    if(isConnected())
     {
-        isConnecting = false;
         Serial.println("No more in connecting status, entering the main loop");
     }
-
+    
+    isConnecting = false;
 
 }
 

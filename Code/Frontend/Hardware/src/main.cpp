@@ -5,7 +5,7 @@
 /* ----- My libs ----- */
 
 #include "config.h"
-#include "fallbackWebServer.h"
+#include "configWebServer.h"
 #include "connectivity.h"
 
 /* ----- Variables ----- */
@@ -18,36 +18,33 @@ void setup() {
     // Integrated LED pin
     pinMode(2, OUTPUT);
 
+    // Set the ESP as both a gateway and a client
+    WiFi.mode(WIFI_AP_STA);
+
+    // Load the WiFi credentials and general configs stored in memory
     initConfigs();
+
+    // We should restart the ESP if we get an internal server error
+    if(startWebServer() != 0)
+        ESP.restart();
 
     tryConnectWifi();    
 }
 
-void loop() {
+void loop() {    
+    
+    digitalWrite(2, LOW);
 
-    if(!isConnected())
+    // If we aren't connected, we shouldn't proceed, but at least try to reconnect.
+    if(!isConnected() && !isConnecting)
     {
-        if(!serverUp)
-            tryConnectWifi();
-
+        tryConnectWifi();        
         delay(1000);
-    }
-
-    // If we aren't connected we should try to reconnect
-    if(!isConnected())
-    {
-        delay(2000);
-        
-        /*// But only if we aren't already tryign to reconnect
-        if(!isConnecting)
-            tryConnectWifi();*/
-
         return;
     }
-
-    digitalWrite(2, HIGH);
+    
     delay(1000);
-    digitalWrite(2, LOW);
+    digitalWrite(2, HIGH);
     delay(1000);
 }
 

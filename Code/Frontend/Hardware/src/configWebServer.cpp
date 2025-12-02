@@ -1,4 +1,4 @@
-#include "fallbackWebServer.h"
+#include "configWebServer.h"
 #include "connectivity.h"
 
 bool serverUp = false;
@@ -18,7 +18,7 @@ int startWebServer()
     Serial.print("Disconnected: ");
     Serial.println(disconnected);
 
-    Serial.println("Activating fallback server Access Point...");
+    Serial.println("Activating server Access Point...");
 
     // Configure the ESP32 as an access point
     WiFi.softAP(FALLBACK_SSID, FALLBACK_PASSWORD);
@@ -172,8 +172,10 @@ void handleNewConfigs(AsyncWebServerRequest *request)
 
     if(atLeastOneChange)
     {
-        saveConfigs();       
-        stopWebServer();
+        saveConfigs();     
+        
+        if(!isConnecting)
+            tryConnectWifi();  
     }
 
     hasNewConfigs = false; 
