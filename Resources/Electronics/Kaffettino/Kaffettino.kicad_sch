@@ -6652,16 +6652,6 @@
 	)
 	(wire
 		(pts
-			(xy 175.26 34.29) (xy 175.26 35.56)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "68c54be1-80d3-47a7-b02a-ac55475782e7")
-	)
-	(wire
-		(pts
 			(xy 88.9 137.16) (xy 86.36 137.16)
 		)
 		(stroke
@@ -8074,7 +8064,7 @@
 		(uuid "853aff69-980b-4311-a001-1e463e8f9d8b")
 	)
 	(label "KP_INT"
-		(at 175.26 34.29 90)
+		(at 175.26 35.56 0)
 		(effects
 			(font
 				(size 1.27 1.27)
