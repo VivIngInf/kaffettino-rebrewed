@@ -163,6 +163,7 @@ model Auletta {
   inventories Inventory[]
   transactions Transaction[]
   walletRequests WalletRequest[]
+  devices   Device[]
 
   @@unique([name])
   @@unique([number])
@@ -222,6 +223,44 @@ model Inventory {
   @@map("inventory")
 }
 
+model Device {
+  id          String   @id @default(uuid())
+  deviceName  String   @unique
+  aulettaId   Int
+  verified    Boolean  @default(false)
+  apiKey      String   @unique
+  auletta     Auletta  @relation(fields: [aulettaId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  deviceLogs       DeviceLog[]
+  deviceRegistrations DeviceRegistration[]
+
+  @@index ([aulettaId])
+  @@map("device")
+}
+
+model DeviceLog {
+  id        Int   @id @default(autoincrement())
+  deviceId  String
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  message   String
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@map("device_log")
+}
+
+model DeviceRegistration {
+  id        Int   @id @default(autoincrement())
+  deviceId  String
+  status    RequestStatus @default(PENDING)
+  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  registeredAt DateTime @default(now())
+
+  @@map("device_registration")
+}
+
 enum Role {
   GUEST
   USER
@@ -232,6 +271,7 @@ enum Role {
 
 enum RequestStatus {
   PENDING
+  SENT_TO_CLIENT
   APPROVED
   REJECTED
 }
