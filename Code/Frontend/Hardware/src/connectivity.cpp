@@ -1,15 +1,16 @@
 #include "connectivity.h"
 #include "config.h"
-#include "fallbackWebServer.h"
+#include "configWebServer.h"
 
 bool isConnecting = false;
+unsigned long lastConnection = 0;
+
 
 // Tries to connect to wifi and handles all errors
 void tryConnectWifi()
 {
-    int maxRetries = 5;
-    int currentRetry = 1;
-    int connectTimeout = 15000;  // 15 seconds timeout to avoid crashes
+    int maxRetries = 3;
+    int currentRetry = 1;    
 
     isConnecting = true;
 
@@ -25,11 +26,11 @@ void tryConnectWifi()
         {
             case -2:  // Config error
                 Serial.println("Config error, retrying...");
-                delay(2000);
+                delay(1000);
                 break;
             case -1:  // Network error
                 Serial.println("Network error, retrying...");
-                delay(2000);
+                delay(1000);
                 break;
             default:
                 Serial.println("Connected successfully!");
@@ -39,27 +40,21 @@ void tryConnectWifi()
         currentRetry++;
     }
 
+    
     // If we reach the max retries, start the fallback server and await for user input
     if (currentRetry >= maxRetries)
     {
-        Serial.println("Maximum connection retries reached. Switching to fallback server.");
-
-        if (startWebServer() < 0)
-        {
-            Serial.println("Internal server error!");
-            // Todo: Handle SPIFFS error
-            // Todo: Handle Bind error
-        }
-
+        Serial.println("Maximum connection retries reached. Please change credentials.");
+        // TODO: Write to screen something for the end user
     }
 
-    if(WiFi.status() == WL_CONNECTED)
+    if(isConnected())
     {
-        isConnecting = false;
         Serial.println("No more in connecting status, entering the main loop");
     }
-
-
+    
+    isConnecting = false;
+    lastConnection = millis();
 }
 
 // Returns -2 in case of config error, -1 in case of network error, 0 in case of success
@@ -137,3 +132,4 @@ bool isConnected()
 {
     return WiFi.status() == WL_CONNECTED;
 }
+

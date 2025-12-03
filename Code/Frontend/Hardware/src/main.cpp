@@ -5,10 +5,14 @@
 /* ----- My libs ----- */
 
 #include "config.h"
-#include "fallbackWebServer.h"
+#include "configWebServer.h"
 #include "connectivity.h"
+#include "nfcReader.h"
 
 /* ----- Variables ----- */
+
+unsigned long lastBlink = 0;
+bool ledState = false;
 
 void setup() {
     
@@ -18,37 +22,52 @@ void setup() {
     // Integrated LED pin
     pinMode(2, OUTPUT);
 
+    // Set the ESP as both a gateway and a client
+    WiFi.mode(WIFI_AP_STA);
+
+    // Load the WiFi credentials and general configs stored in memory
     initConfigs();
 
-    tryConnectWifi();    
+    // We should restart the ESP if we get an internal server error
+    if(startWebServer() != 0)
+		ESP.restart();
+
+    initNFCScanner();
+
+    //tryConnectWifi();    
+
+    digitalWrite(2, LOW);
+
 }
 
-void loop() {
+void loop() {    
 
-    if(!isConnected())
+    // Process dns requests
+    if(serverUp)
     {
-        if(!serverUp)
-            tryConnectWifi();
-
-        delay(1000);
+        dnsServer.processNextRequest();
     }
 
-    // If we aren't connected we should try to reconnect
-    if(!isConnected())
-    {
-        delay(2000);
-        
-        /*// But only if we aren't already tryign to reconnect
-        if(!isConnecting)
-            tryConnectWifi();*/
+    unsigned long now = millis();
 
+    // If we aren't connected, we shouldn't proceed, but at least try to reconnect.
+    if(!isConnected() && !isConnecting && now - lastConnection >= 15000)
+    {
+        tryConnectWifi();        
         return;
     }
+  
+    handleScanner();
 
-    digitalWrite(2, HIGH);
-    delay(1000);
-    digitalWrite(2, LOW);
-    delay(1000);
+    // Blink for testing
+    if (now - lastBlink >= 1000 && isConnected()) {
+        ledState = !ledState;
+        digitalWrite(2, ledState ? HIGH : LOW);
+        lastBlink = now;
+    }
+	
+	
+
 }
 
 

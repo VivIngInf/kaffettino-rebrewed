@@ -1,8 +1,10 @@
-#include "fallbackWebServer.h"
+#include "configWebServer.h"
 #include "connectivity.h"
 
 bool serverUp = false;
+
 AsyncWebServer server(80);
+DNSServer dnsServer;
 
 bool hasNewConfigs = false;
 
@@ -12,17 +14,15 @@ int startWebServer()
     if(serverUp)
         return 0;
 
-    Serial.println("Disconnecting from other sources...");
-
-    bool disconnected = WiFi.disconnect(true);
-    Serial.print("Disconnected: ");
-    Serial.println(disconnected);
-
-    Serial.println("Activating fallback server Access Point...");
-
     // Configure the ESP32 as an access point
     WiFi.softAP(FALLBACK_SSID, FALLBACK_PASSWORD);
 
+    WiFi.softAPConfig(
+        IPAddress(192,168,4,1),
+        IPAddress(192,168,4,1),
+        IPAddress(255,255,255,0)
+    );
+    
     IPAddress IP = WiFi.softAPIP();
     Serial.print("IP Address: ");
     Serial.println(IP);
@@ -42,6 +42,37 @@ int startWebServer()
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
         request->send(SPIFFS, "/index.html", String(), false, processor);
+    });
+
+    server.onNotFound([](AsyncWebServerRequest *request){
+        request->redirect("/");
+    });
+
+    // ANDROID
+    server.on("/generate_204", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/html", "<html><meta http-equiv=\"refresh\" content=\"0; url=/\" /></html>");
+    });
+
+    server.on("/gen_204", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/html", "<html><meta http-equiv=\"refresh\" content=\"0; url=/\" /></html>");
+    });
+
+    // APPLE
+    server.on("/hotspot-detect.html", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/html", "<html><meta http-equiv=\"refresh\" content=\"0; url=/\" /></html>");
+    });
+
+    server.on("/captive.apple.com", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/html", "<html><meta http-equiv=\"refresh\" content=\"0; url=/\" /></html>");
+    });
+
+    // WINDOWS
+    server.on("/ncsi.txt", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/plain", "NO INTERNET");  // Windows si aspetta "Microsoft NCSI"
+    });
+
+    server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){
+        request->send(200, "text/plain", "NO INTERNET");
     });
 
     server.on("/css/output.css", HTTP_GET, [](AsyncWebServerRequest *request){
@@ -76,6 +107,8 @@ int startWebServer()
     Serial.println("Access Point started. You can now configure WiFi via the web interface.");    
     
     serverUp = true;
+
+    startCaptiveDNS();
 
     return 0;
 }
@@ -172,9 +205,16 @@ void handleNewConfigs(AsyncWebServerRequest *request)
 
     if(atLeastOneChange)
     {
-        saveConfigs();       
-        stopWebServer();
+        saveConfigs();     
+        
+        if(!isConnecting)
+            tryConnectWifi();  
     }
 
     hasNewConfigs = false; 
+}
+
+void startCaptiveDNS() {
+    dnsServer.start(53, "*", WiFi.softAPIP()); 
+    Serial.println("Started DNS server!"); 
 }
