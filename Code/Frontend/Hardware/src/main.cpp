@@ -7,6 +7,7 @@
 #include "config.h"
 #include "configWebServer.h"
 #include "connectivity.h"
+#include "nfcReader.h"
 
 /* ----- Variables ----- */
 
@@ -26,26 +27,34 @@ void setup() {
 
     // We should restart the ESP if we get an internal server error
     if(startWebServer() != 0)
-        ESP.restart();
+		ESP.restart();
+
+    initNFCScanner();
 
     tryConnectWifi();    
+    
 }
 
 void loop() {    
     
     digitalWrite(2, LOW);
 
+	
+	
     // If we aren't connected, we shouldn't proceed, but at least try to reconnect.
     if(!isConnected() && !isConnecting)
     {
-        tryConnectWifi();        
+		tryConnectWifi();        
         delay(1000);
         return;
     }
     
     delay(1000);
     digitalWrite(2, HIGH);
-    delay(1000);
+	
+	handleScanner();    
+	
+
 }
 
 

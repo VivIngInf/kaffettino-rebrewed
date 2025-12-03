@@ -5673,12 +5673,20 @@
 		(uuid "3dc86163-7364-4910-a3ee-141b23b161c6")
 	)
 	(no_connect
+		(at 261.62 143.51)
+		(uuid "4f6d12a6-b7d9-4e56-b3ae-ae8d283ec8de")
+	)
+	(no_connect
 		(at 226.06 148.59)
 		(uuid "5f1ede6c-fcc9-4c9d-aef7-347ee5dc145f")
 	)
 	(no_connect
 		(at 33.02 25.4)
 		(uuid "69cdfa26-8fcc-41ae-9625-7ce30df58bf1")
+	)
+	(no_connect
+		(at 226.06 123.19)
+		(uuid "6d996b9e-6463-4c7f-a755-2c7a9b0131fb")
 	)
 	(no_connect
 		(at 219.71 67.31)
@@ -5709,10 +5717,6 @@
 		(uuid "91525ec7-ec59-47ef-ac1b-6bd512b555b7")
 	)
 	(no_connect
-		(at 261.62 151.13)
-		(uuid "94fb6a8e-5228-4af6-96a8-dce147fe9491")
-	)
-	(no_connect
 		(at 226.06 153.67)
 		(uuid "a4d24f4e-afea-444c-83bc-b65742b84b48")
 	)
@@ -5727,14 +5731,6 @@
 	(no_connect
 		(at 261.62 158.75)
 		(uuid "b72c7b49-b5ac-4026-a711-ee00ab4adf64")
-	)
-	(no_connect
-		(at 226.06 140.97)
-		(uuid "bf217e8b-f74e-41f3-ac96-68977bc25349")
-	)
-	(no_connect
-		(at 261.62 135.89)
-		(uuid "c5506c26-9bec-4d77-85ed-dd2b508801b1")
 	)
 	(no_connect
 		(at 226.06 156.21)
@@ -5849,16 +5845,6 @@
 			(type default)
 		)
 		(uuid "118f46a6-31b2-4d10-9a22-93807ecdd388")
-	)
-	(wire
-		(pts
-			(xy 226.06 140.97) (xy 228.6 140.97)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "11f5a50a-5b5c-4f95-acd5-a610ef13c218")
 	)
 	(wire
 		(pts
@@ -6166,6 +6152,16 @@
 			(type default)
 		)
 		(uuid "31c41712-9e9e-4c98-a6f8-f6e421cec91b")
+	)
+	(wire
+		(pts
+			(xy 220.98 140.97) (xy 228.6 140.97)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "338c33a7-4518-4f22-abbb-4802a9b1b5bc")
 	)
 	(wire
 		(pts
@@ -6994,16 +6990,6 @@
 	)
 	(wire
 		(pts
-			(xy 261.62 135.89) (xy 259.08 135.89)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "933ad489-fe7b-4682-ad88-f37b764d6b3f")
-	)
-	(wire
-		(pts
 			(xy 186.69 144.78) (xy 189.23 144.78)
 		)
 		(stroke
@@ -7021,6 +7007,16 @@
 			(type default)
 		)
 		(uuid "94ff6722-bb9a-40ff-a1ef-679f4f8340fe")
+	)
+	(wire
+		(pts
+			(xy 261.62 143.51) (xy 259.08 143.51)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9508969c-68e7-4aba-af4c-758de337914e")
 	)
 	(wire
 		(pts
@@ -7201,6 +7197,16 @@
 			(type default)
 		)
 		(uuid "b2c7acc8-dac2-4339-b91d-4cc843817f97")
+	)
+	(wire
+		(pts
+			(xy 259.08 135.89) (xy 266.7 135.89)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b2d0c131-2905-4124-a497-dc9a47179870")
 	)
 	(wire
 		(pts
@@ -7488,6 +7494,16 @@
 	)
 	(wire
 		(pts
+			(xy 226.06 123.19) (xy 228.6 123.19)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "d82badc3-b913-4d20-96db-176ce3a2d90b")
+	)
+	(wire
+		(pts
 			(xy 143.51 157.48) (xy 143.51 162.56)
 		)
 		(stroke
@@ -7730,16 +7746,6 @@
 	)
 	(wire
 		(pts
-			(xy 259.08 143.51) (xy 266.7 143.51)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f4da9abe-cd76-4046-9951-c9ca8480a012")
-	)
-	(wire
-		(pts
 			(xy 77.47 43.18) (xy 82.55 43.18)
 		)
 		(stroke
@@ -7747,16 +7753,6 @@
 			(type default)
 		)
 		(uuid "f7f6ebf0-1a4c-4731-913b-63ad1d4d903f")
-	)
-	(wire
-		(pts
-			(xy 222.25 123.19) (xy 228.6 123.19)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "f8318bcb-22eb-48ff-acfe-0c4dda63136f")
 	)
 	(wire
 		(pts
@@ -7797,16 +7793,6 @@
 			(type default)
 		)
 		(uuid "fcd12fee-042f-4461-944c-a3e2a3df5ee4")
-	)
-	(wire
-		(pts
-			(xy 261.62 151.13) (xy 259.08 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fd193c77-b009-4782-89ba-ba86029c9b4a")
 	)
 	(wire
 		(pts
@@ -8193,6 +8179,16 @@
 		)
 		(uuid "a6809937-4dba-4bcb-b511-99c0f1ed1ca3")
 	)
+	(label "RFID_SDA"
+		(at 266.7 135.89 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "ab2deeb9-0aca-45ed-8def-0a9f9be8dab8")
+	)
 	(label "KP_R2"
 		(at 129.54 20.32 0)
 		(effects
@@ -8202,16 +8198,6 @@
 			(justify left bottom)
 		)
 		(uuid "ab844ec1-9fe0-45b7-8043-e70c890c6bff")
-	)
-	(label "RFID_SDA"
-		(at 266.7 143.51 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left bottom)
-		)
-		(uuid "ab8a4df2-ea29-456b-a4ca-a8b01b287f33")
 	)
 	(label "KP_C2"
 		(at 129.54 71.12 0)
@@ -8275,16 +8261,6 @@
 		)
 		(uuid "bcb4ffa3-3ee7-4f0a-bc69-503b7c7b0a36")
 	)
-	(label "RFID_RST"
-		(at 222.25 123.19 180)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right bottom)
-		)
-		(uuid "bdd2bfd5-6161-4263-ba8c-b08ff83ede4b")
-	)
 	(label "MICRO_SD_TX"
 		(at 266.7 69.85 0)
 		(effects
@@ -8294,6 +8270,16 @@
 			(justify left bottom)
 		)
 		(uuid "c3e9cffe-279d-4268-89d1-756070429648")
+	)
+	(label "RFID_RST"
+		(at 220.98 140.97 180)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify right bottom)
+		)
+		(uuid "ccb0e5ec-16bb-4d66-a84f-3913ee889fd5")
 	)
 	(label "GREEN"
 		(at 220.98 133.35 180)
