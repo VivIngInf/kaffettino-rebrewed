@@ -11,6 +11,9 @@
 
 /* ----- Variables ----- */
 
+unsigned long lastBlink = 0;
+bool ledState = false;
+
 void setup() {
     
     // Start serial comunication
@@ -31,28 +34,38 @@ void setup() {
 
     initNFCScanner();
 
-    tryConnectWifi();    
-    
+    //tryConnectWifi();    
+
+    digitalWrite(2, LOW);
+
 }
 
 void loop() {    
-    
-    digitalWrite(2, LOW);
 
-	
-	
-    // If we aren't connected, we shouldn't proceed, but at least try to reconnect.
-    if(!isConnected() && !isConnecting)
+    // Process dns requests
+    if(serverUp)
     {
-		tryConnectWifi();        
-        delay(1000);
+        dnsServer.processNextRequest();
+    }
+
+    unsigned long now = millis();
+
+    // If we aren't connected, we shouldn't proceed, but at least try to reconnect.
+    if(!isConnected() && !isConnecting && now - lastConnection >= 15000)
+    {
+        tryConnectWifi();        
         return;
     }
-    
-    delay(1000);
-    digitalWrite(2, HIGH);
+  
+    handleScanner();
+
+    // Blink for testing
+    if (now - lastBlink >= 1000 && isConnected()) {
+        ledState = !ledState;
+        digitalWrite(2, ledState ? HIGH : LOW);
+        lastBlink = now;
+    }
 	
-	handleScanner();    
 	
 
 }

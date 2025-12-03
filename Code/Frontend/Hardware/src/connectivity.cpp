@@ -3,16 +3,16 @@
 #include "configWebServer.h"
 
 bool isConnecting = false;
+unsigned long lastConnection = 0;
+
 
 // Tries to connect to wifi and handles all errors
 void tryConnectWifi()
 {
-    int maxRetries = 5;
+    int maxRetries = 3;
     int currentRetry = 1;    
 
     isConnecting = true;
-
-    WiFi.disconnect(true);
 
     // If the module isn't connected, or the connection went away, we should try to reconnect
     while (WiFi.status() != WL_CONNECTED && currentRetry <= maxRetries)
@@ -26,11 +26,11 @@ void tryConnectWifi()
         {
             case -2:  // Config error
                 Serial.println("Config error, retrying...");
-                delay(2000);
+                delay(1000);
                 break;
             case -1:  // Network error
                 Serial.println("Network error, retrying...");
-                delay(2000);
+                delay(1000);
                 break;
             default:
                 Serial.println("Connected successfully!");
@@ -54,7 +54,7 @@ void tryConnectWifi()
     }
     
     isConnecting = false;
-
+    lastConnection = millis();
 }
 
 // Returns -2 in case of config error, -1 in case of network error, 0 in case of success
@@ -132,3 +132,4 @@ bool isConnected()
 {
     return WiFi.status() == WL_CONNECTED;
 }
+

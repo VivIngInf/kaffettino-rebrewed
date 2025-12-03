@@ -6,10 +6,12 @@
 #include <WiFi.h>
 #include <esp_wpa2.h>
 
-void tryConnectWifi();
-int connectWifi();
-bool isConnected();
+extern void tryConnectWifi();
+extern int connectWifi();
+extern bool isConnected();
 
 extern bool isConnecting;
+
+extern unsigned long lastConnection;
 
 #endif

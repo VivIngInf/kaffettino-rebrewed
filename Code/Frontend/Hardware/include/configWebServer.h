@@ -7,6 +7,7 @@
 #include <SPIFFS.h>
 #include <Preferences.h>
 #include "config.h"
+#include <DNSServer.h>
 
 extern int startWebServer();
 extern void stopWebServer();
@@ -20,5 +21,11 @@ extern bool hasNewConfigs;
 
 // Create the server object and use HTTP's default port 
 extern AsyncWebServer server;
+
+// Create the DNS server object
+extern DNSServer dnsServer;
+
+extern void startCaptiveDNS();
+
 
 #endif 
