@@ -1,8 +1,13 @@
-import { RequestStatus } from "../../../generated/prisma/enums.js";
+import sessionMW from "../../../middlewares/session.js";
+import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
 import deviceHandler from "../../../utils/device-handler.js";
 import sendError from "../../../utils/error-handler.js";
 import { FastifyInstance } from "fastify";
+import permissionsMW from "../../../middlewares/permissions.js";
 const BASE_PATH = "/device";
+const ROLES_NEEDED = {
+  acceptRequests: [Role.ADMIN],
+};
 
 export default async function deviceRoutes(fastify: FastifyInstance) {
   // DEVICE REGISTRATION
@@ -17,11 +22,14 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
   fastify.post(`${BASE_PATH}/register`, async (request, reply) => {
     try {
-      const body = request.body as { deviceName?: string; aulettaId?: number };
+      const body = (await request.body) as {
+        deviceName?: string;
+        aulettaId?: number;
+      };
       if (!body.deviceName || !body.aulettaId)
         return sendError(reply, {
           code: 400,
-          message: "Mandatory params 'walletId' or 'amount' are missing!",
+          message: "Mandatory params 'deviceName' or 'aulettaId' are missing!",
         });
 
       const device = await deviceHandler.getDevice({
@@ -64,4 +72,41 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
       return sendError(reply, { code: 500, error });
     }
   });
+
+  fastify.put(
+    `${BASE_PATH}`,
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.acceptRequests)],
+    },
+    async (request, reply) => {
+      try {
+        const body = (await request.body) as {
+          deviceName?: string;
+          deviceId?: string;
+        };
+
+        if (!body.deviceId)
+          return sendError(reply, {
+            code: 400,
+            message: "Mandatory param 'deviceId' is missing!",
+          });
+
+        const acceptedRequest = await deviceHandler.acceptDeviceRequest({
+          deviceId: body.deviceId,
+        });
+
+        if (acceptedRequest.status == "NOT_FOUND")
+          return sendError(reply, {
+            code: 404,
+            responseCode: "DEVICE_REQUEST_NOT_FOUND",
+          });
+
+        return acceptedRequest.request;
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  // MISSING: Accept device registration
 }
