@@ -96,8 +96,8 @@ model TopUp {
 
 model Transaction {
   id          Int   @id @default(autoincrement())
-  inventoryId Int
-  inventory   Inventory @relation(fields: [inventoryId], references: [id], onDelete: SetNull)
+  inventoryId Int?
+  inventory   Inventory? @relation(fields: [inventoryId], references: [id], onDelete: SetNull)
   quantity    Int
   totalPrice  Float
   description String?
@@ -227,28 +227,16 @@ model Device {
   id          String   @id @default(uuid())
   deviceName  String   @unique
   aulettaId   Int
-  verified    Boolean  @default(false)
-  apiKey      String   @unique
+  verified    Boolean?  @default(false)
+  apiKey      String?   @unique
   auletta     Auletta  @relation(fields: [aulettaId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
 
-  deviceLogs       DeviceLog[]
   deviceRegistrations DeviceRegistration[]
 
   @@index ([aulettaId])
   @@map("device")
-}
-
-model DeviceLog {
-  id        Int   @id @default(autoincrement())
-  deviceId  String
-  device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  message   String
-  createdAt DateTime @default(now())
-
-  @@index([createdAt])
-  @@map("device_log")
 }
 
 model DeviceRegistration {
@@ -256,7 +244,8 @@ model DeviceRegistration {
   deviceId  String
   status    RequestStatus @default(PENDING)
   device    Device   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-  registeredAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@map("device_registration")
 }

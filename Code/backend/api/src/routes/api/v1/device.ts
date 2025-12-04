@@ -17,22 +17,51 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
   fastify.post(`${BASE_PATH}/register`, async (request, reply) => {
     try {
-      const body = request.body as { deviceName: string; info: string };
-      // Check if device already has a pending request
+      const body = request.body as { deviceName?: string; aulettaId?: number };
+      if (!body.deviceName || !body.aulettaId)
+        return sendError(reply, {
+          code: 400,
+          message: "Mandatory params 'walletId' or 'amount' are missing!",
+        });
+
       const device = await deviceHandler.getDevice({
         deviceName: body.deviceName,
       });
+
+      // Check if device is already verified
+      if (device?.verified && device.apiKey)
+        return sendError(
+          reply,
+          {
+            code: 409,
+            responseCode: "DEVICE_ALREADY_REGISTERED",
+          },
+          request
+        );
 
       const existingRequest = await deviceHandler.checkRequests({
         deviceId: device?.id,
       });
 
-      if (existingRequest.count.approved) {
-      }
-      if (existingRequest.count.pending > 0) {
-      }
+      // Check if device already has a pending request
+      if (existingRequest.count.pending > 0)
+        return sendError(
+          reply,
+          {
+            code: 409,
+            responseCode: "DEVICE_REQUEST_PENDING",
+          },
+          request
+        );
+
+      const newDeviceRequest = await deviceHandler.createDeviceRequest(
+        body.deviceName,
+        body.aulettaId
+      );
+
+      return newDeviceRequest;
     } catch (error) {
-      sendError(reply, { code: 500, error });
+      return sendError(reply, { code: 500, error });
     }
   });
 }

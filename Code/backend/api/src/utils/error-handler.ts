@@ -1,8 +1,9 @@
-import fastify, { FastifyReply } from "fastify";
+import fastify, { FastifyReply, FastifyRequest } from "fastify";
+import fs from "fs";
 
 interface IError {
   code: number;
-  response?: string;
+  responseCode?: string;
   error?: unknown;
   message?: string;
 }
@@ -22,9 +23,10 @@ export const errorCodes: Record<number, string> = {
   503: "Service Unavailable - Server temporarily unavailable or under maintenance",
 };
 
-export const responseCodes: Record<string, string> = {
-  MISSING_PARAMS: "",
-};
+export type SupportedLanguages = "en" | "it";
+
+export const responseCodes = (lang: SupportedLanguages) =>
+  JSON.parse(fs.readFileSync(`../messages/${lang}.json`, "utf-8"));
 
 /**
  * Sends a standardized error response using Fastify's reply object.
@@ -67,12 +69,18 @@ export const responseCodes: Record<string, string> = {
  */
 export default function sendError(
   reply: FastifyReply,
-  { code, error, response, message }: IError
+  { code, error, responseCode, message }: IError,
+  request?: FastifyRequest
 ): FastifyReply {
+  const language = (request?.headers["accept-language"] ??
+    "en") as SupportedLanguages;
+
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorObject: IError = {
     code: code,
-    ...(response ? { response: response } : {}),
+    ...(responseCode
+      ? { response: responseCodes(language)[responseCode] }
+      : {}),
   };
 
   if (error) console.log(errorMessage);

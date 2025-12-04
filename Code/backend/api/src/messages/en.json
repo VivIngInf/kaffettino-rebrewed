@@ -1,0 +1,6 @@
+{
+  "MISSING_PARAMS": "Mandatory params are missing!",
+  "DEVICE_ALREADY_REGISTERED": "Device already registered!",
+  "DEVICE_REQUEST_PENDING": "A request for this device is pending.",
+  "CANNOT_TOPUP_YOURSELF": "Cannot top up yourself!"
+}
