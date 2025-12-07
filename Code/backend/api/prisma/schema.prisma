@@ -260,7 +260,7 @@ enum Role {
 
 enum RequestStatus {
   PENDING
-  SENT_TO_CLIENT
+  AWAITING_CLIENT
   APPROVED
   REJECTED
 }

@@ -5,5 +5,6 @@
   "CANNOT_TOPUP_YOURSELF": "Cannot top up yourself!",
   "DEVICE_REQUEST_NOT_FOUND": "Device request not found!",
   "DEVICE_NOT_REGISTERED": "Device not registered!",
-  "INVALID_DEVICE_API_KEY": "Invalid access key!"
+  "INVALID_DEVICE_API_KEY": "Invalid access key!",
+  "DEVICE_NO_ACCEPTED_REQUESTS": "No accepted requests for this device, or this device was already registered!"
 }

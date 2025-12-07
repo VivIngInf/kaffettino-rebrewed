@@ -54,7 +54,10 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
       });
 
       // Check if device already has a pending request
-      if (existingRequest.count.pending > 0)
+      if (
+        existingRequest.count.pending > 0 ||
+        existingRequest.count.awaitingClient > 0
+      )
         return sendError(
           reply,
           {
@@ -120,6 +123,20 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         deviceName: string;
       };
 
+      const deviceRequest = (
+        await deviceHandler.checkRequests({
+          deviceId: body.deviceId,
+          deviceName: body.deviceName,
+          status: [RequestStatus.AWAITING_CLIENT, RequestStatus.APPROVED],
+        })
+      ).statuses;
+
+      if (!deviceRequest.awaitingClient)
+        return sendError(reply, {
+          code: 400,
+          responseCode: "DEVICE_NO_ACCEPTED_REQUESTS",
+        });
+
       if (!body.deviceId || !body.deviceName)
         return sendError(reply, {
           code: 400,
@@ -131,17 +148,31 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         deviceName: body.deviceName,
       });
 
+      if (device)
+        await deviceHandler.completeDeviceRequest(
+          deviceRequest.awaitingClient[0]?.id
+        );
+
       return { status: "OK", device: device, apiKey: device.apiKey };
     } catch (error) {
       return sendError(reply, { code: 500, error });
     }
   });
 
-  fastify.post(
+  fastify.put(
     `${BASE_PATH}/regenerate-access-key`,
     { preHandler: deviceMW },
     async (request, reply) => {
       try {
+        const newDeviceKey = await deviceHandler.generateDeviceAccessKey({
+          deviceName: request.deviceName,
+        });
+
+        return {
+          status: "OK",
+          device: newDeviceKey,
+          apiKey: newDeviceKey.apiKey,
+        };
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }

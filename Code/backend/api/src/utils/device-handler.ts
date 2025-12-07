@@ -20,14 +20,14 @@ interface ICheckRequests {
     pending: number;
     approved: number;
     rejected: number;
-    sentToClient: number;
+    awaitingClient: number;
     total: number;
   };
   statuses: {
     pending: DeviceRegistration[];
     approved: DeviceRegistration[];
     rejected: DeviceRegistration[];
-    sentToClient: DeviceRegistration[];
+    awaitingClient: DeviceRegistration[];
   };
 }
 
@@ -185,8 +185,8 @@ class DeviceHandler {
       pending: requests.filter((req) => req.status == RequestStatus.PENDING),
       approved: requests.filter((req) => req.status == RequestStatus.APPROVED),
       rejected: requests.filter((req) => req.status == RequestStatus.REJECTED),
-      sentToClient: requests.filter(
-        (req) => req.status == RequestStatus.SENT_TO_CLIENT
+      awaitingClient: requests.filter(
+        (req) => req.status == RequestStatus.AWAITING_CLIENT
       ),
     };
 
@@ -198,7 +198,7 @@ class DeviceHandler {
         pending: statuses.pending.length,
         approved: statuses.approved.length,
         rejected: statuses.rejected.length,
-        sentToClient: statuses.sentToClient.length,
+        awaitingClient: statuses.awaitingClient.length,
       },
     };
   }
@@ -274,7 +274,7 @@ class DeviceHandler {
         id: lastPendingRequest.id,
       },
       data: {
-        status: RequestStatus.APPROVED,
+        status: RequestStatus.AWAITING_CLIENT,
       },
     });
 
@@ -286,6 +286,25 @@ class DeviceHandler {
       });
 
     return { status: "OK", request: acceptedRequest };
+  }
+
+  /**
+   * Marks a device registration request as approved by updating its status.
+   *
+   * @param requestId - The unique identifier of the device registration request to complete.
+   * @returns A promise that resolves to the updated device registration record.
+   */
+  async completeDeviceRequest(requestId?: number) {
+    const completed = await this.prisma.deviceRegistration.update({
+      where: {
+        id: requestId,
+      },
+      data: {
+        status: RequestStatus.APPROVED,
+      },
+    });
+
+    return completed;
   }
 }
 
