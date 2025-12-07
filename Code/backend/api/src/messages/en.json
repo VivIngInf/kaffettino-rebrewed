@@ -3,5 +3,7 @@
   "DEVICE_ALREADY_REGISTERED": "Device already registered!",
   "DEVICE_REQUEST_PENDING": "A request for this device is pending.",
   "CANNOT_TOPUP_YOURSELF": "Cannot top up yourself!",
-  "DEVICE_REQUEST_NOT_FOUND": "Device request not found!"
+  "DEVICE_REQUEST_NOT_FOUND": "Device request not found!",
+  "DEVICE_NOT_REGISTERED": "Device not registered!",
+  "INVALID_DEVICE_API_KEY": "Invalid access key!"
 }

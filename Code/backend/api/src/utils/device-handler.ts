@@ -3,6 +3,9 @@ import { Device, DeviceRegistration } from "../generated/prisma/client.js";
 import { RequestStatus } from "../generated/prisma/enums.js";
 import { prisma } from "../plugins/prisma.js";
 import { LogMethod } from "./decorators/logmethod.js";
+import { env, uuidv7 } from "better-auth/*";
+import { constants } from "node:vm";
+import { hash } from "node:crypto";
 
 interface ICheckRequestsParams {
   deviceId?: string;
@@ -40,29 +43,106 @@ class DeviceHandler {
     this.prisma = prisma;
   }
 
-  async generateDeviceAccessKey() {}
+  /**
+   * Generates a new API access key for a device and updates the device record in the database.
+   *
+   * This method creates a new UUID, combines it with a secret key from the environment variables,
+   * hashes the combination to generate a new access key, and updates the specified device's `apiKey`.
+   *
+   * @param params - An object containing the device ID.
+   * @param params.deviceId - The unique identifier of the device to update.
+   * @returns A promise that resolves to the updated `Device` object with the new access key.
+   */
+  async generateDeviceAccessKey({
+    deviceId,
+    deviceName,
+  }: IDeviceIdentifiers): Promise<Device> {
+    const newUUID = uuidv7();
+    const apiSecret = process.env.API_KEY_SECRET ?? "supersecretkey";
+    const newAccessKey = hash("sha256", `${newUUID}_${apiSecret}_${newUUID}`);
+
+    const updatedDevice = await this.prisma.device.update({
+      where: { id: deviceId, deviceName: deviceName },
+      data: {
+        apiKey: newAccessKey,
+      },
+    });
+
+    return updatedDevice;
+  }
+
+  /**
+   * Authorizes a device by verifying its API key.
+   *
+   * @param apiKey - The API key to validate against the device.
+   * @param params - An object containing the device's identifier and name.
+   * @param params.deviceId - The unique identifier of the device.
+   * @param params.deviceName - The name of the device.
+   * @returns A promise that resolves to `true` if the device is authorized, or `false` otherwise.
+   */
+  async authorizeDevice(
+    apiKey: string,
+    { deviceId, deviceName }: IDeviceIdentifiers
+  ): Promise<boolean> {
+    const deviceKey = await this.getDeviceKey({ deviceId, deviceName });
+    if (deviceKey === apiKey) return true;
+    return false;
+  }
 
   @LogMethod
   /**
-   * Retrieves a device from the database by its ID or name.
+   * Retrieves a device record from the database using the provided API key.
    *
-   * @param params - An object containing optional `deviceId` and `deviceName` properties to filter the device.
-   * @param params.deviceId - The unique identifier of the device (optional).
-   * @param params.deviceName - The name of the device (optional).
-   * @returns A promise that resolves to the found `Device` object, or `null` if no device matches the criteria.
+   * @param apiKey - The API key associated with the device to retrieve.
+   * @returns A promise that resolves to the device object if found, or `null` if no device matches the API key.
    */
-  async getDevice({
-    deviceId,
-    deviceName,
-  }: IDeviceIdentifiers): Promise<Device | null> {
+  async getDeviceFromKey(apiKey: string) {
+    const device = await this.prisma.device.findUnique({
+      where: { apiKey: apiKey },
+    });
+
+    return device;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves a device from the database using either its ID or name.
+   *
+   * @param identifiers - An object containing deviceId and/or deviceName to identify the device.
+   * @param omitKey - If true, omits the `apiKey` field from the returned device object. Defaults to true.
+   * @returns A promise that resolves to the found Device object or null if no device matches the criteria.
+   */
+  async getDevice(
+    { deviceId, deviceName }: IDeviceIdentifiers,
+    omitKey: boolean = true
+  ): Promise<Device | null> {
     const device = await this.prisma.device.findFirst({
       where: {
         ...(deviceId ? { id: deviceId } : {}),
         ...(deviceName ? { deviceName: deviceName } : {}),
       },
+      omit: {
+        apiKey: omitKey,
+      },
     });
 
     return device;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves the API key for a device based on its identifiers.
+   *
+   * @param {IDeviceIdentifiers} param0 - An object containing the device's unique identifiers.
+   * @param {string} param0.deviceId - The unique ID of the device.
+   * @param {string} param0.deviceName - The name of the device.
+   * @returns {Promise<string | undefined>} The API key associated with the device, or `undefined` if not found.
+   */
+  async getDeviceKey({ deviceId, deviceName }: IDeviceIdentifiers) {
+    const device = await this.getDevice({ deviceId, deviceName }, false);
+    const key = device?.apiKey;
+
+    return key;
   }
 
   @LogMethod

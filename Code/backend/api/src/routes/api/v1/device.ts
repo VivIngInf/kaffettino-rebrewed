@@ -1,9 +1,11 @@
+import { request } from "node:http";
 import sessionMW from "../../../middlewares/session.js";
 import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
 import deviceHandler from "../../../utils/device-handler.js";
 import sendError from "../../../utils/error-handler.js";
 import { FastifyInstance } from "fastify";
 import permissionsMW from "../../../middlewares/permissions.js";
+import deviceMW from "../../../middlewares/device.js";
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],
@@ -67,14 +69,14 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         body.aulettaId
       );
 
-      return newDeviceRequest;
+      return { status: "OK", request: newDeviceRequest };
     } catch (error) {
       return sendError(reply, { code: 500, error });
     }
   });
 
-  fastify.put(
-    `${BASE_PATH}`,
+  fastify.post(
+    `${BASE_PATH}/accept`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.acceptRequests)],
     },
@@ -101,12 +103,48 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
             responseCode: "DEVICE_REQUEST_NOT_FOUND",
           });
 
-        return acceptedRequest.request;
+        return {
+          status: acceptedRequest.status,
+          request: acceptedRequest.request,
+        };
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
     }
   );
 
-  // MISSING: Accept device registration
+  fastify.post(`${BASE_PATH}/request-first-key`, async (request, reply) => {
+    try {
+      const body = (await request.body) as {
+        deviceId: string;
+        deviceName: string;
+      };
+
+      if (!body.deviceId || !body.deviceName)
+        return sendError(reply, {
+          code: 400,
+          message: "Mandatory params 'deviceId' and 'deviceName' are missing!",
+        });
+
+      const device = await deviceHandler.generateDeviceAccessKey({
+        deviceId: body.deviceId,
+        deviceName: body.deviceName,
+      });
+
+      return { status: "OK", device: device, apiKey: device.apiKey };
+    } catch (error) {
+      return sendError(reply, { code: 500, error });
+    }
+  });
+
+  fastify.post(
+    `${BASE_PATH}/regenerate-access-key`,
+    { preHandler: deviceMW },
+    async (request, reply) => {
+      try {
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
 }
