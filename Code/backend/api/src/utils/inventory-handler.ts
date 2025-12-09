@@ -1,4 +1,4 @@
-import { BatchPayload } from "@/generated/prisma/internal/prismaNamespace";
+import { BatchPayload } from "../generated/prisma/internal/prismaNamespace";
 import { Inventory, Product } from "../generated/prisma/client";
 import { prisma } from "../plugins/prisma";
 import { LogMethod } from "./decorators/logmethod";
@@ -27,6 +27,13 @@ class InventoryHandler {
   }
 
   @LogMethod
+  /**
+   * Creates a new inventory record associated with the specified auletta.
+   *
+   * @param aulettaId - The ID of the auletta to associate with the inventory.
+   * @param name - The name of the inventory to create.
+   * @returns A promise that resolves to the newly created {@link Inventory} object.
+   */
   async createInventory(aulettaId: number, name: string): Promise<Inventory> {
     const newInventory = await this.prisma.inventory.create({
       data: {
@@ -36,6 +43,23 @@ class InventoryHandler {
     });
 
     return newInventory;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves all inventory items associated with a specific auletta (room) ID.
+   *
+   * @param aulettaId - The unique identifier of the auletta for which inventories are to be fetched.
+   * @returns A promise that resolves to an array of `Inventory` objects belonging to the specified auletta.
+   */
+  async getInventories(aulettaId: number): Promise<Inventory[]> {
+    const inventories = await this.prisma.inventory.findMany({
+      where: {
+        aulettaId: aulettaId,
+      },
+    });
+
+    return inventories;
   }
 
   @LogMethod

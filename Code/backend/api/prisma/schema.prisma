@@ -211,7 +211,7 @@ model Product_Inventory {
 model Inventory {
   id        Int   @id @default(autoincrement())
   name      String 
-  aulettaId Int
+  aulettaId Int 
   auletta   Auletta  @relation(fields: [aulettaId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

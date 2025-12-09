@@ -1,3 +1,4 @@
+import { Inventory } from "../../../generated/prisma/client.js";
 import { request } from "node:http";
 import sessionMW from "../../../middlewares/session.js";
 import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
@@ -6,28 +7,31 @@ import sendError from "../../../utils/error-handler.js";
 import { FastifyInstance } from "fastify";
 import permissionsMW from "../../../middlewares/permissions.js";
 import deviceMW from "../../../middlewares/device.js";
+import auletteHandler from "../../../utils/aulette-handler.js";
+import inventoryHandler from "../../../utils/inventory-handler.js";
+import cardHandler from "../../../utils/card-handler.js";
+import walletHandler from "../../../utils/wallet-handler.js";
+import cardMW from "../../../middlewares/card.js";
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],
 };
 
 export default async function deviceRoutes(fastify: FastifyInstance) {
-  // DEVICE REGISTRATION
-  /*
-    FLOW:
-     - Device send registration request
-     - Request is saved as DeviceRegistration record
-     - Device send access request -> if status is APPROVED -> device apiKey is sent to device (hash sha256)
-  */
-  // DEVICE LIST
-  // DEVICE LOCATIONS
-
+  /**
+   * POST localhost:3000/api/v1/device/register
+   * {
+   *  deviceId: string,
+   *  deviceName: string
+   * }
+   */
   fastify.post(`${BASE_PATH}/register`, async (request, reply) => {
     try {
       const body = (await request.body) as {
         deviceName?: string;
         aulettaId?: number;
       };
+
       if (!body.deviceName || !body.aulettaId)
         return sendError(reply, {
           code: 400,
@@ -78,6 +82,13 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     }
   });
 
+  /**
+   * POST localhost:3000/api/v1/device/accept
+   * {
+   *  deviceId: string,
+   *  deviceName: string
+   * }
+   */
   fastify.post(
     `${BASE_PATH}/accept`,
     {
@@ -116,6 +127,13 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     }
   );
 
+  /**
+   * POST localhost:3000/api/v1/device/request-first-key
+   * {
+   *  deviceId: string,
+   *  deviceName: string
+   * }
+   */
   fastify.post(`${BASE_PATH}/request-first-key`, async (request, reply) => {
     try {
       const body = (await request.body) as {
@@ -159,6 +177,10 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     }
   });
 
+  /**
+   * PUT localhost:3000/api/v1/device/regenerate-access-key
+   * Authorization: Bearer {DEVICENAME}-{ACCESSKEY}
+   */
   fastify.put(
     `${BASE_PATH}/regenerate-access-key`,
     { preHandler: deviceMW },
@@ -173,6 +195,81 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           device: newDeviceKey,
           apiKey: newDeviceKey.apiKey,
         };
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  /**
+   * GET localhost:3000/api/v1/device/aulette
+   */
+  fastify.get(`${BASE_PATH}/aulette`, async (request, reply) => {
+    try {
+      const { location } = (await request.query) as { location?: string };
+
+      const aulette = await auletteHandler.getAulette(location);
+
+      return {
+        status: "OK",
+        aulette: aulette,
+      };
+    } catch (error) {
+      return sendError(reply, { code: 500, error });
+    }
+  });
+
+  /**
+   * GET localhost:3000/api/v1/device/inventory
+   * Authorization: Bearer {DEVICENAME}-{ACCESSKEY}
+   */
+  fastify.get(
+    `${BASE_PATH}/inventory`,
+    { preHandler: deviceMW },
+    async (request, reply) => {
+      try {
+        const device = await deviceHandler.getDevice({
+          deviceName: request.deviceName,
+        });
+
+        if (!device?.aulettaId)
+          return sendError(reply, {
+            code: 401,
+            responseCode: "NO_AULETTA_ASSIGNED_TO_DEVICE",
+          });
+
+        const inventories = await inventoryHandler.getInventories(
+          device?.aulettaId
+        );
+        const inventoryIds = inventories.map((inventory) => inventory.id);
+        const products = await inventoryHandler.listItems(inventoryIds);
+
+        return {
+          status: "OK",
+          inventories: inventories,
+          products: products,
+        };
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  /**
+   * GET localhost:3000/api/v1/device/wallets
+   * Authorization: Bearer {DEVICENAME}-{ACCESSKEY}
+   * X-PaymentCard-Id: uuidv4
+   */
+  fastify.get(
+    `${BASE_PATH}/wallets`,
+    { preHandler: [deviceMW, cardMW] },
+    async (request, reply) => {
+      try {
+        const wallets = await walletHandler.getWallets({
+          userId: [request.card.userId],
+        });
+
+        return { status: "OK", wallets: wallets };
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }

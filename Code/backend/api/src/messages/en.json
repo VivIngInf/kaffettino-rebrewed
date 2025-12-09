@@ -6,5 +6,8 @@
   "DEVICE_REQUEST_NOT_FOUND": "Device request not found!",
   "DEVICE_NOT_REGISTERED": "Device not registered!",
   "INVALID_DEVICE_API_KEY": "Invalid access key!",
-  "DEVICE_NO_ACCEPTED_REQUESTS": "No accepted requests for this device, or this device was already registered!"
+  "DEVICE_NO_ACCEPTED_REQUESTS": "No accepted requests for this device, or this device was already registered!",
+  "NO_AULETTA_ASSIGNED_TO_DEVICE": "No Auletta assigned to this device!",
+  "CARD_ID_MISSING": "Card ID is missing!",
+  "CARD_NOT_FOUND": "Card not found!"
 }
