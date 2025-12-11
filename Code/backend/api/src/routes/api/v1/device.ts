@@ -12,6 +12,7 @@ import inventoryHandler from "../../../utils/inventory-handler.js";
 import cardHandler from "../../../utils/card-handler.js";
 import walletHandler from "../../../utils/wallet-handler.js";
 import cardMW from "../../../middlewares/card.js";
+import transactionHandler from "@/utils/transaction-handler.js";
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],
@@ -187,7 +188,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       try {
         const newDeviceKey = await deviceHandler.generateDeviceAccessKey({
-          deviceName: request.deviceName,
+          deviceName: request.device.deviceName,
         });
 
         return {
@@ -229,7 +230,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       try {
         const device = await deviceHandler.getDevice({
-          deviceName: request.deviceName,
+          deviceName: request.device.deviceName,
         });
 
         if (!device?.aulettaId)
@@ -270,6 +271,79 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         });
 
         return { status: "OK", wallets: wallets };
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  fastify.post(
+    `${BASE_PATH}/buy-product`,
+    { preHandler: [deviceMW, cardMW] },
+    async (request, reply) => {
+      try {
+        const body = (await request.body) as {
+          productId?: number;
+          quantity?: number;
+          discount?: number;
+        };
+
+        if (!body.productId)
+          return sendError(reply, {
+            code: 400,
+            responseCode: "NO_PRODUCT_SELECTED",
+          });
+
+        const wallet = (
+          await walletHandler.getWallets({
+            userId: [request.card.userId],
+            aulettaId: [request.device.aulettaId],
+          })
+        )[0];
+        if (!wallet)
+          return sendError(reply, {
+            code: 404,
+            responseCode: "WALLET_NOT_FOUND",
+          });
+
+        const product = await inventoryHandler.getInventoryProduct({
+          productId: body.productId,
+          aulettaId: request.device.aulettaId,
+        });
+        if (!product)
+          return sendError(reply, {
+            code: 404,
+            responseCode: "PRODUCT_NOT_FOUND",
+          });
+
+        // PURCHASE LOGIC
+        const quantity = body.quantity ?? 1;
+        const baseDiscount = body.discount ?? 0;
+
+        const today = new Date();
+        const birthDate = request.card.user.birthDate;
+        const birthdayMatch =
+          birthDate !== null &&
+          birthDate.getUTCDate() === today.getUTCDate() &&
+          birthDate.getUTCMonth() === today.getUTCMonth();
+        const birthdayDiscount = birthdayMatch ? 1 : 0;
+
+        const totalDiscount = birthdayDiscount + baseDiscount;
+
+        const transaction = await transactionHandler.buyProduct(
+          product,
+          request.card,
+          request.device,
+          wallet.id,
+          quantity,
+          totalDiscount
+        );
+
+        return {
+          status: "OK",
+          transaction: transaction,
+          discountApplied: totalDiscount,
+        };
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }

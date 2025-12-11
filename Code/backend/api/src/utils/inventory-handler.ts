@@ -1,3 +1,4 @@
+import { Product_Inventory } from "./../generated/prisma/client";
 import { BatchPayload } from "../generated/prisma/internal/prismaNamespace";
 import { Inventory, Product } from "../generated/prisma/client";
 import { prisma } from "../plugins/prisma";
@@ -46,12 +47,6 @@ class InventoryHandler {
   }
 
   @LogMethod
-  /**
-   * Retrieves all inventory items associated with a specific auletta (room) ID.
-   *
-   * @param aulettaId - The unique identifier of the auletta for which inventories are to be fetched.
-   * @returns A promise that resolves to an array of `Inventory` objects belonging to the specified auletta.
-   */
   async getInventories(aulettaId: number): Promise<Inventory[]> {
     const inventories = await this.prisma.inventory.findMany({
       where: {
@@ -213,6 +208,36 @@ class InventoryHandler {
     }));
 
     return groupedItems;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves a specific product from the inventory based on the provided product and inventory IDs.
+   *
+   * @param productId - The unique identifier of the product to retrieve.
+   * @param inventoryId - The unique identifier of the inventory to search within.
+   * @returns A promise that resolves to the matching product inventory record, or `null` if not found.
+   */
+  async getInventoryProduct({
+    productId,
+    inventoryId,
+    aulettaId,
+  }: {
+    productId: number;
+    inventoryId?: number;
+    aulettaId?: number;
+  }) {
+    const product = await this.prisma.product_Inventory.findFirst({
+      where: {
+        productId: productId,
+        inventory: {
+          id: inventoryId,
+          aulettaId: aulettaId,
+        },
+      },
+    });
+
+    return product;
   }
 
   @LogMethod

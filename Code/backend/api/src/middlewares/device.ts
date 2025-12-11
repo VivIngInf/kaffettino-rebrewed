@@ -26,7 +26,8 @@ export default async function deviceMW(
     deviceName,
   });
 
-  if (!authorization) return sendError(reply, { code: 401 });
+  if (!authorization.status || !authorization.device)
+    return sendError(reply, { code: 401 });
 
-  request.deviceName = deviceName;
+  request.device = authorization.device;
 }

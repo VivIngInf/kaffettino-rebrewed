@@ -31,7 +31,7 @@ export interface IRequestWalletCreation {
   request?: WalletRequest;
 }
 
-class WalletHandler {
+export class WalletHandler {
   private prisma: typeof prisma;
 
   constructor() {
@@ -236,6 +236,36 @@ class WalletHandler {
       message: `Request by ${userId} for wallet in ${aulettaId} was sent!`,
       request: newWalletRequest,
     };
+  }
+
+  @LogMethod
+  /**
+   * Updates the balance of a wallet by either increasing or decreasing it by a specified amount.
+   *
+   * @param walletId - The unique identifier of the wallet to update.
+   * @param action - The action to perform on the balance: "increase" to add to the balance, "decrease" to subtract from it.
+   * @param amount - The amount by which to increase or decrease the wallet's balance.
+   * @returns A promise that resolves to the updated wallet object.
+   */
+  async updateBalance(
+    walletId: string,
+    action: "increase" | "decrease",
+    amount: number
+  ) {
+    const newBalance = await this.prisma.wallet.update({
+      where: {
+        id: walletId,
+      },
+      data: {
+        balance: {
+          ...(action == "increase"
+            ? { increment: amount }
+            : { decrement: amount }),
+        },
+      },
+    });
+
+    return newBalance;
   }
 }
 

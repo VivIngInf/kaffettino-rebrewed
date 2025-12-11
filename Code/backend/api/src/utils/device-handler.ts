@@ -83,10 +83,10 @@ class DeviceHandler {
   async authorizeDevice(
     apiKey: string,
     { deviceId, deviceName }: IDeviceIdentifiers
-  ): Promise<boolean> {
-    const deviceKey = await this.getDeviceKey({ deviceId, deviceName });
-    if (deviceKey === apiKey) return true;
-    return false;
+  ): Promise<{ status: boolean; device?: Device }> {
+    const device = await this.getDevice({ deviceId, deviceName }, false);
+    if (device?.apiKey === apiKey) return { status: true, device: device };
+    return { status: false };
   }
 
   @LogMethod
