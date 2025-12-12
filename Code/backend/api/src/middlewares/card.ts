@@ -1,7 +1,5 @@
-import cardHandler, { IGetCardInformations } from "@/utils/card-handler";
-import deviceHandler from "@/utils/device-handler";
-import sendError from "@/utils/error-handler";
-import { boolean } from "better-auth/*";
+import cardHandler, { IGetCardInformations } from "../utils/card-handler.js";
+import sendError from "../utils/error-handler.js";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export default async function cardMW(

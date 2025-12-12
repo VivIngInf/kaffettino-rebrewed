@@ -12,7 +12,7 @@ import inventoryHandler from "../../../utils/inventory-handler.js";
 import cardHandler from "../../../utils/card-handler.js";
 import walletHandler from "../../../utils/wallet-handler.js";
 import cardMW from "../../../middlewares/card.js";
-import transactionHandler from "@/utils/transaction-handler.js";
+import transactionHandler from "../../../utils/transaction-handler.js";
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],

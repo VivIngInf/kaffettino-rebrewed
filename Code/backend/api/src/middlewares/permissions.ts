@@ -1,6 +1,5 @@
 import sendError from "../utils/error-handler.js";
 import { Role } from "../generated/prisma/enums.js";
-import { getSession } from "../utils/session.js";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 /**

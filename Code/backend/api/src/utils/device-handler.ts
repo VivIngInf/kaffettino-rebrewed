@@ -1,11 +1,8 @@
-import { request } from "node:http";
 import { Device, DeviceRegistration } from "../generated/prisma/client.js";
 import { RequestStatus } from "../generated/prisma/enums.js";
 import { prisma } from "../plugins/prisma.js";
 import { LogMethod } from "./decorators/logmethod.js";
-import { env, uuidv7 } from "better-auth/*";
-import { constants } from "node:vm";
-import { hash } from "node:crypto";
+import { hash, randomUUID } from "node:crypto";
 
 interface ICheckRequestsParams {
   deviceId?: string;
@@ -57,7 +54,7 @@ class DeviceHandler {
     deviceId,
     deviceName,
   }: IDeviceIdentifiers): Promise<Device> {
-    const newUUID = uuidv7();
+    const newUUID = randomUUID();
     const apiSecret = process.env.API_KEY_SECRET ?? "supersecretkey";
     const newAccessKey = hash("sha256", `${newUUID}_${apiSecret}_${newUUID}`);
 

@@ -8,7 +8,7 @@ import sendError from "../../../utils/error-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
-import inventoryHandler from "@/utils/inventory-handler.js";
+import inventoryHandler from "../../../utils/inventory-handler.js";
 
 const BASE_PATH = "/inventory";
 const ROLES_NEEDED = {

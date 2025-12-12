@@ -13,5 +13,6 @@
   "NO_PRODUCT_SELECTED": "No product selected!",
   "INSUFFICIENT_FUNDS": "Insufficient funds!",
   "WALLET_NOT_FOUND": "Wallet not found!",
-  "PRODUCT_NOT_FOUND": "Product not found!"
+  "PRODUCT_NOT_FOUND": "Product not found!",
+  "CARD_PIN_REQUIREMENTS": "Card PIN must be 4 to 6 digits long!"
 }

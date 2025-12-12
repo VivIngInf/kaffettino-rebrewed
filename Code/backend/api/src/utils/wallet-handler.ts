@@ -1,7 +1,6 @@
 import {
   RequestStatus,
   TopUp,
-  Transaction,
   Wallet,
   WalletRequest,
 } from "../generated/prisma/client.js";
@@ -65,6 +64,36 @@ export class WalletHandler {
     });
 
     return wallets;
+  }
+
+  @LogMethod
+  /**
+   * Retrieves a wallet for a specific user and auletta.
+   *
+   * @param params - The parameters for retrieving the wallet.
+   * @param params.userId - The ID of the user whose wallet is to be retrieved.
+   * @param params.aulettaId - The ID of the auletta associated with the wallet.
+   * @param params.walletId - The ID of the wallet (currently unused).
+   * @returns A promise that resolves to the wallet object if found, or `false` if no wallet exists for the given user and auletta.
+   */
+  async getWallet({
+    userId,
+    aulettaId,
+  }: {
+    userId: string;
+    aulettaId: number;
+    walletId: string;
+  }): Promise<Wallet | boolean> {
+    const wallet = await this.prisma.wallet.findFirst({
+      where: {
+        userId: userId,
+        aulettaId: aulettaId,
+      },
+    });
+
+    if (!wallet) return false;
+
+    return wallet;
   }
 
   @LogMethod
