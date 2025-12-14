@@ -10,9 +10,15 @@ export default async function cardMW(
   if (!cardHeader)
     return sendError(reply, { code: 401, responseCode: "CARD_ID_MISSING" });
 
-  const card = await cardHandler.getCardInformations(cardHeader);
+  const card = (await cardHandler.getCardInformations(
+    cardHeader
+  )) as IGetCardInformations;
+
   if (!card)
     return sendError(reply, { code: 404, responseCode: "CARD_NOT_FOUND" });
 
-  request.card = card as IGetCardInformations;
+  if (card.blocked)
+    return sendError(reply, { code: 401, responseCode: "CARD_BLOCKED" });
+
+  request.card = card;
 }

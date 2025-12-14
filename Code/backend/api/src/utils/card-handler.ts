@@ -63,6 +63,7 @@ class CardHandler {
     return newPin ? true : false;
   }
 
+  @LogMethod
   /**
    * Retrieves detailed information about a card by its ID.
    *
@@ -83,6 +84,27 @@ class CardHandler {
     });
 
     return card ?? false;
+  }
+
+  @LogMethod
+  /**
+   * Sets the blocked status of a card.
+   *
+   * @param cardId - The unique identifier of the card to update.
+   * @param set - Optional. If true, the card will be blocked; if false or omitted, the card will be unblocked.
+   * @returns A promise that resolves to the updated Card object.
+   */
+  async setBlock(cardId: cardId, set?: boolean): Promise<Card> {
+    const blockedCard = await this.prisma.card.update({
+      where: {
+        cardId: cardId,
+      },
+      data: {
+        blocked: set ? true : false,
+      },
+    });
+
+    return blockedCard;
   }
 }
 

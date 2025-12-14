@@ -176,6 +176,7 @@ model Card {
   id        String   @id @default(uuid())
   cardId    String   @unique
   pin       Int?
+  blocked   Boolean  @default(false)
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())

@@ -277,6 +277,46 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     }
   );
 
+  /**
+   * GET localhost:3000/api/v1/device/wallet-auletta
+   * Authorization: Bearer {DEVICENAME}-{ACCESSKEY}
+   * X-PaymentCard-Id: uuidv4
+   */
+  fastify.get(
+    `${BASE_PATH}/wallet-auletta`,
+    { preHandler: [deviceMW, cardMW] },
+    async (request, reply) => {
+      try {
+        const walletAuletta = (
+          await walletHandler.getWallets({
+            userId: [request.card.userId],
+            aulettaId: [request.device.aulettaId],
+          })
+        )[0];
+
+        if (!walletAuletta)
+          return sendError(reply, {
+            code: 404,
+            responseCode: "WALLET_NOT_FOUND",
+          });
+
+        return { status: "OK", wallet: walletAuletta };
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  /**
+   * POST localhost:3000/api/v1/device/buy-product
+   * Authorization: Bearer {DEVICENAME}-{ACCESSKEY}
+   * X-PaymentCard-Id: uuidv4
+   * {
+   *  productId: number,
+   *  quantity: number,
+   *  discount: number
+   * }
+   */
   fastify.post(
     `${BASE_PATH}/buy-product`,
     { preHandler: [deviceMW, cardMW] },

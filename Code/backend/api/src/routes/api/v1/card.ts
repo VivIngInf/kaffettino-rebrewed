@@ -7,6 +7,7 @@ import cardHandler, { cardId } from "../../../utils/card-handler.js";
 const BASE_PATH = "/card";
 const ROLES_NEEDED = {
   updatePin: [Role.USER, Role.TREASURER, Role.ADMIN],
+  blockCard: [Role.USER, Role.TREASURER, Role.ADMIN],
   createCard: [Role.ADMIN, Role.TREASURER, Role.ADMIN],
 };
 
@@ -74,6 +75,62 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         const setPin = await cardHandler.setCardPin(body.cardId, pin);
 
         return { status: "OK" };
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  /**
+   * PUT localhost:3000/api/v1/card/block
+   * {
+   *  cardId: cardId,
+   * }
+   */
+  fastify.put(
+    `${BASE_PATH}/block`,
+    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.blockCard)] },
+    async (request, reply) => {
+      try {
+        const body = (await request.body) as { cardId?: cardId };
+
+        if (!body.cardId)
+          return sendError(reply, {
+            code: 400,
+            message: "Mandatory param 'cardId' is missing!",
+          });
+
+        const block = await cardHandler.setBlock(body.cardId, true);
+
+        return { status: "OK", card: block };
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  /**
+   * PUT localhost:3000/api/v1/card/unblock
+   * {
+   *  cardId: cardId,
+   * }
+   */
+  fastify.put(
+    `${BASE_PATH}/unblock`,
+    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.blockCard)] },
+    async (request, reply) => {
+      try {
+        const body = (await request.body) as { cardId?: cardId };
+
+        if (!body.cardId)
+          return sendError(reply, {
+            code: 400,
+            message: "Mandatory param 'cardId' is missing!",
+          });
+
+        const block = await cardHandler.setBlock(body.cardId, false);
+
+        return { status: "OK", card: block };
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }

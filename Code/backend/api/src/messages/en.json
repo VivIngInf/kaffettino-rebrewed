@@ -10,6 +10,7 @@
   "NO_AULETTA_ASSIGNED_TO_DEVICE": "No Auletta assigned to this device!",
   "CARD_ID_MISSING": "Card ID is missing!",
   "CARD_NOT_FOUND": "Card not found!",
+  "CARD_BLOCKED": "Card is blocked!",
   "NO_PRODUCT_SELECTED": "No product selected!",
   "INSUFFICIENT_FUNDS": "Insufficient funds!",
   "WALLET_NOT_FOUND": "Wallet not found!",
