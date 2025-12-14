@@ -9,7 +9,7 @@ void initNFCScanner()
     SPI.begin();
     nfcScanner.PCD_Init();
     nfcScanner.PCD_DumpVersionToSerial();
-    pinMode(IRQ_PIN, INPUT_PULLUP);
+    pinMode(IRQ_PIN, INPUT); // Set this to PULLUP if using a pin with an internal resistor
 
     nfcScanner.PCD_WriteRegister(nfcScanner.ComIEnReg, 0xA0);
     attachInterrupt(digitalPinToInterrupt(IRQ_PIN), readCard, FALLING);  // Triggers when IRQ goes LOW
@@ -26,7 +26,9 @@ void handleScanner()
         if(!nfcScanner.PICC_ReadCardSerial())
             return;
 
-        Serial.println("SCANNER!");
+        Serial.print("SCANNER! DigitalValue: ");
+        Serial.println(digitalRead(IRQ_PIN));
+
 
         Serial.print(F("Card UID:"));
         dump_byte_array(nfcScanner.uid.uidByte, nfcScanner.uid.size);
@@ -37,11 +39,8 @@ void handleScanner()
         newInterrupt = false;
     }
 
-    // The receiving block needs regular retriggering (tell the tag it should transmit??)
-    // (mfrc522.PCD_WriteRegister(mfrc522.FIFODataReg,mfrc522.PICC_CMD_REQA);)
     activateRec();
     delay(100);
-
 }
 
 /**

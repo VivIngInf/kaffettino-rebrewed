@@ -8,6 +8,8 @@
 #include "configWebServer.h"
 #include "connectivity.h"
 #include "nfcReader.h"
+#include "display.h"
+#include "mp3player.h"
 
 /* ----- Variables ----- */
 
@@ -17,7 +19,7 @@ bool ledState = false;
 void setup() {
     
     // Start serial comunication
-    Serial.begin(115200);
+    Serial.begin(115200);    
 
     // Integrated LED pin
     pinMode(2, OUTPUT);
@@ -34,9 +36,11 @@ void setup() {
 
     initNFCScanner();
 
-    //tryConnectWifi();    
-
     digitalWrite(2, LOW);
+
+    setupDisplay();
+
+    mp3PlayerInit();
 
 }
 
@@ -65,8 +69,6 @@ void loop() {
         digitalWrite(2, ledState ? HIGH : LOW);
         lastBlink = now;
     }
-	
-	
 
 }
 
