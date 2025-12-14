@@ -8,16 +8,17 @@
 #include "configWebServer.h"
 #include "connectivity.h"
 #include "nfcReader.h"
+#include "display.h"
+#include "mp3player.h"
+#include "statusIndicator.h"
+#include "buzzer.h"
 
 /* ----- Variables ----- */
-
-unsigned long lastBlink = 0;
-bool ledState = false;
 
 void setup() {
     
     // Start serial comunication
-    Serial.begin(115200);
+    Serial.begin(115200);    
 
     // Integrated LED pin
     pinMode(2, OUTPUT);
@@ -34,10 +35,17 @@ void setup() {
 
     initNFCScanner();
 
-    //tryConnectWifi();    
-
     digitalWrite(2, LOW);
 
+    setupDisplay();
+
+    mp3PlayerInit();
+
+    initLEDs();
+    changeStatus(WAIT);
+    startBlinking();
+
+    happySound();
 }
 
 void loop() {    
@@ -58,15 +66,7 @@ void loop() {
     }
   
     handleScanner();
-
-    // Blink for testing
-    if (now - lastBlink >= 1000 && isConnected()) {
-        ledState = !ledState;
-        digitalWrite(2, ledState ? HIGH : LOW);
-        lastBlink = now;
-    }
-	
-	
+    handleBlink(now);
 
 }
 
