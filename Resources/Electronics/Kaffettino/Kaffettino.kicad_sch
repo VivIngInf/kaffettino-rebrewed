@@ -5478,7 +5478,7 @@
 	)
 	(text "Can be used"
 		(exclude_from_sim no)
-		(at 264.414 151.384 0)
+		(at 266.7 151.384 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -5558,6 +5558,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "182d851e-aacf-4cac-a109-d660854d1f6d")
+	)
+	(junction
+		(at 218.44 85.09)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "29749d4f-1c51-474d-974c-52885efb1724")
 	)
 	(junction
 		(at 68.58 43.18)
@@ -5875,6 +5881,16 @@
 	)
 	(wire
 		(pts
+			(xy 218.44 93.98) (xy 218.44 92.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "112b3aad-d94c-427c-998c-e07fd465e467")
+	)
+	(wire
+		(pts
 			(xy 33.02 33.02) (xy 50.8 33.02)
 		)
 		(stroke
@@ -6100,7 +6116,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 82.55) (xy 222.25 82.55)
+			(xy 215.9 82.55) (xy 222.25 82.55)
 		)
 		(stroke
 			(width 0)
@@ -6262,7 +6278,7 @@
 	)
 	(wire
 		(pts
-			(xy 219.71 85.09) (xy 222.25 85.09)
+			(xy 215.9 85.09) (xy 218.44 85.09)
 		)
 		(stroke
 			(width 0)
@@ -6573,7 +6589,7 @@
 	)
 	(wire
 		(pts
-			(xy 265.43 138.43) (xy 259.08 138.43)
+			(xy 266.7 138.43) (xy 259.08 138.43)
 		)
 		(stroke
 			(width 0)
@@ -6776,7 +6792,7 @@
 	)
 	(wire
 		(pts
-			(xy 265.43 140.97) (xy 259.08 140.97)
+			(xy 266.7 140.97) (xy 259.08 140.97)
 		)
 		(stroke
 			(width 0)
@@ -7124,6 +7140,16 @@
 			(type default)
 		)
 		(uuid "9d74303f-6392-4a1a-8675-358cb10b6b67")
+	)
+	(wire
+		(pts
+			(xy 218.44 85.09) (xy 222.25 85.09)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "9ff13260-ad63-44ce-ab3b-1f13ff6b8158")
 	)
 	(wire
 		(pts
@@ -8358,7 +8384,7 @@
 		(uuid "d416cff8-7bd2-4c69-9387-87ca795e29b3")
 	)
 	(label "MICRO_SD_TX"
-		(at 265.43 138.43 0)
+		(at 266.7 138.43 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8428,7 +8454,7 @@
 		(uuid "ea703354-f09a-469c-9b1f-3603e0727103")
 	)
 	(label "MICRO_SD_RX"
-		(at 265.43 140.97 0)
+		(at 266.7 140.97 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -10977,6 +11003,72 @@
 	)
 	(symbol
 		(lib_id "power:GNDREF")
+		(at 218.44 93.98 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "6da8d6ef-aa51-4f2c-b3ed-f17024c746ce")
+		(property "Reference" "#PWR041"
+			(at 218.44 100.33 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GNDREF"
+			(at 216.154 96.012 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 218.44 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 218.44 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GNDREF\" , reference supply ground"
+			(at 218.44 93.98 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "82243307-8f34-495e-9b02-824206edf05c")
+		)
+		(instances
+			(project "Kaffettino"
+				(path "/5e636569-7bbd-43ff-bd8f-9986b616afcc"
+					(reference "#PWR041")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GNDREF")
 		(at 175.26 104.14 0)
 		(unit 1)
 		(exclude_from_sim no)
@@ -13304,7 +13396,7 @@
 	)
 	(symbol
 		(lib_id "Device:Speaker")
-		(at 214.63 82.55 0)
+		(at 210.82 82.55 0)
 		(mirror y)
 		(unit 1)
 		(exclude_from_sim no)
@@ -13314,7 +13406,7 @@
 		(fields_autoplaced yes)
 		(uuid "cae39360-1566-4adc-aa09-c967d6669e5c")
 		(property "Reference" "LS1"
-			(at 214.122 73.66 0)
+			(at 210.312 73.66 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13322,7 +13414,7 @@
 			)
 		)
 		(property "Value" "Speaker"
-			(at 214.122 76.2 0)
+			(at 210.312 76.2 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13330,7 +13422,7 @@
 			)
 		)
 		(property "Footprint" "OSTVN02A150:CONN_OSTVN02A150_OST"
-			(at 214.63 87.63 0)
+			(at 210.82 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13339,7 +13431,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 214.884 83.82 0)
+			(at 211.074 83.82 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -13348,7 +13440,7 @@
 			)
 		)
 		(property "Description" "Speaker"
-			(at 214.63 82.55 0)
+			(at 210.82 82.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -14449,6 +14541,73 @@
 			(project "Kaffettino"
 				(path "/5e636569-7bbd-43ff-bd8f-9986b616afcc"
 					(reference "R18")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 218.44 88.9 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "e69ab6f8-1ea6-43df-9b8e-bf0cb2548950")
+		(property "Reference" "C5"
+			(at 224.028 87.884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "4.7uF"
+			(at 224.028 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "Capacitor_THT:CP_Radial_D6.3mm_P2.50mm"
+			(at 219.4052 92.71 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 218.44 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 218.44 88.9 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "d35626d3-179c-48ea-82c7-407482d8cdc3")
+		)
+		(pin "1"
+			(uuid "f22a9703-6608-4351-86e8-bc372cc75a8b")
+		)
+		(instances
+			(project "Kaffettino"
+				(path "/5e636569-7bbd-43ff-bd8f-9986b616afcc"
+					(reference "C5")
 					(unit 1)
 				)
 			)

@@ -10,11 +10,10 @@
 #include "nfcReader.h"
 #include "display.h"
 #include "mp3player.h"
+#include "statusIndicator.h"
+#include "buzzer.h"
 
 /* ----- Variables ----- */
-
-unsigned long lastBlink = 0;
-bool ledState = false;
 
 void setup() {
     
@@ -42,6 +41,11 @@ void setup() {
 
     mp3PlayerInit();
 
+    initLEDs();
+    changeStatus(WAIT);
+    startBlinking();
+
+    happySound();
 }
 
 void loop() {    
@@ -62,13 +66,7 @@ void loop() {
     }
   
     handleScanner();
-
-    // Blink for testing
-    if (now - lastBlink >= 1000 && isConnected()) {
-        ledState = !ledState;
-        digitalWrite(2, ledState ? HIGH : LOW);
-        lastBlink = now;
-    }
+    handleBlink(now);
 
 }
 
