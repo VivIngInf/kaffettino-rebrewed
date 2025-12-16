@@ -18,16 +18,22 @@ const ROLES_NEEDED = {
 
 export default async function inventoryRoutes(fastify: FastifyInstance) {
   fastify.get(
-    `${BASE_PATH}`,
+    `${BASE_PATH}/product`,
     { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.inventory)] },
     async (request, reply) => {
       try {
-        const { aulettaId, productId } = request.query as {
-          aulettaId?: number;
+        const { productId } = request.query as {
           productId: number;
         };
 
-        return "";
+        const product = inventoryHandler.getProduct(productId);
+        if (!product)
+          return sendError(reply, {
+            code: 404,
+            responseCode: "PRODUCT_NOT_FOUND",
+          });
+
+        return { status: "OK", product: product };
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -35,7 +41,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    `${BASE_PATH}/products`,
+    `${BASE_PATH}/product/create`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.productsManagement)],
     },
@@ -51,7 +57,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
 
         const newProduct = await inventoryHandler.createProduct(body.name);
 
-        return newProduct;
+        return { status: "OK", product: newProduct };
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -59,7 +65,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
   );
 
   fastify.put(
-    `${BASE_PATH}/products`,
+    `${BASE_PATH}/product/update`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.productsManagement)],
     },
@@ -76,12 +82,19 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
             message: "Mandatory param 'name' or 'productId' are missing!",
           });
 
-        const newProduct = await inventoryHandler.updateProduct(
+        const product = await inventoryHandler.getProduct(body.productId);
+        if (!product)
+          return sendError(reply, {
+            code: 404,
+            responseCode: "PRODUCT_NOT_FOUND",
+          });
+
+        const updatedProduct = await inventoryHandler.updateProduct(
           body.productId,
           { name: body.name }
         );
 
-        return newProduct;
+        return { status: "OK", product: updatedProduct };
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }

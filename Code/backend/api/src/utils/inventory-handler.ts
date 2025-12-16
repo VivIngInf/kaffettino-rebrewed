@@ -258,6 +258,23 @@ class InventoryHandler {
 
   @LogMethod
   /**
+   * Retrieves a product by its unique identifier.
+   *
+   * @param productId - The unique identifier of the product to retrieve.
+   * @returns A promise that resolves to the `Product` object if found, or `null` if no product exists with the given ID.
+   */
+  async getProduct(productId: number): Promise<Product | null> {
+    const product = await this.prisma.product.findFirst({
+      where: {
+        id: productId,
+      },
+    });
+
+    return product;
+  }
+
+  @LogMethod
+  /**
    * Updates the name of a product with the specified product ID.
    *
    * @param productId - The unique identifier of the product to update.
