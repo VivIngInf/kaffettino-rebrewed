@@ -12,6 +12,7 @@
 #include "mp3player.h"
 #include "statusIndicator.h"
 #include "buzzer.h"
+#include "keypad.h"
 
 /* ----- Variables ----- */
 
@@ -19,9 +20,6 @@ void setup() {
     
     // Start serial comunication
     Serial.begin(115200);    
-
-    // Integrated LED pin
-    pinMode(2, OUTPUT);
 
     // Set the ESP as both a gateway and a client
     WiFi.mode(WIFI_AP_STA);
@@ -31,11 +29,11 @@ void setup() {
 
     // We should restart the ESP if we get an internal server error
     if(startWebServer() != 0)
-		ESP.restart();
+		ESP.restart();    
 
     initNFCScanner();
 
-    digitalWrite(2, LOW);
+    initKeypad();    
 
     setupDisplay();
 
@@ -48,8 +46,8 @@ void setup() {
     happySound();
 }
 
-void loop() {    
-
+void loop() 
+{    
     // Process dns requests
     if(serverUp)
     {
@@ -65,10 +63,9 @@ void loop() {
         return;
     }
   
-    handleScanner();
-    handleBlink(now);
+    handleScanner(now);
+    
+    handleKeypad();
 
+    handleBlink(now);    
 }
-
-
-
