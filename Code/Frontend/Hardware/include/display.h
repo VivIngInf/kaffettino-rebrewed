@@ -6,8 +6,8 @@
 
 extern U8G2_SSD1309_128X64_NONAME2_F_SW_I2C display;
 
-const int DISPLAY_SCL = 22;
-const int DISPLAY_SDA = 21;
+const int GEN_SCL = 22;
+const int GEN_SDA = 21;
 
 extern void setupDisplay();
 
