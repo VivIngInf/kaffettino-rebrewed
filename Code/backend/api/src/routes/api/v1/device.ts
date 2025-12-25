@@ -1,6 +1,5 @@
 import sessionMW from "../../../middlewares/session.js";
 import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
-import { sendError } from "../../../utils/response-handler.js";
 import { FastifyInstance } from "fastify";
 import permissionsMW from "../../../middlewares/permissions.js";
 import deviceMW from "../../../middlewares/device.js";
@@ -12,6 +11,8 @@ import {
   auletteHandler,
   deviceHandler,
   walletHandler,
+  sendError,
+  sendSuccess,
 } from "../../../utils/handlers.js";
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
@@ -77,7 +78,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         body.aulettaId
       );
 
-      return { status: "OK", request: newDeviceRequest };
+      return sendSuccess(reply, { request: newDeviceRequest }, { code: 200 });
     } catch (error) {
       return sendError(reply, { code: 500, error });
     }
@@ -118,10 +119,11 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
             responseCode: "DEVICE_REQUEST_NOT_FOUND",
           });
 
-        return {
-          status: acceptedRequest.status,
-          request: acceptedRequest.request,
-        };
+        return sendSuccess(
+          reply,
+          { status: acceptedRequest.status, request: acceptedRequest.request },
+          { code: 200 }
+        );
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -172,7 +174,11 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           deviceRequest.awaitingClient[0]?.id
         );
 
-      return { status: "OK", device: device, apiKey: device.apiKey };
+      return sendSuccess(
+        reply,
+        { status: "OK", device: device, apiKey: device.apiKey },
+        { code: 200 }
+      );
     } catch (error) {
       return sendError(reply, { code: 500, error });
     }
@@ -191,11 +197,11 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           deviceName: request.device.deviceName,
         });
 
-        return {
-          status: "OK",
-          device: newDeviceKey,
-          apiKey: newDeviceKey.apiKey,
-        };
+        return sendSuccess(
+          reply,
+          { device: newDeviceKey, apiKey: newDeviceKey.apiKey },
+          { code: 200 }
+        );
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -211,10 +217,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
       const aulette = await auletteHandler.getAulette(location);
 
-      return {
-        status: "OK",
-        aulette: aulette,
-      };
+      return sendSuccess(reply, { aulette: aulette }, { code: 200 });
     } catch (error) {
       return sendError(reply, { code: 500, error });
     }
@@ -245,11 +248,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         const inventoryIds = inventories.map((inventory) => inventory.id);
         const products = await inventoryHandler.listItems(inventoryIds);
 
-        return {
-          status: "OK",
-          inventories: inventories,
-          products: products,
-        };
+        return sendSuccess(reply, { inventories, products }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -270,7 +269,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           userId: [request.card.userId],
         });
 
-        return { status: "OK", wallets: wallets };
+        return sendSuccess(reply, { wallets: wallets }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -300,7 +299,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
             responseCode: "WALLET_NOT_FOUND",
           });
 
-        return { status: "OK", wallet: walletAuletta };
+        return sendSuccess(reply, { wallet: walletAuletta }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -379,11 +378,15 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           totalDiscount
         );
 
-        return {
-          status: "OK",
-          transaction: transaction,
-          discountApplied: totalDiscount,
-        };
+        return sendSuccess(
+          reply,
+          {
+            status: "OK",
+            transaction: transaction,
+            discountApplied: totalDiscount,
+          },
+          { code: 200 }
+        );
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }

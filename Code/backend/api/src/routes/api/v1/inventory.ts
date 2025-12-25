@@ -1,14 +1,12 @@
 import type { FastifyInstance } from "fastify";
-import { getSession } from "../../../utils/session.js";
-import userHandler, {
-  IGetUser,
-  ISetUserData,
-} from "../../../utils/handlers/user-handler.js";
-import { sendError } from "../../../utils/response-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
-import inventoryHandler from "../../../utils/handlers/inventory-handler.js";
+import {
+  inventoryHandler,
+  sendError,
+  sendSuccess,
+} from "../../../utils/handlers.js";
 
 const BASE_PATH = "/inventory";
 const ROLES_NEEDED = {
@@ -33,7 +31,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
             responseCode: "PRODUCT_NOT_FOUND",
           });
 
-        return { status: "OK", product: product };
+        return sendSuccess(reply, { product: product }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -57,7 +55,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
 
         const newProduct = await inventoryHandler.createProduct(body.name);
 
-        return { status: "OK", product: newProduct };
+        return sendSuccess(reply, { product: newProduct }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -94,7 +92,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
           { name: body.name }
         );
 
-        return { status: "OK", product: updatedProduct };
+        return sendSuccess(reply, { product: updatedProduct }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }

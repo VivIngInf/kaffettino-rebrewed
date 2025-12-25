@@ -1,4 +1,4 @@
-import { sendError } from "../utils/response-handler.js";
+import { sendError } from "../utils/handlers/response-handler.js";
 import { getSession } from "../utils/session.js";
 import { FastifyReply, FastifyRequest } from "fastify";
 

@@ -26,3 +26,4 @@ export * from "./handlers/transaction-handler";
 export * from "./handlers/user-handler";
 export * from "./handlers/wallet-handler";
 export * from "./handlers/aulette-handler";
+export * from "./handlers/response-handler";

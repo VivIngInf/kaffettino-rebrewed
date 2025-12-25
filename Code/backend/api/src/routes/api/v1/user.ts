@@ -1,17 +1,18 @@
 import type { FastifyInstance } from "fastify";
-import userHandler, {
-  IGetUser,
-  ISetUserData,
-  ISetUserRole,
-} from "../../../utils/handlers/user-handler.js";
-import { sendError } from "../../../utils/response-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
-import permissionsHandler from "../../../utils/handlers/permissions-handler.js";
-import walletHandler, {
+import {
+  walletHandler,
+  sendError,
+  sendSuccess,
+  permissionsHandler,
+  userHandler,
   IRequestWalletCreation,
-} from "../../../utils/handlers/wallet-handler.js";
+  IGetUser,
+  ISetUserData,
+  ISetUserRole,
+} from "../../../utils/handlers.js";
 
 const BASE_PATH = "/user";
 const ROLES_NEEDED = {
@@ -41,7 +42,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           includeWallets
         );
 
-        return user;
+        return sendSuccess(reply, { user: user }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -61,7 +62,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
         const updateUser = await userHandler.setUserData(session.user.id, body);
 
-        return updateUser;
+        return sendSuccess(reply, { user: updateUser }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -106,7 +107,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           body.role
         );
 
-        return setRole;
+        return sendSuccess(reply, { user: setRole }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -138,7 +139,11 @@ export default async function userRoutes(fastify: FastifyInstance) {
             body.aulettaId
           );
 
-        return newWalletRequest;
+        return sendSuccess(
+          reply,
+          { walletRequest: newWalletRequest },
+          { code: 200 }
+        );
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }

@@ -1,16 +1,17 @@
 import type { FastifyInstance } from "fastify";
-import sendError from "../../../utils/response-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { RequestStatus, Role } from "../../../generated/prisma/client.js";
-import walletHandler from "../../../utils/handlers/wallet-handler.js";
-import { send } from "node:process";
 import {
   IPagination,
   IRangeSearch,
   TAKE_GLOBAL,
 } from "../../../utils/search-utils.js";
-import { request } from "node:http";
+import {
+  walletHandler,
+  sendError,
+  sendSuccess,
+} from "../../../utils/handlers.js";
 
 const BASE_PATH = "/wallet";
 const ROLES_NEEDED = {
@@ -57,7 +58,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           skip,
         });
 
-        return wallets;
+        return sendSuccess(reply, { wallets: wallets }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -87,7 +88,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           gte: range.min,
         });
 
-        return topUps;
+        return sendSuccess(reply, { topUps: topUps }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -132,7 +133,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           body.description
         );
 
-        return topUp;
+        return sendSuccess(reply, { topUp: topUp }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -161,7 +162,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           body.aulettaId
         );
 
-        return newWallet;
+        return sendSuccess(reply, { wallet: newWallet }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
@@ -186,7 +187,11 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           status,
         });
 
-        return walletRequests;
+        return sendSuccess(
+          reply,
+          { walletRequests: walletRequests },
+          { code: 200 }
+        );
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
