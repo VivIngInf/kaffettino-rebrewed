@@ -1,9 +1,11 @@
-import sessionMW from "../../../middlewares/session.js";
 import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
 import { FastifyInstance } from "fastify";
-import permissionsMW from "../../../middlewares/permissions.js";
-import deviceMW from "../../../middlewares/device.js";
-import cardMW from "../../../middlewares/card.js";
+import {
+  cardMW,
+  sessionMW,
+  permissionsMW,
+  deviceMW,
+} from "../../../middlewares/mws.js";
 import {
   transactionHandler,
   cardHandler,

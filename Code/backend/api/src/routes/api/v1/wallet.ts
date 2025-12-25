@@ -1,6 +1,4 @@
 import type { FastifyInstance } from "fastify";
-import sessionMW from "../../../middlewares/session.js";
-import permissionsMW from "../../../middlewares/permissions.js";
 import { RequestStatus, Role } from "../../../generated/prisma/client.js";
 import {
   IPagination,
@@ -12,6 +10,7 @@ import {
   sendError,
   sendSuccess,
 } from "../../../utils/handlers.js";
+import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
 
 const BASE_PATH = "/wallet";
 const ROLES_NEEDED = {

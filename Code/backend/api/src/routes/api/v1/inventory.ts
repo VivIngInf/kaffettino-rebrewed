@@ -1,12 +1,11 @@
 import type { FastifyInstance } from "fastify";
-import sessionMW from "../../../middlewares/session.js";
-import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
 import {
   inventoryHandler,
   sendError,
   sendSuccess,
 } from "../../../utils/handlers.js";
+import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
 
 const BASE_PATH = "/inventory";
 const ROLES_NEEDED = {
