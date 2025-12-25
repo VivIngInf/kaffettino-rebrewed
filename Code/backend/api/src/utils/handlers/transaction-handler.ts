@@ -3,11 +3,11 @@ import {
   Device,
   Transaction,
   TransactionType,
-} from "./../generated/prisma/client.js";
-import { prisma } from "../plugins/prisma.js";
-import { LogMethod } from "./decorators/logmethod.js";
+} from "../../generated/prisma/client.js";
+import { prisma } from "../../plugins/prisma.js";
+import { LogMethod } from "../decorators/logmethod.js";
 import walletHandler from "./wallet-handler.js";
-import { Product, Product_Inventory } from "../generated/prisma/browser.js";
+import { Product, Product_Inventory } from "../../generated/prisma/browser.js";
 
 interface ITransactionIdentifiers {
   productId: number;

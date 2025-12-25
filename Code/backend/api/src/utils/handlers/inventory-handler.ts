@@ -1,7 +1,7 @@
-import { BatchPayload } from "../generated/prisma/internal/prismaNamespace.js";
-import { Inventory, Product } from "../generated/prisma/client.js";
-import { prisma } from "../plugins/prisma.js";
-import { LogMethod } from "./decorators/logmethod.js";
+import { BatchPayload } from "../../generated/prisma/internal/prismaNamespace.js";
+import { Inventory, Product } from "../../generated/prisma/client.js";
+import { prisma } from "../../plugins/prisma.js";
+import { LogMethod } from "../decorators/logmethod.js";
 
 export interface InventoryItems {
   inventoryId: number;

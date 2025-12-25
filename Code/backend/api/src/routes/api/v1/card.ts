@@ -1,9 +1,9 @@
 import sessionMW from "../../../middlewares/session.js";
 import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
-import sendError from "../../../utils/error-handler.js";
+import { sendError, sendSuccess } from "../../../utils/response-handler.js";
 import { FastifyInstance } from "fastify";
 import permissionsMW from "../../../middlewares/permissions.js";
-import cardHandler, { cardId } from "../../../utils/card-handler.js";
+import { cardHandler, cardId } from "../../../utils/handlers.js";
 const BASE_PATH = "/card";
 const ROLES_NEEDED = {
   updatePin: [Role.USER, Role.TREASURER, Role.ADMIN],
@@ -35,7 +35,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
         const newCard = await cardHandler.createCard(body.userId);
 
-        return { status: "OK", card: newCard };
+        return sendSuccess(reply, { card: newCard }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -74,7 +74,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
         const setPin = await cardHandler.setCardPin(body.cardId, pin);
 
-        return { status: "OK" };
+        return sendSuccess(reply, null, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
@@ -102,7 +102,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
         const block = await cardHandler.setBlock(body.cardId, true);
 
-        return { status: "OK", card: block };
+        return sendSuccess(reply, { card: block }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }

@@ -1,7 +1,7 @@
 import { randomUUID, UUID } from "node:crypto";
-import { Card, User } from "../generated/prisma/client.js";
-import { prisma } from "../plugins/prisma.js";
-import { LogMethod } from "./decorators/logmethod.js";
+import { Card, User } from "../../generated/prisma/client.js";
+import { prisma } from "../../plugins/prisma.js";
+import { LogMethod } from "../decorators/logmethod.js";
 
 export interface IGetCardInformations extends Card {
   user: User;

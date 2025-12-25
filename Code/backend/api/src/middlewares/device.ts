@@ -1,5 +1,6 @@
-import deviceHandler from "../utils/device-handler.js";
-import sendError from "../utils/error-handler.js";
+import deviceHandler from "../utils/handlers/device-handler.js";
+import { sendError } from "../utils/response-handler.js";
+
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export default async function deviceMW(

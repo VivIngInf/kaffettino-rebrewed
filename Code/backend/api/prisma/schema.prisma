@@ -254,6 +254,36 @@ model DeviceRegistration {
   @@map("device_registration")
 }
 
+model AuditLog {
+  id          BigInt   @id @default(autoincrement())
+  // Evento di dominio (vocabolario controllato)
+  action      String   @db.VarChar(64)
+  // Risorsa colpita
+  entity      String   @db.VarChar(64)
+  entityId    String   @db.VarChar(128)
+  // Chi ha compiuto l’azione
+  actorId     String?  @db.VarChar(128)
+  actorType   AuditActorType @default(USER)
+  // Quando
+  createdAt   DateTime @default(now())
+  // Dati strutturati dell’evento
+  metadata    Json?
+  // Versione semantica dell’evento
+  version     Int      @default(1)
+
+  @@index([action])
+  @@index([entity, entityId])
+  @@index([actorId])
+  @@map("audit_log")
+}
+
+enum AuditActorType {
+  USER
+  DEVICE
+  SYSTEM
+  SERVICE
+}
+
 enum Role {
   GUEST
   USER

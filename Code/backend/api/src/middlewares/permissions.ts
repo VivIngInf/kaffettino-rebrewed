@@ -1,4 +1,4 @@
-import sendError from "../utils/error-handler.js";
+import { sendError } from "../utils/response-handler.js";
 import { Role } from "../generated/prisma/enums.js";
 import { FastifyReply, FastifyRequest } from "fastify";
 

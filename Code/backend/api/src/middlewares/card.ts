@@ -1,5 +1,7 @@
-import cardHandler, { IGetCardInformations } from "../utils/card-handler.js";
-import sendError from "../utils/error-handler.js";
+import cardHandler, {
+  IGetCardInformations,
+} from "../utils/handlers/card-handler.js";
+import { sendError } from "../utils/response-handler.js";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 export default async function cardMW(

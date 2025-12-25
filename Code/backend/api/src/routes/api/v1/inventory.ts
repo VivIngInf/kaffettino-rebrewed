@@ -3,12 +3,12 @@ import { getSession } from "../../../utils/session.js";
 import userHandler, {
   IGetUser,
   ISetUserData,
-} from "../../../utils/user-handler.js";
-import sendError from "../../../utils/error-handler.js";
+} from "../../../utils/handlers/user-handler.js";
+import { sendError } from "../../../utils/response-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
-import inventoryHandler from "../../../utils/inventory-handler.js";
+import inventoryHandler from "../../../utils/handlers/inventory-handler.js";
 
 const BASE_PATH = "/inventory";
 const ROLES_NEEDED = {

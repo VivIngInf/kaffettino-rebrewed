@@ -1,3 +1,4 @@
+import { success } from "better-auth/*";
 import fastify, { FastifyReply, FastifyRequest } from "fastify";
 import fs from "fs";
 
@@ -8,7 +9,7 @@ interface IError {
   message?: string;
 }
 
-export const errorCodes: Record<number, string> = {
+export const statusCodes: Record<number, string> = {
   200: "OK - Request successful",
   201: "Created - Resource created successfully",
   400: "Bad Request - Invalid input data",
@@ -67,7 +68,7 @@ export const responseCodes = (lang: SupportedLanguages) =>
  * - 503: Service Unavailable - Server temporarily unavailable or under maintenance
  *   https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503
  */
-export default function sendError(
+export function sendError(
   reply: FastifyReply,
   { code, error, responseCode, message }: IError,
   request?: FastifyRequest
@@ -85,7 +86,23 @@ export default function sendError(
 
   if (error) console.log(errorMessage);
   if (message) errorObject.message = message;
-  else errorObject.message = errorCodes[code];
+  else errorObject.message = statusCodes[code];
 
-  return reply.status(code).send(errorObject);
+  return reply.status(code).send({
+    success: false,
+    data: null,
+    error: errorObject,
+  });
+}
+
+export function sendSuccess(
+  reply: FastifyReply,
+  data: {} | null,
+  { code }: { code?: number }
+) {
+  return reply.status(code ?? 200).send({
+    success: true,
+    data: data,
+    error: null,
+  });
 }

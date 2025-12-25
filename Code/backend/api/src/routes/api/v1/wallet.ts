@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import sendError from "../../../utils/error-handler.js";
+import sendError from "../../../utils/response-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { RequestStatus, Role } from "../../../generated/prisma/client.js";
-import walletHandler from "../../../utils/wallet-handler.js";
+import walletHandler from "../../../utils/handlers/wallet-handler.js";
 import { send } from "node:process";
 import {
   IPagination,

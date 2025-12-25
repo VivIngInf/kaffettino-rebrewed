@@ -3,15 +3,15 @@ import userHandler, {
   IGetUser,
   ISetUserData,
   ISetUserRole,
-} from "../../../utils/user-handler.js";
-import sendError from "../../../utils/error-handler.js";
+} from "../../../utils/handlers/user-handler.js";
+import { sendError } from "../../../utils/response-handler.js";
 import sessionMW from "../../../middlewares/session.js";
 import permissionsMW from "../../../middlewares/permissions.js";
 import { Role } from "../../../generated/prisma/client.js";
-import permissionsHandler from "../../../utils/permissions-handler.js";
+import permissionsHandler from "../../../utils/handlers/permissions-handler.js";
 import walletHandler, {
   IRequestWalletCreation,
-} from "../../../utils/wallet-handler.js";
+} from "../../../utils/handlers/wallet-handler.js";
 
 const BASE_PATH = "/user";
 const ROLES_NEEDED = {
@@ -68,7 +68,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
     }
   );
 
-  // PUT https://localhost:3000/api/v1/user
+  // PUT https://localhost:3000/api/v1/user/role
   // Content-Type: application/json
   // { role: "ADMIN" } (Accepted: Enum of Role)
   // Roles needed: ADMIN, SUPERUSER

@@ -1,18 +1,18 @@
-import { Inventory } from "../../../generated/prisma/client.js";
-import { request } from "node:http";
 import sessionMW from "../../../middlewares/session.js";
 import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
-import deviceHandler from "../../../utils/device-handler.js";
-import sendError from "../../../utils/error-handler.js";
+import { sendError } from "../../../utils/response-handler.js";
 import { FastifyInstance } from "fastify";
 import permissionsMW from "../../../middlewares/permissions.js";
 import deviceMW from "../../../middlewares/device.js";
-import auletteHandler from "../../../utils/aulette-handler.js";
-import inventoryHandler from "../../../utils/inventory-handler.js";
-import cardHandler from "../../../utils/card-handler.js";
-import walletHandler from "../../../utils/wallet-handler.js";
 import cardMW from "../../../middlewares/card.js";
-import transactionHandler from "../../../utils/transaction-handler.js";
+import {
+  transactionHandler,
+  cardHandler,
+  inventoryHandler,
+  auletteHandler,
+  deviceHandler,
+  walletHandler,
+} from "../../../utils/handlers.js";
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],

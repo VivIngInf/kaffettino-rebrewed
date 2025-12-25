@@ -1,7 +1,7 @@
-import { Device, DeviceRegistration } from "../generated/prisma/client.js";
-import { RequestStatus } from "../generated/prisma/enums.js";
-import { prisma } from "../plugins/prisma.js";
-import { LogMethod } from "./decorators/logmethod.js";
+import { Device, DeviceRegistration } from "../../generated/prisma/client.js";
+import { RequestStatus } from "../../generated/prisma/enums.js";
+import { prisma } from "../../plugins/prisma.js";
+import { LogMethod } from "../decorators/logmethod.js";
 import { hash, randomUUID } from "node:crypto";
 
 interface ICheckRequestsParams {
