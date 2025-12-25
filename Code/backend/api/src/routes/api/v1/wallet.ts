@@ -11,6 +11,7 @@ import {
   sendSuccess,
 } from "../../../utils/handlers.js";
 import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
+import auditLog, { AuditActor } from "../../../utils/audit.js";
 
 const BASE_PATH = "/wallet";
 const ROLES_NEEDED = {
@@ -87,6 +88,19 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           gte: range.min,
         });
 
+        await auditLog({
+          action: "GET_WALLET_TOPUPS",
+          entity: "WalletTopUp",
+          entityId: "N/A",
+          actorId: request.session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { topUps: topUps },
+          },
+        });
+
         return sendSuccess(reply, { topUps: topUps }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
@@ -132,6 +146,19 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           body.description
         );
 
+        await auditLog({
+          action: "TOP_UP_WALLET",
+          entity: "WalletTopUp",
+          entityId: topUp.id.toString(),
+          actorId: request.session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { topUp: topUp },
+          },
+        });
+
         return sendSuccess(reply, { topUp: topUp }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
@@ -160,6 +187,19 @@ export default async function walletRoutes(fastify: FastifyInstance) {
           body.userId,
           body.aulettaId
         );
+
+        await auditLog({
+          action: "CREATE_WALLET",
+          entity: "Wallet",
+          entityId: newWallet.id,
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { wallet: newWallet },
+          },
+        });
 
         return sendSuccess(reply, { wallet: newWallet }, { code: 200 });
       } catch (error) {

@@ -12,6 +12,7 @@ import {
   ISetUserRole,
 } from "../../../utils/handlers.js";
 import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
+import auditLog, { AuditActor } from "../../../utils/audit.js";
 
 const BASE_PATH = "/user";
 const ROLES_NEEDED = {
@@ -61,6 +62,19 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
         const updateUser = await userHandler.setUserData(session.user.id, body);
 
+        await auditLog({
+          action: "UPDATE_USER_DATA",
+          entity: "User",
+          entityId: session.user.id.toString(),
+          actorId: session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { user: updateUser },
+          },
+        });
+
         return sendSuccess(reply, { user: updateUser }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
@@ -106,6 +120,19 @@ export default async function userRoutes(fastify: FastifyInstance) {
           body.role
         );
 
+        await auditLog({
+          action: "SET_USER_ROLE",
+          entity: "User",
+          entityId: body.targetUserId.toString(),
+          actorId: request.session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { role: body.role },
+          },
+        });
+
         return sendSuccess(reply, { user: setRole }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
@@ -137,6 +164,19 @@ export default async function userRoutes(fastify: FastifyInstance) {
             body.userId,
             body.aulettaId
           );
+
+        await auditLog({
+          action: "REQUEST_WALLET_CREATION",
+          entity: "WalletRequest",
+          entityId: newWalletRequest.request?.id.toString() || "N/A",
+          actorId: request.session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { walletRequest: newWalletRequest },
+          },
+        });
 
         return sendSuccess(
           reply,

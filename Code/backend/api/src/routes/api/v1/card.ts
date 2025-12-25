@@ -7,6 +7,7 @@ import {
   sendError,
   sendSuccess,
 } from "../../../utils/handlers.js";
+import auditLog, { AuditActor } from "../../../utils/audit.js";
 
 const BASE_PATH = "/card";
 const ROLES_NEEDED = {
@@ -38,6 +39,19 @@ export default async function cardRoutes(fastify: FastifyInstance) {
           });
 
         const newCard = await cardHandler.createCard(body.userId);
+
+        await auditLog({
+          action: "CREATE_CARD",
+          entity: "Card",
+          entityId: newCard.id,
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { card: newCard },
+          },
+        });
 
         return sendSuccess(reply, { card: newCard }, { code: 200 });
       } catch (error) {
@@ -78,6 +92,18 @@ export default async function cardRoutes(fastify: FastifyInstance) {
 
         const setPin = await cardHandler.setCardPin(body.cardId, pin);
 
+        await auditLog({
+          action: "UPDATE_PIN",
+          entity: "Card",
+          entityId: body.cardId,
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+          },
+        });
+
         return sendSuccess(reply, null, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
@@ -106,6 +132,19 @@ export default async function cardRoutes(fastify: FastifyInstance) {
 
         const block = await cardHandler.setBlock(body.cardId, true);
 
+        await auditLog({
+          action: "BLOCK_CARD",
+          entity: "Card",
+          entityId: body.cardId,
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { blocked: true },
+          },
+        });
+
         return sendSuccess(reply, { card: block }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
@@ -133,6 +172,19 @@ export default async function cardRoutes(fastify: FastifyInstance) {
           });
 
         const block = await cardHandler.setBlock(body.cardId, false);
+
+        await auditLog({
+          action: "UNBLOCK_CARD",
+          entity: "Card",
+          entityId: body.cardId,
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { blocked: false },
+          },
+        });
 
         return sendSuccess(reply, { card: block }, { code: 200 });
       } catch (error) {

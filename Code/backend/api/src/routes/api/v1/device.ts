@@ -16,6 +16,8 @@ import {
   sendError,
   sendSuccess,
 } from "../../../utils/handlers.js";
+import auditLog, { AuditActor } from "../../../utils/audit.js";
+
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],
@@ -80,6 +82,18 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         body.aulettaId
       );
 
+      await auditLog({
+        action: "REGISTER_DEVICE_REQUEST",
+        entity: "Device",
+        entityId: newDeviceRequest.id.toString(),
+        actorId: undefined,
+        actorType: AuditActor.DEVICE,
+        metadata: {
+          ip: request.ip,
+          userAgent: request.headers["user-agent"],
+        },
+      });
+
       return sendSuccess(reply, { request: newDeviceRequest }, { code: 200 });
     } catch (error) {
       return sendError(reply, { code: 500, error });
@@ -120,6 +134,19 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
             code: 404,
             responseCode: "DEVICE_REQUEST_NOT_FOUND",
           });
+
+        await auditLog({
+          action: "ACCEPT_DEVICE_REQUEST",
+          entity: "Device",
+          entityId: acceptedRequest.request?.id.toString() || "",
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { status: acceptedRequest.status },
+          },
+        });
 
         return sendSuccess(
           reply,
@@ -176,6 +203,18 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           deviceRequest.awaitingClient[0]?.id
         );
 
+      await auditLog({
+        action: "REQUEST_DEVICE_API_KEY",
+        entity: "Device",
+        entityId: device.id,
+        actorId: undefined,
+        actorType: AuditActor.DEVICE,
+        metadata: {
+          ip: request.ip,
+          userAgent: request.headers["user-agent"],
+        },
+      });
+
       return sendSuccess(
         reply,
         { status: "OK", device: device, apiKey: device.apiKey },
@@ -197,6 +236,18 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
       try {
         const newDeviceKey = await deviceHandler.generateDeviceAccessKey({
           deviceName: request.device.deviceName,
+        });
+
+        await auditLog({
+          action: "REGENERATE_DEVICE_API_KEY",
+          entity: "Device",
+          entityId: newDeviceKey.id,
+          actorId: undefined,
+          actorType: AuditActor.DEVICE,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+          },
         });
 
         return sendSuccess(
@@ -379,6 +430,18 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           quantity,
           totalDiscount
         );
+
+        await auditLog({
+          action: "BUY_PRODUCT",
+          entity: "Transaction",
+          entityId: transaction.id.toString(),
+          actorId: request.device.id.toString(),
+          actorType: AuditActor.DEVICE,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+          },
+        });
 
         return sendSuccess(
           reply,

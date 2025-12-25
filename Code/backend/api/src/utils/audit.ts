@@ -1,6 +1,12 @@
-import { prisma } from "@/plugins/prisma";
-import { AuditActorType } from "../generated/prisma/enums";
-export type AuditActor = AuditActorType;
+import { prisma } from "../plugins/prisma.js";
+import { AuditActorType } from "../generated/prisma/enums.js";
+
+export enum AuditActor {
+  USER = "USER",
+  DEVICE = "DEVICE",
+  SYSTEM = "SYSTEM",
+  SERVICE = "SERVICE",
+}
 
 export interface AuditLogParams {
   // Evento di dominio (vocabolario controllato)

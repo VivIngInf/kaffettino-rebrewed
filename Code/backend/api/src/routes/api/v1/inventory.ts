@@ -6,6 +6,7 @@ import {
   sendSuccess,
 } from "../../../utils/handlers.js";
 import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
+import auditLog, { AuditActor } from "../../../utils/audit.js";
 
 const BASE_PATH = "/inventory";
 const ROLES_NEEDED = {
@@ -54,6 +55,19 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
 
         const newProduct = await inventoryHandler.createProduct(body.name);
 
+        await auditLog({
+          action: "CREATE_PRODUCT",
+          entity: "Product",
+          entityId: newProduct.id.toString(),
+          actorId: request.session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { product: newProduct },
+          },
+        });
+
         return sendSuccess(reply, { product: newProduct }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
@@ -90,6 +104,19 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
           body.productId,
           { name: body.name }
         );
+
+        await auditLog({
+          action: "UPDATE_PRODUCT",
+          entity: "Product",
+          entityId: body.productId.toString(),
+          actorId: request.session.user.id.toString(),
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { product: updatedProduct },
+          },
+        });
 
         return sendSuccess(reply, { product: updatedProduct }, { code: 200 });
       } catch (error) {
