@@ -1,6 +1,6 @@
 // src/routes/user.ts
 import type { FastifyInstance } from "fastify";
-import { getSession } from "../../../utils/session.js";
+import { getSession } from "@/utils/session";
 
 export default async function protectedRoutes(fastify: FastifyInstance) {
   fastify.get("/protected", async (request, reply) => {

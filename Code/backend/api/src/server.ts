@@ -20,7 +20,7 @@ async function buildServer() {
   await fastify.register(autoload, {
     dir: path.join(import.meta.dirname, "routes"),
     autoHooks: true,
-    autoHooksPattern: /\.hook(?:\.ts|\.js|\.cjs|\.mjs)$/i,
+    autoHooksPattern: /\.hook(?:\.ts|\|\.cjs|\.mjs)$/i,
     cascadeHooks: true,
   });
 

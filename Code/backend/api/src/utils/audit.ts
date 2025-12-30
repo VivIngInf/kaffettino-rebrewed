@@ -1,5 +1,5 @@
-import { prisma } from "../plugins/prisma.js";
-import { AuditActorType } from "../generated/prisma/enums.js";
+import { prisma } from "@/plugins/prisma";
+import { AuditActorType } from "@/generated/prisma/enums";
 
 export enum AuditActor {
   USER = "USER",

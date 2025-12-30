@@ -1,5 +1,5 @@
-import deviceHandler from "../utils/handlers/device-handler.js";
-import { sendError } from "../utils/handlers/response-handler.js";
+import deviceHandler from "../utils/handlers/device-handler";
+import { sendError } from "../utils/handlers/response-handler";
 
 import { FastifyReply, FastifyRequest } from "fastify";
 

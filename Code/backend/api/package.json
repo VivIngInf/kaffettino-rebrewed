@@ -5,9 +5,7 @@
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "nodemon",
-    "build": "tsc --build",
-    "start": "node ./dist/server.js",
+    "run": "bun run ./src/server.ts",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:ui": "vitest --ui",

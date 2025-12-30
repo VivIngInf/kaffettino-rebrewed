@@ -1,12 +1,8 @@
 import type { FastifyInstance } from "fastify";
-import { Role } from "../../../generated/prisma/client.js";
-import {
-  inventoryHandler,
-  sendError,
-  sendSuccess,
-} from "../../../utils/handlers.js";
-import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
-import auditLog, { AuditActor } from "../../../utils/audit.js";
+import { Role } from "@/generated/prisma/client";
+import { inventoryHandler, sendError, sendSuccess } from "@/utils/handlers";
+import { sessionMW, permissionsMW } from "@/middlewares/mws";
+import auditLog, { AuditActor } from "@/utils/audit";
 
 const BASE_PATH = "/inventory";
 const ROLES_NEEDED = {

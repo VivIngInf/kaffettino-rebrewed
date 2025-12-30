@@ -1,6 +1,6 @@
-import permissionsMW from "./permissions.js";
-import sessionMW from "./session.js";
-import cardMW from "./card.js";
-import deviceMW from "./device.js";
+import permissionsMW from "./permissions";
+import sessionMW from "./session";
+import cardMW from "./card";
+import deviceMW from "./device";
 
 export { permissionsMW, sessionMW, cardMW, deviceMW };

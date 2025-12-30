@@ -1,11 +1,6 @@
-import { RequestStatus, Role } from "../../../generated/prisma/enums.js";
+import { RequestStatus, Role } from "@/generated/prisma/enums";
 import { FastifyInstance } from "fastify";
-import {
-  cardMW,
-  sessionMW,
-  permissionsMW,
-  deviceMW,
-} from "../../../middlewares/mws.js";
+import { cardMW, sessionMW, permissionsMW, deviceMW } from "@/middlewares/mws";
 import {
   transactionHandler,
   cardHandler,
@@ -15,8 +10,8 @@ import {
   walletHandler,
   sendError,
   sendSuccess,
-} from "../../../utils/handlers.js";
-import auditLog, { AuditActor } from "../../../utils/audit.js";
+} from "@/utils/handlers";
+import auditLog, { AuditActor } from "@/utils/audit";
 
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {

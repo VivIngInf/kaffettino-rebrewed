@@ -1,7 +1,7 @@
-import { Session } from "../../auth.js";
-import { User, Wallet, Role } from "../../generated/prisma/client.js";
-import { prisma } from "../../plugins/prisma.js";
-import { LogMethod } from "../decorators/logmethod.js";
+import { Session } from "@/auth";
+import { User, Wallet, Role } from "@/generated/prisma/client";
+import { prisma } from "@/plugins/prisma";
+import { LogMethod } from "../decorators/logmethod";
 
 class PermissionsHandler {
   private prisma: typeof prisma;

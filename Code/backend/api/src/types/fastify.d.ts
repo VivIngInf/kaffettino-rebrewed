@@ -1,7 +1,7 @@
-import { Card, Device } from "../generated/prisma/client.js";
-import { Session } from "../auth.js";
+import { Card, Device } from "../generated/prisma/client";
+import { Session } from "../auth";
 import "fastify";
-import { IGetCardInformations } from "@/utils/handlers/card-handler.js";
+import { IGetCardInformations } from "@/utils/handlers/card-handler";
 
 declare module "fastify" {
   interface FastifyRequest {

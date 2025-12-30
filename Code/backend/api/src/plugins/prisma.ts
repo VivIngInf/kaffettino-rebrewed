@@ -1,7 +1,7 @@
 // src/plugins/prisma.ts
 import "dotenv/config";
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "../generated/prisma/client.js";
+import { PrismaClient } from "../generated/prisma/client";
 import fp from "fastify-plugin";
 
 const adapter = new PrismaPg({

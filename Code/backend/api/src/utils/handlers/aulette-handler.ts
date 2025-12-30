@@ -1,5 +1,5 @@
-import { Auletta } from "../../generated/prisma/client.js";
-import { prisma } from "../../plugins/prisma.js";
+import { Auletta } from "@/generated/prisma/client";
+import { prisma } from "@/plugins/prisma";
 
 class AuletteHandler {
   private prisma: typeof prisma;

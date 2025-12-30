@@ -1,6 +1,6 @@
 // src/utils/session.ts
 import { fromNodeHeaders } from "better-auth/node";
-import auth from "../auth.js";
+import auth from "@/auth";
 
 /**
  * Retrieves the current authentication session based on the provided request.

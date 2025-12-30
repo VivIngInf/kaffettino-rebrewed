@@ -1,17 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { RequestStatus, Role } from "../../../generated/prisma/client.js";
-import {
-  IPagination,
-  IRangeSearch,
-  TAKE_GLOBAL,
-} from "../../../utils/search-utils.js";
-import {
-  walletHandler,
-  sendError,
-  sendSuccess,
-} from "../../../utils/handlers.js";
-import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
-import auditLog, { AuditActor } from "../../../utils/audit.js";
+import { RequestStatus, Role } from "@/generated/prisma/client";
+import { IPagination, IRangeSearch, TAKE_GLOBAL } from "@/utils/search-utils";
+import { walletHandler, sendError, sendSuccess } from "@/utils/handlers";
+import { sessionMW, permissionsMW } from "@/middlewares/mws";
+import auditLog, { AuditActor } from "@/utils/audit";
 
 const BASE_PATH = "/wallet";
 const ROLES_NEEDED = {

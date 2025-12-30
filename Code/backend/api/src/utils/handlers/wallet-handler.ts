@@ -3,10 +3,10 @@ import {
   TopUp,
   Wallet,
   WalletRequest,
-} from "../../generated/prisma/client.js";
-import { prisma } from "../../plugins/prisma.js";
-import { LogMethod } from "../decorators/logmethod.js";
-import { ISearchParams } from "../search-utils.js";
+} from "@/generated/prisma/client";
+import { prisma } from "@/plugins/prisma";
+import { LogMethod } from "../decorators/logmethod";
+import { ISearchParams } from "../search-utils";
 
 interface ICheckWalletRequest {
   userId?: string[];

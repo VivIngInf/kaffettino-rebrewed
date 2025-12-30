@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { Role } from "../../../generated/prisma/client.js";
+import { Role } from "@/generated/prisma/client";
 import {
   walletHandler,
   sendError,
@@ -10,9 +10,9 @@ import {
   IGetUser,
   ISetUserData,
   ISetUserRole,
-} from "../../../utils/handlers.js";
-import { sessionMW, permissionsMW } from "../../../middlewares/mws.js";
-import auditLog, { AuditActor } from "../../../utils/audit.js";
+} from "@/utils/handlers";
+import { sessionMW, permissionsMW } from "@/middlewares/mws";
+import auditLog, { AuditActor } from "@/utils/audit";
 
 const BASE_PATH = "/user";
 const ROLES_NEEDED = {

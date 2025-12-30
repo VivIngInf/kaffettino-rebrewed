@@ -1,5 +1,5 @@
 import { BetterAuthOptions } from "better-auth";
-import auth from "../auth.js";
+import auth from "../auth";
 
 import FastifyBetterAuth, {
   type FastifyBetterAuthOptions,

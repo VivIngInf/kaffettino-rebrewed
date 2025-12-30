@@ -27,7 +27,7 @@ export const statusCodes: Record<number, string> = {
 export type SupportedLanguages = "en" | "it";
 
 export const responseCodes = (lang: SupportedLanguages) =>
-  JSON.parse(fs.readFileSync(`../messages/${lang}.json`, "utf-8"));
+  JSON.parse(fs.readFileSync(`../messages/${lang}on`, "utf-8"));
 
 /**
  * Sends a standardized error response using Fastify's reply object.

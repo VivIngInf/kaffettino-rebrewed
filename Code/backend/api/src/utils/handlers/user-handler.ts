@@ -1,6 +1,6 @@
-import { User, Wallet, Role } from "../../generated/prisma/client.js";
-import { prisma } from "../../plugins/prisma.js";
-import { LogMethod } from "../decorators/logmethod.js";
+import { User, Wallet, Role } from "@/generated/prisma/client";
+import { prisma } from "@/plugins/prisma";
+import { LogMethod } from "../decorators/logmethod";
 
 export interface IGetUser extends User {
   wallets?: Wallet[];
