@@ -1,5 +1,5 @@
-import { sendError } from "../utils/handlers/response-handler";
-import { Role } from "../generated/prisma/enums";
+import { sendError } from "@/utils/handlers/response-handler";
+import { Role } from "@/generated/prisma/enums";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 /**

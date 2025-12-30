@@ -1,5 +1,5 @@
-import { sendError } from "../utils/handlers/response-handler";
-import { getSession } from "../utils/session";
+import { sendError } from "@/utils/handlers/response-handler";
+import { getSession } from "@/utils/session";
 import { FastifyReply, FastifyRequest } from "fastify";
 
 /**

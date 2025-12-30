@@ -1,7 +1,7 @@
-import { randomUUID, UUID } from "node:crypto";
 import { Card, User } from "@/generated/prisma/client";
 import { prisma } from "@/plugins/prisma";
 import { LogMethod } from "../decorators/logmethod";
+import { UUID } from "crypto";
 
 export interface IGetCardInformations extends Card {
   user: User;
@@ -27,7 +27,7 @@ class CardHandler {
    * @returns A promise that resolves to the newly created card object.
    */
   async createCard(userId: string) {
-    const cardId = `CARD:${randomUUID()}`;
+    const cardId = `CARD:${crypto.randomUUID()}`;
 
     const newCard = await this.prisma.card.create({
       data: {

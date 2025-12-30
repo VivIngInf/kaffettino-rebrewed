@@ -2,7 +2,7 @@ import { Device, DeviceRegistration } from "@/generated/prisma/client";
 import { RequestStatus } from "@/generated/prisma/enums";
 import { prisma } from "@/plugins/prisma";
 import { LogMethod } from "../decorators/logmethod";
-import { hash, randomUUID } from "node:crypto";
+import { hash } from "crypto";
 
 interface ICheckRequestsParams {
   deviceId?: string;
@@ -54,7 +54,7 @@ class DeviceHandler {
     deviceId,
     deviceName,
   }: IDeviceIdentifiers): Promise<Device> {
-    const newUUID = randomUUID();
+    const newUUID = crypto.randomUUID();
     const apiSecret = process.env.API_KEY_SECRET ?? "supersecretkey";
     const newAccessKey = hash("sha256", `${newUUID}_${apiSecret}_${newUUID}`);
 

@@ -1,5 +1,5 @@
-import deviceHandler from "../utils/handlers/device-handler";
-import { sendError } from "../utils/handlers/response-handler";
+import deviceHandler from "@/utils/handlers/device-handler";
+import { sendError } from "@/utils/handlers/response-handler";
 
 import { FastifyReply, FastifyRequest } from "fastify";
 
