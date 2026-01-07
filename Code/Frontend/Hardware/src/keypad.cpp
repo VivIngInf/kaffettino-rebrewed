@@ -15,13 +15,15 @@ void initKeypad()
     attachInterrupt(digitalPinToInterrupt(IRQ_KEYPAD), readKeypad, FALLING);  // Triggers when IRQ goes LOW
 
     keypadInterrupt = false;
+
     Wire.begin();
     Wire.setClock(100000);
 
     if(keyPad.begin() == false)
     {
         Serial.println("Cannot comunicate to keypad");
-        while(1);
+        return;
+        // TODO: HANDLE ERRORE
     }
 
     keyPad.setDebounceThreshold(50);

@@ -10,6 +10,8 @@ extern void tryConnectWifi();
 extern int connectWifi();
 extern bool isConnected();
 
+static long int timeBetweenConnectionTries = 15000;
+
 extern bool isConnecting;
 
 extern unsigned long lastConnection;

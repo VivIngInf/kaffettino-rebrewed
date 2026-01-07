@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-/* ----- My libs ----- */
+/* ----- Custom libs ----- */
 
 #include "config.h"
 #include "configWebServer.h"
@@ -16,10 +16,16 @@
 
 /* ----- Variables ----- */
 
-void setup() {
+
+
+void setup() 
+{
     
     // Start serial comunication
-    Serial.begin(115200);    
+    Serial.begin(115200);        
+
+    // Setup the display first so we can communicate errors effectively
+    setupDisplay();
 
     // Set the ESP as both a gateway and a client
     WiFi.mode(WIFI_AP_STA);
@@ -27,7 +33,7 @@ void setup() {
     // Load the WiFi credentials and general configs stored in memory
     initConfigs();
 
-    // We should restart the ESP if we get an internal server error
+    // Restart the ESP if the server returns an internal server error
     if(startWebServer() != 0)
 		ESP.restart();    
 
@@ -35,20 +41,19 @@ void setup() {
 
     initKeypad();    
 
-    setupDisplay();
-
     mp3PlayerInit();
 
     initLEDs();
     changeStatus(WAIT);
     startBlinking();
 
-    happySound();
+    kaffettinoDisplay();
+    happySound();    
 }
 
 void loop() 
 {    
-    // Process dns requests
+    // Process DNS requests
     if(serverUp)
     {
         dnsServer.processNextRequest();
@@ -56,11 +61,22 @@ void loop()
 
     unsigned long now = millis();
 
-    // If we aren't connected, we shouldn't proceed, but at least try to reconnect.
-    if(!isConnected() && !isConnecting && now - lastConnection >= 15000)
+    // If the device isn't connected, it shouldn't proceed deeper in the code
+    if(!isConnected())
     {
-        tryConnectWifi();        
-        return;
+        // But if enough time has passed from the last connection, the device should try to reconnect.
+        if(!isConnecting && now - lastConnection >= timeBetweenConnectionTries)
+        {
+            tryConnectWifi();        
+            
+            // If the device isn't still connected, do not proceed
+            if(!isConnected())
+                return;
+        }
+        else
+        {
+            return;
+        }
     }
   
     handleScanner(now);

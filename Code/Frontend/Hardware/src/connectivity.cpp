@@ -3,8 +3,7 @@
 #include "configWebServer.h"
 
 bool isConnecting = false;
-unsigned long lastConnection = 0;
-
+unsigned long lastConnection = timeBetweenConnectionTries; // At start is equal to timeBetweenConnectionTries, so the connections starts right away
 
 // Tries to connect to wifi and handles all errors
 void tryConnectWifi()

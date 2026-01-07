@@ -8,4 +8,5 @@
   (lib (name "OSTVN02A150")(type "KiCad")(uri "${KIPRJMOD}/libs/OSTVN02A150")(options "")(descr ""))
   (lib (name "PCF8574AN")(type "KiCad")(uri "${KIPRJMOD}/libs/PCF8574AN")(options "")(descr ""))
   (lib (name "OSTVN04A150")(type "KiCad")(uri "${KIPRJMOD}/libs/OSTVN04A150")(options "")(descr ""))
+  (lib (name "26052 matrix keypad 4x4")(type "KiCad")(uri "${KIPRJMOD}/libs/26052 matrix keypad 4x4")(options "")(descr ""))
 )
