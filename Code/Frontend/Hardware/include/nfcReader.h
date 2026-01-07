@@ -17,7 +17,7 @@ extern void initNFCScanner();
 extern void handleScanner(unsigned long now);
 extern void dump_byte_array(byte *buffer, byte bufferSize);
 
-const unsigned long NFCScanInterval = 100;   // 100ms scan delay
+const unsigned long NFCScanInterval = 200;   // scan delay
 extern unsigned long lastScanTime;
 
 #endif

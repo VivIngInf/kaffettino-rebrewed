@@ -7969,6 +7969,16 @@
 		)
 		(uuid "3b8d68fc-a39f-4ea9-ae52-c808dbd4870d")
 	)
+	(label "RFID_MISO"
+		(at 266.7 130.81 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "47bc9089-4ddd-4803-891b-2cb176eb5aa7")
+	)
 	(label "GEN_SDA"
 		(at 266.7 125.73 0)
 		(effects
@@ -8098,16 +8108,6 @@
 			(justify right)
 		)
 		(uuid "93b80743-d11c-408b-b130-e3d4cb879c3e")
-	)
-	(label "RFID_MOSI"
-		(at 266.7 130.81 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "98239d22-4001-48f6-9d5b-8da8ae6139dd")
 	)
 	(label "GEN_SCL"
 		(at 161.29 43.18 90)
@@ -8251,6 +8251,16 @@
 		)
 		(uuid "c3e9cffe-279d-4268-89d1-756070429648")
 	)
+	(label "RFID_MOSI"
+		(at 266.7 115.57 0)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left)
+		)
+		(uuid "cabbed5f-5a5d-4d83-a5e6-8bdd66b99289")
+	)
 	(label "RFID_RST"
 		(at 220.98 140.97 180)
 		(effects
@@ -8351,16 +8361,6 @@
 			(justify right)
 		)
 		(uuid "ea703354-f09a-469c-9b1f-3603e0727103")
-	)
-	(label "RFID_MISO"
-		(at 266.7 115.57 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "f49aeabe-8b06-423b-af35-0d7014119288")
 	)
 	(label "MICRO_SD_RX"
 		(at 266.7 140.97 0)
