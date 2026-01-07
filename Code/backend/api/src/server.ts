@@ -3,6 +3,8 @@ import autoload from "@fastify/autoload";
 import path from "path";
 import "dotenv/config";
 
+const SERVER_PORT = 6969;
+
 const fastify = Fastify({
   logger: true,
 });
@@ -77,12 +79,12 @@ async function buildServer() {
 async function start() {
   try {
     await buildServer();
-    await fastify.listen({ port: 3000, host: "0.0.0.0" });
+    await fastify.listen({ port: SERVER_PORT, host: "0.0.0.0" });
     console.log("DB_URL:", process.env.DATABASE_URL);
 
     const address = fastify.server.address();
-    const port = typeof address === "object" && address ? address.port : 3000;
-
+    const port =
+      typeof address === "object" && address ? address.port : SERVER_PORT;
     console.log(`🚀 fastify running on http://localhost:${port}`);
   } catch (err) {
     console.log(err);

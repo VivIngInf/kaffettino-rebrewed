@@ -1,0 +1,30 @@
+import { setRequestLocale } from "next-intl/server";
+import { hasLocale } from "next-intl";
+import { notFound } from "next/navigation";
+import { routing } from "@/i18n/routing";
+import { Metadata } from "next";
+
+type Props = {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+};
+
+export const metadata: Metadata = {
+  title: "Vivere Services",
+  description: "Vivere Services Application",
+};
+
+// we are charlie kirk
+// msworks.it was here, too.
+
+export default async function LocaleLayout({ children, params }: Props) {
+  const { locale } = await params;
+  if (!hasLocale(routing.locales, locale)) {
+    notFound();
+  }
+
+  // Enable static rendering
+  setRequestLocale(locale);
+
+  return <>{children}</>;
+}
