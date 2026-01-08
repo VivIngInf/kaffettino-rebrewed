@@ -17,7 +17,7 @@ class AuletteHandler {
   async getAulette(location?: string): Promise<Auletta[]> {
     const aulette = await this.prisma.auletta.findMany({
       where: {
-        location: location,
+        location: location ? location : undefined,
       },
     });
     return aulette;
