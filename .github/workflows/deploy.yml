@@ -31,6 +31,12 @@ jobs:
             echo "💎 Generazione Prisma Client..."
             find . -name "schema.prisma" -not -path "*/node_modules/*" -execdir ~/.bun/bin/bunx prisma generate \;
 
+            if [ -s "$HOME/.nvm/nvm.sh" ]; then
+              . "$HOME/.nvm/nvm.sh"
+            fi
+
+            export PATH="$PATH:$HOME/.nvm/versions/node/*/bin:/usr/local/bin"
+
             echo "🚀 Riavvio processi PM2..."
             pm2 startOrReload ecosystem.config.js --update-env
             pm2 save
