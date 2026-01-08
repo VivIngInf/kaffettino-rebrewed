@@ -1,0 +1,36 @@
+name: Deploy Repo to VPS
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.KIRK_SSH_KEY }}
+          script: |
+            set -e
+
+            git config --global --add safe.directory /var/www/services/kaffettino-rebrewed
+
+            cd /var/www/services/kaffettino-rebrewed
+            git pull origin main
+
+            echo "📦 Installazione dipendenze..."
+            find . -name "package.json" -not -path "*/node_modules/*" -execdir ~/.bun/bin/bun install \;
+
+            # Cerca ovunque ci sia un file 'schema.prisma' ed esegue il generate in quella cartella
+            echo "💎 Generazione Prisma Client..."
+            find . -name "schema.prisma" -not -path "*/node_modules/*" -execdir ~/.bun/bin/bunx prisma generate \;
+
+            echo "🚀 Riavvio processi PM2..."
+            pm2 startOrReload ecosystem.config.js --update-env
+            pm2 save
