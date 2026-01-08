@@ -37,6 +37,8 @@ jobs:
 
             export PATH="$PATH:$HOME/.nvm/versions/node/*/bin:/usr/local/bin"
 
+            cd /var/www/services/kaffettino-rebrewed/Code
+
             echo "🚀 Riavvio processi PM2..."
             pm2 startOrReload ecosystem.config.js --update-env
             pm2 save
