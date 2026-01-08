@@ -263,6 +263,12 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     try {
       const { location } = (await request.query) as { location?: string };
 
+      if (!location)
+        return sendError(reply, {
+          code: 400,
+          message: "Missing mandatory param 'location'.",
+        });
+
       const aulette = await auletteHandler.getAulette(location);
 
       return sendSuccess(reply, { aulette: aulette }, { code: 200 });
