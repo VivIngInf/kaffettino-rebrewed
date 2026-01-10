@@ -47,72 +47,110 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
+  /* HEX: #F3F3FD (Background) */
+  --background: oklch(0.96 0.015 264);
+  /* HEX: #1D1D1D (Foreground Text) */
+  --foreground: oklch(0.18 0 0);
+
+  /* Cards same as bg or slightly lighter (pure white) for depth */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
+  --card-foreground: oklch(0.18 0 0);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.18 0 0);
+
+  /* HEX: #071D99 (Primary Blue) */
+  --primary: oklch(0.32 0.18 264);
+  --primary-foreground: oklch(0.98 0 0);
+
+  /* HEX: #6200EE (Purple - used for secondary/soft accents) */
+  --secondary: oklch(0.94 0.03 290);
+  --secondary-foreground: oklch(0.32 0.18 264);
+
+  --muted: oklch(0.94 0.02 264);
+  --muted-foreground: oklch(0.5 0.05 264);
+
+  --accent: oklch(0.92 0.03 264);
+  --accent-foreground: oklch(0.32 0.18 264);
+
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.88 0.02 264);
+  --input: oklch(0.88 0.02 264);
+
+  /* HEX: #FFCC33 (Yellow - used for focus rings to pop) */
+  --ring: oklch(0.83 0.16 85);
+
+  --radius: 0.625rem;
+
+  /* Chart Colors from your palette */
+  --chart-1: oklch(0.32 0.18 264); /* Blue #071D99 */
+  --chart-2: oklch(0.48 0.26 290); /* Purple #6200EE */
+  --chart-3: oklch(0.83 0.16 85); /* Yellow #FFCC33 */
+  --chart-4: oklch(0.6 0.15 200); /* Cyan variant */
+  --chart-5: oklch(0.65 0.2 340); /* Pink variant */
+
+  /* Sidebar (Light Mode) */
+  --sidebar: oklch(0.98 0.01 264); /* Very light version of background */
+  --sidebar-foreground: oklch(0.32 0.18 264); /* Blue text */
+  --sidebar-primary: oklch(0.32 0.18 264); /* Blue active */
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.94 0.03 264);
+  --sidebar-accent-foreground: oklch(0.32 0.18 264);
+  --sidebar-border: oklch(0.9 0.02 264);
+  --sidebar-ring: oklch(0.83 0.16 85); /* Yellow ring */
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* HEX: #1D1D1D (Dark Background) */
+  --background: oklch(0.18 0 0);
+  /* HEX: #F3F3FD (Light Text) */
+  --foreground: oklch(0.96 0.015 264);
+
+  --card: oklch(0.22 0.01 264);
+  --card-foreground: oklch(0.96 0.015 264);
+  --popover: oklch(0.22 0.01 264);
+  --popover-foreground: oklch(0.96 0.015 264);
+
+  /* HEX: #6200EE (Purple) or Lightened Blue for Dark Mode Primary */
+  /* Using the Purple helps it pop against the black background */
+  --primary: oklch(0.48 0.26 290);
+  --primary-foreground: oklch(0.98 0 0);
+
+  --secondary: oklch(0.25 0.05 264);
+  --secondary-foreground: oklch(0.96 0.015 264);
+
+  --muted: oklch(0.25 0.05 264);
+  --muted-foreground: oklch(0.7 0.05 264);
+
+  --accent: oklch(0.28 0.08 264);
+  --accent-foreground: oklch(0.96 0.015 264);
+
+  --destructive: oklch(0.4 0.2 25);
+  --destructive-foreground: oklch(0.98 0 0);
+
+  --border: oklch(0.28 0.02 264);
+  --input: oklch(0.28 0.02 264);
+
+  /* Yellow Ring looks great on dark mode */
+  --ring: oklch(0.83 0.16 85);
+
+  /* Charts adjusted for dark mode */
+  --chart-1: oklch(0.45 0.22 264); /* Lighter Blue */
+  --chart-2: oklch(0.6 0.24 290); /* Lighter Purple */
+  --chart-3: oklch(0.83 0.16 85); /* Yellow stays */
+  --chart-4: oklch(0.7 0.15 200);
+  --chart-5: oklch(0.75 0.18 340);
+
+  /* Sidebar (Dark Mode) */
+  --sidebar: oklch(0.15 0 0); /* Slightly darker than bg */
+  --sidebar-foreground: oklch(0.96 0.015 264);
+  --sidebar-primary: oklch(0.48 0.26 290); /* Purple active */
+  --sidebar-primary-foreground: oklch(0.98 0 0);
+  --sidebar-accent: oklch(0.25 0.05 264);
+  --sidebar-accent-foreground: oklch(0.96 0.015 264);
+  --sidebar-border: oklch(0.28 0.02 264);
+  --sidebar-ring: oklch(0.83 0.16 85);
 }
 
 @layer base {
@@ -121,5 +159,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .title-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60;
   }
 }
