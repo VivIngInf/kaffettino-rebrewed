@@ -22,6 +22,55 @@ export default async function cardRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/create`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.createCard)],
+      schema: {
+        description: "Create a new NFC card for a user",
+        tags: ["card"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["userId"],
+          properties: {
+            userId: {
+              type: "string",
+              description: "ID of the user to assign the card to",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Card created successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              card: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  userId: { type: "string" },
+                  blocked: { type: "boolean" },
+                  createdAt: { type: "string", format: "date-time" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing userId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -66,6 +115,55 @@ export default async function cardRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/pin`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.updatePin)],
+      schema: {
+        description: "Update or remove PIN for a card",
+        tags: ["card"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["cardId"],
+          properties: {
+            cardId: {
+              type: "string",
+              description: "ID of the card to update PIN",
+            },
+            pin: {
+              type: "number",
+              description: "PIN number (4-6 digits) or null to remove PIN",
+              nullable: true,
+              minimum: 4,
+              maximum: 6,
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "PIN updated successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+            },
+          },
+          400: {
+            description:
+              "Bad request - missing cardId or invalid PIN requirements",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -114,7 +212,56 @@ export default async function cardRoutes(fastify: FastifyInstance) {
    */
   fastify.put(
     `${BASE_PATH}/block`,
-    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.blockCard)] },
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.blockCard)],
+      schema: {
+        description: "Block a card to prevent its usage",
+        tags: ["card"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["cardId"],
+          properties: {
+            cardId: {
+              type: "string",
+              description: "ID of the card to block",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Card blocked successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              card: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  blocked: { type: "boolean" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing cardId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const body = (await request.body) as { cardId?: cardId };
@@ -155,7 +302,56 @@ export default async function cardRoutes(fastify: FastifyInstance) {
    */
   fastify.put(
     `${BASE_PATH}/unblock`,
-    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.blockCard)] },
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.blockCard)],
+      schema: {
+        description: "Unblock a previously blocked card",
+        tags: ["card"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["cardId"],
+          properties: {
+            cardId: {
+              type: "string",
+              description: "ID of the card to unblock",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Card unblocked successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              card: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  blocked: { type: "boolean" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing cardId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const body = (await request.body) as { cardId?: cardId };
