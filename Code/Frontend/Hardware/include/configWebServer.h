@@ -15,7 +15,6 @@ extern bool isWebServerOn();
 extern String processor(const String& var);
 extern void handleNewConfigs(AsyncWebServerRequest *request);
 
-
 extern bool serverUp;
 extern bool hasNewConfigs;
 
