@@ -71,6 +71,21 @@ export default async function LocalePage() {
           ></ServiceCard>
         </div>
       </div>
+
+      <div id="troubleshooting">
+        <div className="col-span-full text-center mt-16 mb-16">
+          <h1 className="text-3xl sm:text-3xl md:text-3xl lg:text-5xl font-black title-gradient">
+            Problemi di accesso ai servizi?
+          </h1>
+          <p className="mt-4 text-md sm:text-md md:text-xl lg:text-xl text-gray-600">
+            Se riscontri difficoltà nell&apos;accesso ai nostri servizi, non
+            esitare a contattarci. Siamo qui per aiutarti!
+          </p>
+        </div>
+        <div>
+          {/* componente che reindirizza al segnalatore problemi, mettere anche form di contatto */}
+        </div>
+      </div>
     </main>
   );
 }

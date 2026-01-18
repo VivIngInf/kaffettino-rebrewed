@@ -42,7 +42,7 @@ export default async function ServiceCard({
           </div>
 
           <div className="flex flex-col">
-            <CardTitle className="text-xl md:text-2xl">{title}</CardTitle>
+            <CardTitle className="text-lg md:text-lg">{title}</CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
         </CardHeader>
