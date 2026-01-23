@@ -25,6 +25,6 @@ extern AsyncWebServer server;
 extern DNSServer dnsServer;
 
 extern void startCaptiveDNS();
-
+extern void handleDNS();
 
 #endif 

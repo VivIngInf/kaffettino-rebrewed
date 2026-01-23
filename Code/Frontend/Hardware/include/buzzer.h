@@ -4,5 +4,9 @@
 const int BUZZER = 15;
 
 extern void happySound();
+extern void bootSound();
+extern void connectedSound();
+extern void disconnectedSound();
+
 
 #endif

@@ -207,14 +207,21 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     {
         saveConfigs();     
         
-        if(!isConnecting)
-            tryConnectWifi();  
+        if(connectionState != CONNECTION_CONNECTING)
+            startConnecting();
     }
 
     hasNewConfigs = false; 
 }
 
-void startCaptiveDNS() {
+void handleDNS()
+{
+    if(serverUp)
+        dnsServer.processNextRequest();
+}
+
+void startCaptiveDNS() 
+{
     dnsServer.start(53, "*", WiFi.softAPIP()); 
     Serial.println("Started DNS server!"); 
 }

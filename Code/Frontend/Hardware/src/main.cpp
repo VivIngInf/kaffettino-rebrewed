@@ -47,38 +47,22 @@ void setup()
     changeStatus(WAIT);
     startBlinking();
 
-    kaffettinoDisplay();
-    happySound();    
+    bootSound();    
+    startConnecting();
 }
 
 void loop() 
 {    
-    // Process DNS requests
-    if(serverUp)
-    {
-        dnsServer.processNextRequest();
-    }
-
     unsigned long now = millis();
+
+    handleDNS(); // Processes DNS requests for the captive portal    
+
+    handleConnection(now); // Handles Wifi connection and errors
 
     // If the device isn't connected, it shouldn't proceed deeper in the code
     if(!isConnected())
-    {
-        // But if enough time has passed from the last connection, the device should try to reconnect.
-        if(!isConnecting && now - lastConnection >= timeBetweenConnectionTries)
-        {
-            tryConnectWifi();        
-            
-            // If the device isn't still connected, do not proceed
-            if(!isConnected())
-                return;
-        }
-        else
-        {
-            return;
-        }
-    }
-  
+        return;
+        
     handleScanner(now);
     
     handleKeypad();

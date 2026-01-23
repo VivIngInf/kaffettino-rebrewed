@@ -1,59 +1,102 @@
 #include "connectivity.h"
 #include "config.h"
 #include "configWebServer.h"
+#include "display.h"
+#include "buzzer.h"
 
-bool isConnecting = false;
 unsigned long lastConnection = timeBetweenConnectionTries; // At start is equal to timeBetweenConnectionTries, so the connections starts right away
+unsigned long lastConnectionAttempt = 0;
+int currentConnectionRetry = 0;
+ConnectionState connectionState = CONNECTION_IDLE;
+
+void initConnection()
+{
+    lastConnectionAttempt = 0;
+    connectionState = CONNECTION_IDLE;
+    currentConnectionRetry = 0;
+}
+
+void startConnecting()
+{
+    if (connectionState == CONNECTION_CONNECTING)
+        return;
+
+    Serial.println("Starting WiFi connection...");
+    
+    currentConnectionRetry = 0;
+    connectionState = CONNECTION_CONNECTING;
+}
 
 // Tries to connect to wifi and handles all errors
-void tryConnectWifi()
+void handleConnection(unsigned long now)
 {
-    int maxRetries = 3;
-    int currentRetry = 1;    
 
-    isConnecting = true;
-
-    // If the module isn't connected, or the connection went away, we should try to reconnect
-    while (WiFi.status() != WL_CONNECTED && currentRetry <= maxRetries)
+    if (WiFi.status() != WL_CONNECTED && connectionState == CONNECTION_CONNECTED)
     {
-        int status = connectWifi();
-
-        Serial.print("Trying to connect, try number: ");
-        Serial.println(currentRetry);
-
-        switch (status)
-        {
-            case -2:  // Config error
-                Serial.println("Config error, retrying...");
-                delay(1000);
-                break;
-            case -1:  // Network error
-                Serial.println("Network error, retrying...");
-                delay(1000);
-                break;
-            default:
-                Serial.println("Connected successfully!");
-                break;
-        }
-
-        currentRetry++;
+        disconnectedSound();
+        Serial.println("The device was connected, but the connection dropped. Trying to reconnect.");
+        connectionState = CONNECTION_CONNECTING;        
     }
 
+    if (connectionState == CONNECTION_FAILED && now - lastConnectionAttempt >= timeBetweenConnectionTries)
+    {
+        Serial.println("Retrying connecting after the device was unable to.");
+        connectionState = CONNECTION_CONNECTING;
+        currentConnectionRetry = 0;
+    }
+
+    // If the device isn't supposed to connect, return
+    if (connectionState != CONNECTION_CONNECTING)
+        return;
+
+    // If the device is connected, change the state and return
+    if (WiFi.status() == WL_CONNECTED) 
+    {
+        Serial.println("Connected successfully!");
+        connectionState = CONNECTION_CONNECTED;        
+        lastConnection = now;
+        currentConnectionRetry = 0;
+        displayConnected();
+        connectedSound();
+        return;
+    }
+
+    displayConnecting(now);
+
+    // If not enough time has passed between the last connection, do not proceed (this way the device won't spam the access point with connection requests)
+    if (now - lastConnectionAttempt < connectionRetryInterval) return;
+
+    lastConnectionAttempt = now;
+
+    // If the max retries limit is exceeded, return and wait some time
+    if (currentConnectionRetry >= maxConnectionRetries) 
+    {
+        Serial.println("Maximum retries reached. Retrying in 15sec...");
+        connectionState = CONNECTION_FAILED;
+        displayConnectionError();
+        disconnectedSound();
+        return;
+    }
+
+    currentConnectionRetry++;
     
-    // If we reach the max retries, start the fallback server and await for user input
-    if (currentRetry >= maxRetries)
-    {
-        Serial.println("Maximum connection retries reached. Please change credentials.");
-        // TODO: Write to screen something for the end user
-    }
+    Serial.print("Trying to connect, try number: ");
+    Serial.println(currentConnectionRetry);
 
-    if(isConnected())
+    int status = connectWifi();
+
+    switch (status)
     {
-        Serial.println("No more in connecting status, entering the main loop");
+        case -2:  // Config error
+            Serial.println("Config error, retrying...");
+            connectionState = CONNECTION_FAILED;            
+            break;
+        case -1:  // Network error
+            Serial.println("Network error, retrying...");            
+            break;
+        default:            
+            break;
     }
-    
-    isConnecting = false;
-    lastConnection = millis();
 }
 
 // Returns -2 in case of config error, -1 in case of network error, 0 in case of success
@@ -109,21 +152,6 @@ int connectWifi()
         WiFi.begin(WIFI_SSID, WIFI_PASSWORD);        
     }
 
-    // Wait a sec before checking if it has connected to the network
-    if(WiFi.status() != WL_CONNECTED){
-        delay(1000);
-    }
-    
-    if (WiFi.status() != WL_CONNECTED)
-    {
-        delay(3000); // Wait a bit before rechecking        
-    }
-    
-    // If we haven't connected yet, the most likely cause is wrong credentials. Go back
-    if(WiFi.status() != WL_CONNECTED)
-        return -1; // Network error
-
-    Serial.println("The connection was successfull");
     return 0;
 }
 
