@@ -16,11 +16,10 @@
 
 /* ----- Variables ----- */
 
-
-
 void setup() 
 {
-    
+    // TODO: CHECK FOR ERRORS !!!!
+
     // Start serial comunication
     Serial.begin(115200);        
 

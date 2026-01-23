@@ -50,7 +50,7 @@ void displayConnecting(unsigned long now)
             display.drawStr(64, 27, "KAFFETTINO");
             display.drawStr(61, 46, "CONNETTENDO");
 
-            display.drawXBM(-2, 0, 64, 64, kaffettinoNormale);
+            display.drawXBM(-2, 0, 64, 64, coffyNormale);
 
             display.drawEllipse(79, 53, 4, 4);
             display.drawEllipse(109, 53, 4, 4);
@@ -77,7 +77,7 @@ void displayConnected()
     display.drawStr(64, 27, "KAFFETTINO");
     display.drawStr(67, 46, "CONNESSO!");
 
-    display.drawXBM(-2, 0, 64, 64, kaffettinoFelice);
+    display.drawXBM(-2, 0, 64, 64, coffyFelice);
 
     display.sendBuffer();
 }
@@ -94,7 +94,43 @@ void displayConnectionError()
     display.drawStr(61, 46, "CONNESSIONE");
     display.drawStr(70, 57, "FALLITA!");
 
-    display.drawXBM(-2, 0, 64, 64, kaffettinoTriste);
+    display.drawXBM(-2, 0, 64, 64, coffyTriste);
+
+    display.sendBuffer();
+}
+
+void displayCriticalError()
+{
+    dotIndex = 0;
+
+    display.clearBuffer();    
+
+    display.drawXBM(2, 3, 32, 32, coffyMorto);
+
+    display.setFont(u8g2_font_t0_11_tr);
+    display.drawStr(38, 11, "ERRORE CRITICO");
+    display.drawStr(35, 24, "CHIAMA UN ADMIN");
+
+    display.setFont(u8g2_font_4x6_tr);
+    display.drawStr(36, 35, "CERCHI VUOTI == ERRORE");
+
+    display.drawEllipse(7, 44, 3, 3);
+    display.drawStr(13, 47, "SERIALE");
+    
+    display.drawEllipse(106, 44, 3, 3);
+    display.drawStr(112, 47, "MP3");
+
+    display.drawEllipse(106, 56, 3, 3);
+    display.drawStr(112, 59, "NFC");
+
+    display.drawEllipse(7, 56, 3, 3);
+    display.drawStr(13, 59, "KEYPAD");
+
+    display.drawEllipse(56, 56, 3, 3);
+    display.drawStr(62, 59, "DISPLAY");
+
+    display.drawEllipse(56, 44, 3, 3);
+    display.drawStr(62, 47, "MEMORIA");
 
     display.sendBuffer();
 }

@@ -73,7 +73,7 @@ void handleConnection(unsigned long now)
     {
         Serial.println("Maximum retries reached. Retrying in 15sec...");
         connectionState = CONNECTION_FAILED;
-        displayConnectionError();
+        displayConnectionError();        
         disconnectedSound();
         return;
     }
