@@ -3,7 +3,8 @@
 #include "buzzer.h"
 
 // 8 bit array for memorizing error flags
-uint8_t errorFlags = 0;
+uint8_t errorFlags = 0; 
+uint8_t warningFlags = 0;
 
 void setError(ERROR_LABELS error)
 {
@@ -25,6 +26,26 @@ bool hasAnyError()
     return errorFlags != 0;   
 }
 
+void setWarning(WARNING_LABELS warning)
+{
+    warningFlags |= warning;
+}
+
+void removeWarning(WARNING_LABELS warning)
+{
+    warningFlags &= ~warning;
+}
+
+bool hasWarning(WARNING_LABELS warning)
+{
+    return (warningFlags & warning) != 0;
+}
+
+bool hasAnyWarning()
+{
+    return warningFlags != 0;   
+}
+
 void printErrors()
 {
     if (errorFlags == 0) 
@@ -42,10 +63,7 @@ void printErrors()
         Serial.println("\t- Serial error");
 
     if (errorFlags & ERR_MEMORY)
-        Serial.println("\t- Memory error");
-
-    if (errorFlags & ERR_MP3)
-        Serial.println("\t- MP3 error");
+        Serial.println("\t- Memory error");    
 
     if (errorFlags & ERR_KEYPAD)
         Serial.println("\t- Keypad error");
@@ -55,19 +73,40 @@ void printErrors()
 
     if (errorFlags & ERR_NFC)
         Serial.println("\t- NFC error");
+
+    if (errorFlags & ERR_NETWORK)
+        Serial.println("\t- Network error");
+        
+}
+
+void printWarnings()
+{
+    if(warningFlags == 0)
+    {
+        Serial.println("No warnings");
+        return;
+    }
+
+    Serial.println("Warnings detected:");
+
+    if (warningFlags & WARN_MP3)
+        Serial.println("\t- MP3 error");
 }
 
 void handleErrors()
 {
-    if(!hasAnyError())
+    if(!hasAnyError() && !hasAnyWarning())
         return;
 
     deathSound();
 
     printErrors();
-    displayCriticalError();
+    printWarnings();
+
+    displayErrorsAndWarning();
 
     delay(10000);
 
-    ESP.restart();
+    if(hasAnyError())
+        ESP.restart();
 }

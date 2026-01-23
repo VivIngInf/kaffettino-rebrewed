@@ -14,6 +14,7 @@
 #include "buzzer.h"
 #include "keypad.h"
 #include "errorHandler.h"
+#include "utility.h"
 
 /* ----- Variables ----- */
 
@@ -22,8 +23,19 @@ void setup()
     // Start serial comunication
     Serial.begin(115200);        
 
+    if(!Serial)
+        setError(ERR_SERIAL);
+
+    // Start wire for I2C connection
+    Wire.begin(GEN_SDA, GEN_SCL);
+
+    // Scan I2C network, outputs avaiable devices, mostly for debugging, expected 0x20 (keyboard), 0x3C (display) and ??? (Mp3)
+    if(!hasError(ERR_SERIAL))
+        scanI2CBus();
+
     // Setup the display first so we can communicate errors effectively
-    setupDisplay();
+    if(!setupDisplay())
+        setError(ERR_DISPLAY);   
 
     // Set the ESP as both a gateway and a client
     WiFi.mode(WIFI_AP_STA);
@@ -32,15 +44,19 @@ void setup()
     initConfigs();
 
     // Restart the ESP if the server returns an internal server error
-    if(startWebServer() != 0)
-		ESP.restart();    
+    if(!startWebServer())
+		setError(ERR_NETWORK);
 
-    initNFCScanner();
+    // Starts the NFC scanner, checks if version is valid, if not valid an error occured
+    if(!initNFCScanner())
+        setError(ERR_NFC);
 
-    initKeypad();    
+    if(!initKeypad())
+        setError(ERR_KEYPAD);    
 
-    mp3PlayerInit();
-
+    if (!initMP3Player())
+        setWarning(WARN_MP3);
+    
     initLEDs();
     changeStatus(WAIT);
     startBlinking();

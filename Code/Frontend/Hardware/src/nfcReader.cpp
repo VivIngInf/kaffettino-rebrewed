@@ -4,13 +4,25 @@ MFRC522 nfcScanner(SDA_PIN, RST_PIN);
 
 unsigned long lastScanTime = 0; // Last time the sensor was polled
 
-void initNFCScanner()
+bool initNFCScanner()
 {
-    SPI.begin();
-    
+    SPI.begin();    
+
     // Init the NFC reader
     nfcScanner.PCD_Init();
-    nfcScanner.PCD_DumpVersionToSerial();    
+    
+    
+    byte version = nfcScanner.PCD_ReadRegister(MFRC522::VersionReg);
+
+    if(version == 0x00 || version == 0xFF)
+    {
+        Serial.println("[NFC] Reader not detected");        
+        return false;
+    }
+
+    Serial.printf("[NFC] Reader OK (0x%02X)\n", version);
+    return true;
+
 }
 
 void handleScanner(unsigned long now)

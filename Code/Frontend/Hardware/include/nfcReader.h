@@ -13,7 +13,7 @@ const int RST_PIN = 14;
 
 // const int IRQ_PIN = 39;  The RFID-RC522 module doesn't support interrupts to see when cards are hovering, so it is not useful for the project
 
-extern void initNFCScanner();
+extern bool initNFCScanner();
 extern void handleScanner(unsigned long now);
 extern void dump_byte_array(byte *buffer, byte bufferSize);
 

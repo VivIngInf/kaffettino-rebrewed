@@ -10,6 +10,6 @@ const int MP3_TX = 16;
 extern HardwareSerial mp3HwSerial;
 extern DFRobotDFPlayerMini mp3Player;
 
-extern void mp3PlayerInit();
+extern bool initMP3Player();
 
 #endif

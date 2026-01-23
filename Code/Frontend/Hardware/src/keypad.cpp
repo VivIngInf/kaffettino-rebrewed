@@ -8,7 +8,7 @@ const uint8_t KEYPAD_ADDRESS = 0x20;
 I2CKeyPad keyPad(KEYPAD_ADDRESS);
 char keys[] = "123A456B789C*0#DNF";  //  N = NoKey, F = Fail (e.g. > 1 keys pressed)
 
-void initKeypad()
+bool initKeypad()
 {
     pinMode(IRQ_KEYPAD, INPUT); // Set this to PULLUP if using a pin with an internal resistor
        
@@ -16,22 +16,20 @@ void initKeypad()
 
     keypadInterrupt = false;
 
-    Wire.begin();
-    Wire.setClock(100000);
-
-    if(keyPad.begin() == false)
+    if(!keyPad.begin())
     {
         Serial.println("Cannot comunicate to keypad");
-        return;
-        // TODO: HANDLE ERRORE
+        return false;        
     }
 
     keyPad.setDebounceThreshold(50);
     measurePolling();
 
+    return true;
 }
 
-void readKeypad() 
+// IRAM_ATTR forces the code to be run in RAM and not flash memory
+void IRAM_ATTR readKeypad() 
 {
     // Check the time since the last interrupt to debounce
     unsigned long currentMillis = millis();

@@ -4,13 +4,14 @@
 #include <U8g2lib.h>
 #include <Wire.h>
 #include <SPIFFS.h>
+#include <errorHandler.h>
 
 extern U8G2_SSD1309_128X64_NONAME2_F_SW_I2C display;
 
 const int GEN_SCL = 22;
 const int GEN_SDA = 21;
 
-extern void setupDisplay();
+extern bool setupDisplay();
 
 #define LCDWidth                        display.getDisplayWidth()
 #define ALIGN_CENTER(t)                 ((LCDWidth - (display.getUTF8Width(t))) / 2) - HORIZONTAL_OFFSET
@@ -25,7 +26,12 @@ extern void setupDisplay();
 extern void displayConnecting(unsigned long now);
 extern void displayConnected();
 extern void displayConnectionError();
-extern void displayCriticalError();
+extern void displayErrorsAndWarning();
+
+extern void drawErrorDot(int x, int y, ERROR_LABELS error);
+extern void drawWarningDot(int x, int y, WARNING_LABELS warning);
+
+const uint8_t displayI2CAddress = 0x3C;
 
 /* IMAGES */
 

@@ -8,7 +8,7 @@
 //extern PCF8574 gpioExtender;
 const int IRQ_KEYPAD = 36;
 
-extern void initKeypad();
+extern bool initKeypad();
 extern void readKeypad();
 extern void handleKeypad();
 extern void measurePolling();
@@ -17,5 +17,7 @@ extern volatile bool keypadInterrupt;
 
 extern unsigned long lastInterruptTimeKeypad;      // Timestamp for debounce mechanism
 const unsigned long debounceDelayKeypad = 20;    // 200ms debounce delay
+
+const uint8_t keypadI2CAddress = 0x20;
 
 #endif

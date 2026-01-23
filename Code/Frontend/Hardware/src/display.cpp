@@ -1,4 +1,5 @@
 #include "display.h"
+#include "utility.h"
 
 // Create the display object and bind it to I2C
 U8G2_SSD1309_128X64_NONAME2_F_SW_I2C display (U8G2_R0, GEN_SCL, GEN_SDA, U8X8_PIN_NONE);
@@ -8,8 +9,11 @@ int dotIndex = 0;
 int loadingDotsDelay = 1000;
 int latestDot = 0;
 
-void setupDisplay()
+bool setupDisplay()
 {
+    if(!probeI2C(displayI2CAddress, 5, 10))
+        return false;
+
     display.begin();
     display.firstPage();
 
@@ -19,6 +23,24 @@ void setupDisplay()
     display.drawStr(ALIGN_CENTER("KAFFETTINO"), VERTICAL_CENTER, "KAFFETTINO");
     display.drawStr(ALIGN_CENTER("INITIALIZING..."), VERTICAL_CENTER + 20, "INITIALIZING...");
     display.nextPage();
+
+    return true;
+}
+
+void drawErrorDot(int x, int y, ERROR_LABELS error)
+{
+    if(hasError(error))
+        display.drawFilledEllipse(x, y, 3, 3);
+    else
+        display.drawEllipse(x, y, 3, 3);
+}
+
+void drawWarnDot(int x, int y, WARNING_LABELS warning)
+{
+    if(hasWarning(warning))
+        display.drawFilledEllipse(x, y, 3, 3);
+    else
+        display.drawEllipse(x, y, 3, 3);
 }
 
 void displayConnecting(unsigned long now)
@@ -99,7 +121,7 @@ void displayConnectionError()
     display.sendBuffer();
 }
 
-void displayCriticalError()
+void displayErrorsAndWarning()
 {
     dotIndex = 0;
 
@@ -108,28 +130,45 @@ void displayCriticalError()
     display.drawXBM(2, 3, 32, 32, coffyMorto);
 
     display.setFont(u8g2_font_t0_11_tr);
-    display.drawStr(38, 11, "ERRORE CRITICO");
+
+    if(hasAnyError())
+    {
+        display.drawStr(38, 11, "ERRORE CRITICO");
+    }
+    else
+    {
+        display.drawStr(38, 11, "ERRORE WARNING");
+    }
+
     display.drawStr(35, 24, "CHIAMA UN ADMIN");
 
     display.setFont(u8g2_font_4x6_tr);
-    display.drawStr(36, 35, "CERCHI VUOTI == ERRORE");
 
-    display.drawEllipse(7, 44, 3, 3);
+    if(hasAnyError())
+    {
+        display.drawStr(36, 35, "CERCHI VUOTI == ERRORE");
+    }
+    else
+    {
+        display.drawStr(36, 35, "CERCHI VUOTI = WARNING");
+    }
+
+    drawErrorDot(7, 44, ERR_SERIAL);
     display.drawStr(13, 47, "SERIALE");
     
-    display.drawEllipse(106, 44, 3, 3);
+    drawWarnDot(106, 44, WARN_MP3);
     display.drawStr(112, 47, "MP3");
 
-    display.drawEllipse(106, 56, 3, 3);
+    drawErrorDot(106, 56, ERR_NFC);
     display.drawStr(112, 59, "NFC");
 
-    display.drawEllipse(7, 56, 3, 3);
+    drawErrorDot(7, 56, ERR_KEYPAD);
     display.drawStr(13, 59, "KEYPAD");
 
-    display.drawEllipse(56, 56, 3, 3);
-    display.drawStr(62, 59, "DISPLAY");
+    drawErrorDot(56, 56, ERR_NETWORK);
+    display.drawStr(62, 59, "NETWORK");
 
-    display.drawEllipse(56, 44, 3, 3);
+    drawErrorDot(56, 44, ERR_MEMORY);
     display.drawStr(62, 47, "MEMORIA");
 
     display.sendBuffer();

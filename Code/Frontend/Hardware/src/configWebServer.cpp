@@ -8,11 +8,11 @@ DNSServer dnsServer;
 
 bool hasNewConfigs = false;
 
-// Returns -1 if an error occurred, 0 if successfull
+// Returns 0 if an error occurred, 1 if successfull
 int startWebServer()
 {
     if(serverUp)
-        return 0;
+        return 1;
 
     // Configure the ESP32 as an access point
     WiFi.softAP(FALLBACK_SSID, FALLBACK_PASSWORD);
@@ -37,7 +37,7 @@ int startWebServer()
         Serial.print("Used bytes: ");
         Serial.println(SPIFFS.usedBytes());
         
-        return -1; // Internal error
+        return 0; // Internal error
     }
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
@@ -110,7 +110,7 @@ int startWebServer()
 
     startCaptiveDNS();
 
-    return 0;
+    return 1;
 }
 
 void stopWebServer()
