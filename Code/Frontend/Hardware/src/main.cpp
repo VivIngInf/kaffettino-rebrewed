@@ -13,13 +13,12 @@
 #include "statusIndicator.h"
 #include "buzzer.h"
 #include "keypad.h"
+#include "errorHandler.h"
 
 /* ----- Variables ----- */
 
 void setup() 
 {
-    // TODO: CHECK FOR ERRORS !!!!
-
     // Start serial comunication
     Serial.begin(115200);        
 
@@ -45,6 +44,9 @@ void setup()
     initLEDs();
     changeStatus(WAIT);
     startBlinking();
+
+    // TODO: CHECK FOR ERRORS IN OTHER FUNCTIONS!!!!
+    handleErrors();
 
     bootSound();    
     startConnecting();

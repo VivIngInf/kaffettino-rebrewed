@@ -24,3 +24,10 @@ void disconnectedSound()
     tone(BUZZER, 1500, 500);
     tone(BUZZER, 1000, 300);
 }
+
+void deathSound()
+{
+    tone(BUZZER, 1000, 500);
+    tone(BUZZER, 500, 500);
+    tone(BUZZER, 200, 500);
+}
