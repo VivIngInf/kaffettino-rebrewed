@@ -1,4 +1,5 @@
 #include "keypad.h"
+#include "logger.h"
 
 volatile bool keypadInterrupt = false; 
 
@@ -18,7 +19,7 @@ bool initKeypad()
 
     if(!keyPad.begin())
     {
-        Serial.println("Cannot comunicate to keypad");
+        logPrint(LOG_ERROR, CAT_KEYPAD, "Cannot comunicate to keypad!");
         return false;        
     }
 
@@ -57,12 +58,11 @@ void handleKeypad()
 
         if (index != 16)
         {
-            Serial.print("press: ");
-            Serial.println(keys[index]);
+            logPrint(LOG_DEBUG, CAT_KEYPAD, "Pressed: %c", keys[index]);       
         }
         else
         {
-            Serial.println("release");
+            logPrint(LOG_DEBUG, CAT_KEYPAD, "Released");
         }
 
     }
@@ -92,13 +92,8 @@ void measurePolling()
       uint8_t index = keyPad.isPressed();
       uint32_t stop = micros();
 
-      Serial.print(clock);
-      Serial.print("\t");
-      Serial.print(index);
-      Serial.print("\t");
-      Serial.print(keys[index]);
-      Serial.print("\t");
-      Serial.println(stop - start);
+      logPrint(LOG_DEBUG, CAT_KEYPAD, "Pressed: %lu\t%u\t%c\t%lu", clock, index, keys[index], (stop - start));
+
       delay(10);
     }
   }

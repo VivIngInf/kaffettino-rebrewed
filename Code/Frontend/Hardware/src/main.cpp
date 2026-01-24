@@ -15,8 +15,9 @@
 #include "keypad.h"
 #include "errorHandler.h"
 #include "utility.h"
+#include "logger.h"
 
-/* ----- Variables ----- */
+/* ----- Functions ----- */
 
 void setup() 
 {
@@ -26,8 +27,15 @@ void setup()
     if(!Serial)
         setError(ERR_SERIAL);
 
+    // Inits custom loggin with colors, timestamp and debug set as true
+    logInit(true, true, true); 
+
     // Start wire for I2C connection
     Wire.begin(GEN_SDA, GEN_SCL);
+    
+    initLEDs();
+    changeStatus(LED_WAIT);
+    startBlinking();
 
     // Scan I2C network, outputs avaiable devices, mostly for debugging, expected 0x20 (keyboard), 0x3C (display) and ??? (Mp3)
     if(!hasError(ERR_SERIAL))
@@ -43,27 +51,26 @@ void setup()
     // Load the WiFi credentials and general configs stored in memory
     initConfigs();
 
-    // Restart the ESP if the server returns an internal server error
+    // Start a web server to eventually change the WiFi network and credentials
     if(!startWebServer())
 		setError(ERR_NETWORK);
 
-    // Starts the NFC scanner, checks if version is valid, if not valid an error occured
+    // Starts the NFC scanner, checks if version is valid, if it's not, an error occured
     if(!initNFCScanner())
         setError(ERR_NFC);
 
+    // Starts the keypad using the PCF8574-keypad lib, checks if correctly connected to I2C
     if(!initKeypad())
         setError(ERR_KEYPAD);    
 
+    // Starts the DFRobotMini MP3 player, checks if correctly connected to I2C
     if (!initMP3Player())
         setWarning(WARN_MP3);
-    
-    initLEDs();
-    changeStatus(WAIT);
-    startBlinking();
 
-    // TODO: CHECK FOR ERRORS IN OTHER FUNCTIONS!!!!
+    // Handles errors and warnings. Warnings are non blocking, meaning the ESP can proceed after showing them. Errors are blocking and the ESP will be restarted.
     handleErrors();
 
+    // If no error was found, play a joyful sound and start connecting
     bootSound();    
     startConnecting();
 }
@@ -73,6 +80,8 @@ void loop()
     unsigned long now = millis();
 
     handleDNS(); // Processes DNS requests for the captive portal    
+    
+    handleBlink(now); // Handles the blink of the LEDs
 
     handleConnection(now); // Handles Wifi connection and errors
 
@@ -83,6 +92,4 @@ void loop()
     handleScanner(now);
     
     handleKeypad();
-
-    handleBlink(now);    
 }

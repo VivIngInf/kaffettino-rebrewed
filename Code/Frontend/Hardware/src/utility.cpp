@@ -1,4 +1,5 @@
 #include "utility.h"
+#include "logger.h"
 
 bool probeI2C(uint8_t address, uint8_t retries, uint32_t timeoutMs)
 {
@@ -18,7 +19,8 @@ bool probeI2C(uint8_t address, uint8_t retries, uint32_t timeoutMs)
 
 void scanI2CBus()
 { 
-    Serial.println("\n[I2C] Scanning bus...");
+    logPrint(LOG_DEBUG, CAT_I2C, "Scanning I2C bus...");
+
     uint8_t count = 0;
 
     for(uint8_t addr = 1; addr < 127; addr++)
@@ -26,15 +28,15 @@ void scanI2CBus()
         Wire.beginTransmission(addr);
         if(Wire.endTransmission() == 0)
         {
-            Serial.printf("[I2C] Device found at 0x%02X\n", addr);
+            logPrint(LOG_DEBUG, CAT_I2C, "Device found at 0x%02X", addr);            
             count++;
         }
     }
 
     if(count == 0)
-        Serial.println("[I2C] No devices found");
+        logPrint(LOG_ERROR, CAT_I2C, "No I2C device was found!");
     else
-        Serial.printf("[I2C] %d device(s) found\n", count);
+        logPrint(LOG_DEBUG, CAT_I2C, "%d I2C device(s) found...", count);        
 }
 
 bool probeSPI(spiProbeFn_t testFn, uint8_t retries)

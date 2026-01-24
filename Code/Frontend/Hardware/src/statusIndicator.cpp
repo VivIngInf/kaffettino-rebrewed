@@ -1,7 +1,7 @@
 #include "statusIndicator.h"
 #include "Arduino.h"
 
-LED_STATUS currentStatus = OFF;
+LED_STATUS currentStatus = LED_OFF;
 
 bool isBlinking = false;
 bool ledState = false;
@@ -13,7 +13,7 @@ void initLEDs()
     pinMode(YELLOW_LED, OUTPUT);
     pinMode(RED_LED, OUTPUT);
 
-    changeStatus(OFF);
+    changeStatus(LED_OFF);
 }
 
 void startBlinking()
@@ -32,25 +32,25 @@ void changeStatus(LED_STATUS status)
 
     switch (status)
     {
-        case IDLE:
+        case LED_IDLE:
             digitalWrite(GREEN_LED, true);
             digitalWrite(YELLOW_LED, false);
             digitalWrite(RED_LED, false);
             break;
     
-        case WAIT:
+        case LED_WAIT:
             digitalWrite(GREEN_LED, false);
             digitalWrite(YELLOW_LED, true);
             digitalWrite(RED_LED, false);
             break;
 
-        case ERROR:
+        case LED_ERROR:
             digitalWrite(GREEN_LED, false);
             digitalWrite(YELLOW_LED, false);
             digitalWrite(RED_LED, true);
             break;
 
-        case OFF:    
+        case LED_OFF:    
             digitalWrite(GREEN_LED, false);
             digitalWrite(YELLOW_LED, false);
             digitalWrite(RED_LED, false);
@@ -66,7 +66,7 @@ void changeStatus(LED_STATUS status)
 
 void handleBlink(unsigned long now)
 {
-    if(!isBlinking || currentStatus == OFF)
+    if(!isBlinking || currentStatus == LED_OFF)
         return;
 
     if (now - lastBlink >= blinkDelay)

@@ -9,10 +9,10 @@ const int blinkDelay = 1000;
 
 enum LED_STATUS
 {
-    IDLE = GREEN_LED,
-    WAIT = YELLOW_LED,
-    ERROR = RED_LED,
-    OFF = 0 // Only for init
+    LED_IDLE = GREEN_LED,
+    LED_WAIT = YELLOW_LED,
+    LED_ERROR = RED_LED,
+    LED_OFF = 0 // Only for init
 };
 
 extern LED_STATUS currentStatus;

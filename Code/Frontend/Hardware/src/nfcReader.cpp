@@ -1,4 +1,5 @@
 #include "nfcReader.h"
+#include "logger.h"
 
 MFRC522 nfcScanner(SDA_PIN, RST_PIN);
 
@@ -16,13 +17,13 @@ bool initNFCScanner()
 
     if(version == 0x00 || version == 0xFF)
     {
-        Serial.println("[NFC] Reader not detected");        
+        logPrint(LOG_ERROR, CAT_NFC, "The connection to the NFC Reader failed!");
         return false;
     }
 
-    Serial.printf("[NFC] Reader OK (0x%02X)\n", version);
-    return true;
+    logPrint(LOG_INFO, CAT_NFC, "The connection to the NFC Reader was successfull! Version in use: 0x%02X", version);
 
+    return true;
 }
 
 void handleScanner(unsigned long now)
@@ -39,13 +40,11 @@ void handleScanner(unsigned long now)
         // If the card is present, read the UID
         if (!nfcScanner.PICC_ReadCardSerial()) 
         {
-            Serial.println("Failed to read card serial.");
+            logPrint(LOG_WARN, CAT_NFC, "Failed to read card serial!");
             return;
         }
-
-        Serial.print("Card UID: ");
-        dump_byte_array(nfcScanner.uid.uidByte, nfcScanner.uid.size);
-        Serial.println();
+                     
+        dump_byte_array(nfcScanner.uid.uidByte, nfcScanner.uid.size);        
 
         // Terminate reading the card
         nfcScanner.PICC_HaltA();  
@@ -55,10 +54,17 @@ void handleScanner(unsigned long now)
 // Utility function to print the card's bytes in hex format
 void dump_byte_array(byte *buffer, byte bufferSize) 
 {
-  for (byte i = 0; i < bufferSize; i++) 
-  {
-    Serial.print(buffer[i] < 0x10 ? " 0" : " ");
-    Serial.print(buffer[i], HEX);
-  }
+    char str[64];
+    char *ptr = str;
+
+    for (byte i = 0; i < bufferSize; i++)
+    {
+        ptr += sprintf(ptr, "%02X ", buffer[i]);
+    }
+
+    // Termina la stringa
+    *ptr = '\0';
+
+    logPrint(LOG_DEBUG, CAT_NFC, "Card UID: %s", str);
 }
 

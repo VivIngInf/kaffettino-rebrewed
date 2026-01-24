@@ -3,6 +3,7 @@
 #include "configWebServer.h"
 #include "display.h"
 #include "buzzer.h"
+#include "logger.h"
 
 unsigned long lastConnection = timeBetweenConnectionTries; // At start is equal to timeBetweenConnectionTries, so the connections starts right away
 unsigned long lastConnectionAttempt = 0;
@@ -21,7 +22,8 @@ void startConnecting()
     if (connectionState == CONNECTION_CONNECTING)
         return;
 
-    Serial.println("Starting WiFi connection...");
+    logPrint(LOG_INFO, CAT_WIFI, "Starting WiFi connection...");                    
+
     
     currentConnectionRetry = 0;
     connectionState = CONNECTION_CONNECTING;
@@ -33,14 +35,16 @@ void handleConnection(unsigned long now)
 
     if (WiFi.status() != WL_CONNECTED && connectionState == CONNECTION_CONNECTED)
     {
-        disconnectedSound();
-        Serial.println("The device was connected, but the connection dropped. Trying to reconnect.");
+        disconnectedSound();        
+        logPrint(LOG_INFO, CAT_WIFI, "The device was connected, but the connection dropped. Trying to reconnect.");                    
+
         connectionState = CONNECTION_CONNECTING;        
     }
 
     if (connectionState == CONNECTION_FAILED && now - lastConnectionAttempt >= timeBetweenConnectionTries)
-    {
-        Serial.println("Retrying connecting after the device was unable to.");
+    {        
+        logPrint(LOG_INFO, CAT_WIFI, "Retrying connecting after the device was unable to.");                    
+
         connectionState = CONNECTION_CONNECTING;
         currentConnectionRetry = 0;
     }
@@ -52,7 +56,8 @@ void handleConnection(unsigned long now)
     // If the device is connected, change the state and return
     if (WiFi.status() == WL_CONNECTED) 
     {
-        Serial.println("Connected successfully!");
+        logPrint(LOG_INFO, CAT_WIFI, "Connected successfully!");                    
+
         connectionState = CONNECTION_CONNECTED;        
         lastConnection = now;
         currentConnectionRetry = 0;
@@ -71,8 +76,9 @@ void handleConnection(unsigned long now)
     // If the max retries limit is exceeded, return and wait some time
     if (currentConnectionRetry >= maxConnectionRetries) 
     {
-        Serial.println("Maximum retries reached. Retrying in 15sec...");
+        logPrint(LOG_INFO, CAT_WIFI, "Maximum retries reached. Retrying in 15s...");                    
         connectionState = CONNECTION_FAILED;
+
         displayConnectionError();        
         disconnectedSound();
         return;
@@ -80,19 +86,19 @@ void handleConnection(unsigned long now)
 
     currentConnectionRetry++;
     
-    Serial.print("Trying to connect, try number: ");
-    Serial.println(currentConnectionRetry);
+    logPrint(LOG_INFO, CAT_WIFI, "Trying to connect. Try number: %d", currentConnectionRetry);                        
 
     int status = connectWifi();
 
     switch (status)
     {
         case -2:  // Config error
-            Serial.println("Config error, retrying...");
+            logPrint(LOG_ERROR, CAT_WIFI, "Could not connect becouse the credentials were not set, plesae change credentials.");                    
+            
             connectionState = CONNECTION_FAILED;            
             break;
         case -1:  // Network error
-            Serial.println("Network error, retrying...");            
+            logPrint(LOG_INFO, CAT_WIFI, "A network error happened, retrying connecting...");                             
             break;
         default:            
             break;
@@ -107,39 +113,33 @@ int connectWifi()
     if(IS_EAP)
     {
         if(WIFI_SSID.length() == 0 || EAP_USERNAME.length() == 0 || EAP_PASSWORD.length() == 0)
-        {
-            Serial.println("Although EAP is selected, there are no configs for it");
+        {            
+            logPrint(LOG_ERROR, CAT_WIFI, "Although EAP is selected, there are no configs for it.");                    
+
             wifiError = true;
         }
     }
     else
     {
         if(WIFI_SSID.length() == 0 || WIFI_PASSWORD.length() == 0)
-        {
-            Serial.println("Although wifi is selected, there are no configs for it");
+        {            
+            logPrint(LOG_ERROR, CAT_WIFI, "Although WiFi is selected, there are no configs for it.");                    
             wifiError = true;
         }
     }    
 
-    Serial.print("Wifi EAP Username: ");
-    Serial.println(EAP_USERNAME);
-
-    Serial.print("Wifi EAP_PASSWORD: ");
-    Serial.println(EAP_PASSWORD);
-
-    Serial.print("Wifi SSID: ");
-    Serial.println(WIFI_SSID);
-
-    Serial.print("Wifi PASSWORD: ");
-    Serial.println(WIFI_PASSWORD);
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi EAP Username: %s", EAP_USERNAME);
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi EAP_PASSWORD: %s", EAP_PASSWORD);
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi SSID: %s", WIFI_SSID);
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi PASSWORD: %s", WIFI_PASSWORD);
 
     // If credentials are not set
     if(wifiError)
     {        
         return -2;  // Config error
     }
-
-    Serial.println("Network configuration is all good, initializing connection");    
+    
+    logPrint(LOG_INFO, CAT_WIFI, "Network configuration is all good, trying to connect...");
 
     // Connect to WIFI 
 

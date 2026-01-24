@@ -1,6 +1,7 @@
 #include "display.h"
 #include "errorHandler.h"
 #include "buzzer.h"
+#include "logger.h"
 
 // 8 bit array for memorizing error flags
 uint8_t errorFlags = 0; 
@@ -50,32 +51,30 @@ void printErrors()
 {
     if (errorFlags == 0) 
     {
-        Serial.println("No errors");
+        logPrint(LOG_INFO, CAT_SYS, "No errors at boot.");
         return;
     }
 
-    Serial.print("Error flags: 0x");
-    Serial.println(errorFlags, HEX);
-
-    Serial.println("Errors detected:");
+    logPrint(LOG_ERROR, CAT_SYS, "Errors detected.");
+    logPrint(LOG_ERROR, CAT_SYS, "Error flags: 0x%02X", errorFlags);
 
     if (errorFlags & ERR_SERIAL)
-        Serial.println("\t- Serial error");
+        logPrint(LOG_ERROR, CAT_SYS, "\t- Serial error");
 
     if (errorFlags & ERR_MEMORY)
-        Serial.println("\t- Memory error");    
+        logPrint(LOG_ERROR, CAT_SYS, "\t- Memory error");
 
     if (errorFlags & ERR_KEYPAD)
-        Serial.println("\t- Keypad error");
+        logPrint(LOG_ERROR, CAT_KEYPAD, "\t- Keypad error");
 
     if (errorFlags & ERR_DISPLAY)
-        Serial.println("\t- Display error");
+        logPrint(LOG_ERROR, CAT_DISPLAY, "\t- Display error");
 
     if (errorFlags & ERR_NFC)
-        Serial.println("\t- NFC error");
+        logPrint(LOG_ERROR, CAT_NFC, "\t- NFC error");
 
     if (errorFlags & ERR_NETWORK)
-        Serial.println("\t- Network error");
+        logPrint(LOG_ERROR, CAT_WIFI, "\t- Network error");
         
 }
 
@@ -83,14 +82,15 @@ void printWarnings()
 {
     if(warningFlags == 0)
     {
-        Serial.println("No warnings");
+        logPrint(LOG_INFO, CAT_WIFI, "No warnings at boot.");
         return;
     }
 
-    Serial.println("Warnings detected:");
+    logPrint(LOG_WARN, CAT_SYS, "Warnings detected.");
+    logPrint(LOG_WARN, CAT_SYS, "Warning flags: 0x%02X", warningFlags);
 
     if (warningFlags & WARN_MP3)
-        Serial.println("\t- MP3 error");
+        logPrint(LOG_WARN, CAT_MP3, "\t- Mp3 warning");
 }
 
 void handleErrors()

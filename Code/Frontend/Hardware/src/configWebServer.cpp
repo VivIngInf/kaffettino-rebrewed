@@ -1,5 +1,6 @@
 #include "configWebServer.h"
 #include "connectivity.h"
+#include "logger.h"
 
 bool serverUp = false;
 
@@ -24,19 +25,15 @@ int startWebServer()
     );
     
     IPAddress IP = WiFi.softAPIP();
-    Serial.print("IP Address: ");
-    Serial.println(IP);
+
+    logPrint(LOG_INFO, CAT_WIFI, "Gateway IP address: %s", IP.toString());
 
     if(!SPIFFS.begin(true))
     {
-        Serial.println("An error occurred while mounting SPIFFS.");        
-        
-        Serial.print("Total bytes: ");
-        Serial.println(SPIFFS.totalBytes());
+        logPrint(LOG_ERROR, CAT_SYS, "An error occurred while mounting SPIFFS.");             
+        logPrint(LOG_ERROR, CAT_SYS, "SPIFFS Total Bytes: %lu", SPIFFS.totalBytes());        
+        logPrint(LOG_ERROR, CAT_SYS, "SPIFFS Used Bytes: %lu", SPIFFS.usedBytes());                
 
-        Serial.print("Used bytes: ");
-        Serial.println(SPIFFS.usedBytes());
-        
         return 0; // Internal error
     }
 
@@ -87,16 +84,15 @@ int startWebServer()
         
         if (request->hasParam("isEAP", true)) 
         {
-            String paramIsEAP = request->getParam("isEAP", true)->value();
-            Serial.println("isEAP value: " + paramIsEAP);
-
+            String paramIsEAP = request->getParam("isEAP", true)->value();                     
             IS_EAP =  true;
         }
         else
         {
-            Serial.println("isEAP value: " + false);
             IS_EAP =  false;
         }
+        
+        logPrint(LOG_DEBUG, CAT_WIFI, "isEAP value: %s", IS_EAP ? "True" : "False");                
 
         handleNewConfigs(request);
         
@@ -104,7 +100,7 @@ int startWebServer()
     });
 
     server.begin();
-    Serial.println("Access Point started. You can now configure WiFi via the web interface.");    
+    logPrint(LOG_INFO, CAT_WIFI, "Access Point started. You can now configure WiFi via the web interface.");                    
     
     serverUp = true;
 
@@ -135,38 +131,37 @@ String processor(const String& var){
         processedValue = WIFI_SSID;
     }
 
-    Serial.println("Processed value in HTML " + var + ": " + processedValue);        
+    logPrint(LOG_DEBUG, CAT_WIFI, "Processed value in HTML %s: %s", var, processedValue);    
     
     return processedValue;    
 }
 
 void handleNewConfigs(AsyncWebServerRequest *request)
 {
-    Serial.println("Checking for new configs...");
+    logPrint(LOG_INFO, CAT_WIFI, "Checking new configs...");
 
     if (request == nullptr)
     {
-        Serial.println("No new configs to process.");
+        logPrint(LOG_INFO, CAT_WIFI, "No new config to process");
         hasNewConfigs = false;
         return;
     }
 
-    Serial.println("Found new configs, parsing...");
+    logPrint(LOG_INFO, CAT_WIFI, "Found new config, parsing...");
 
     bool atLeastOneChange = false;
 
     if (request->hasParam("isEAP", true)) 
     {
         IS_EAP =  true;
-        Serial.print("isEAP value: ");
-        Serial.println(IS_EAP);
+        logPrint(LOG_DEBUG, CAT_WIFI, "isEAP value: %s", IS_EAP ? "True" : "False");    
 
         atLeastOneChange = true;
     }
     else
     {
         IS_EAP =  false;
-        Serial.println("isEAP value: " + IS_EAP);
+        logPrint(LOG_DEBUG, CAT_WIFI, "isEAP value: %s", IS_EAP ? "True" : "False");    
 
         atLeastOneChange = true;
     }
@@ -174,7 +169,8 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("wifiSSID", true))
     {
         WIFI_SSID = request->getParam("wifiSSID", true)->value();
-        Serial.println("Wifi SSID value: " + WIFI_SSID);
+        logPrint(LOG_DEBUG, CAT_WIFI, "WiFi SSID value: %s", WIFI_SSID);    
+
 
         atLeastOneChange = true;
     }
@@ -182,15 +178,15 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("eapUsername", true))
     {
         EAP_USERNAME = request->getParam("eapUsername", true)->value();
-        Serial.println("EAP username value: " + EAP_USERNAME);
+        logPrint(LOG_DEBUG, CAT_WIFI, "EAP username value: %s", EAP_USERNAME);            
 
         atLeastOneChange = true;
     }
 
     if(request->hasParam("eapPassword", true))
     {
-        EAP_PASSWORD = request->getParam("eapPassword", true)->value();
-        Serial.println("EAP password value: " + EAP_PASSWORD);
+        EAP_PASSWORD = request->getParam("eapPassword", true)->value();        
+        logPrint(LOG_DEBUG, CAT_WIFI, "EAP password value: %s", EAP_PASSWORD);            
 
         atLeastOneChange = true;
     }
@@ -198,7 +194,7 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("wifiPassword", true))
     {
         WIFI_PASSWORD = request->getParam("wifiPassword", true)->value();
-        Serial.println("Wifi password value: " + WIFI_PASSWORD);
+        logPrint(LOG_DEBUG, CAT_WIFI, "Wifi password value: %s", WIFI_PASSWORD);                    
 
         atLeastOneChange = true;
     }
@@ -223,5 +219,5 @@ void handleDNS()
 void startCaptiveDNS() 
 {
     dnsServer.start(53, "*", WiFi.softAPIP()); 
-    Serial.println("Started DNS server!"); 
+    logPrint(LOG_INFO, CAT_WIFI, "Started DNS server!");                    
 }

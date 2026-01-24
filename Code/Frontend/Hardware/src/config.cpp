@@ -1,4 +1,5 @@
 #include "config.h"
+#include "logger.h"
 
 // Wifi Configuration
 
@@ -31,20 +32,11 @@ void initConfigs()
     EAP_USERNAME = preferences.getString("EAP_USERNAME", "");
     EAP_PASSWORD = preferences.getString("EAP_PASSWORD", "");
 
-    Serial.print("WIFI_SSID start value: ");
-    Serial.println(WIFI_SSID);
-
-    Serial.print("IS_EAP start value: ");
-    Serial.println(IS_EAP);
-    
-    Serial.print("WIFI_PASSWORD start value: ");
-    Serial.println(WIFI_PASSWORD);
-
-    Serial.print("EAP_USERNAME start value: ");
-    Serial.println(EAP_USERNAME);
-
-    Serial.print("EAP_PASSWORD start value: ");
-    Serial.println(EAP_PASSWORD);
+    logPrint(LOG_INFO, CAT_SYS, "WIFI_SSID start value: %s", WIFI_SSID);
+    logPrint(LOG_INFO, CAT_SYS, "IS_EAP start value: : %s", IS_EAP ? "True" : "False");
+    logPrint(LOG_INFO, CAT_SYS, "WIFI_PASSWORD start value: %s", WIFI_PASSWORD);
+    logPrint(LOG_INFO, CAT_SYS, "EAP_USERNAME start value: %s", EAP_USERNAME);
+    logPrint(LOG_INFO, CAT_SYS, "EAP_PASSWORD start value: %s", EAP_PASSWORD);
 
     preferences.end();
 }
