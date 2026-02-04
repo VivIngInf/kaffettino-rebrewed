@@ -17,15 +17,21 @@ static long int timeBetweenConnectionTries = 15000;
 extern unsigned long lastConnectionAttempt;
 const unsigned long connectionRetryInterval = 5000;
 
+extern unsigned long connectStartTime;          // Single try connection timer
+const unsigned long connectTimeout = 15000;         // Single try connection timeout
+
 extern int currentConnectionRetry;
 const int maxConnectionRetries = 3;
+
 
 enum ConnectionState 
 {
     CONNECTION_IDLE,
     CONNECTION_CONNECTING,
     CONNECTION_CONNECTED,
-    CONNECTION_FAILED
+    CONNECTION_NO_WIFI,
+    CONNECTION_FAILED,
+    CONNECTION_WRONG_PASSWORD
 };
 
 extern ConnectionState connectionState;

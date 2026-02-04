@@ -38,6 +38,32 @@ int startWebServer()
     }
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+
+        int scanStatus = WiFi.scanNetworks(true, false);
+
+        if(scanStatus == -2)
+        {
+            logPrint(LOG_DEBUG, CAT_WIFI, "WiFi scansion started...");
+        }
+        else if (scanStatus == -1)
+        {
+            logPrint(LOG_DEBUG, CAT_WIFI, "WiFi scansion in progress...");
+        }
+        else
+        {
+            logPrint(LOG_DEBUG, CAT_WIFI, "Number of WiFi networks found: %d", scanStatus);
+
+            for (int i = 0; i <= scanStatus; i++) 
+            {
+
+                Serial.print(i);
+                Serial.print(")");                
+                Serial.print("<=>");
+                Serial.println(WiFi.SSID(i));
+            }        
+        }
+
+
         request->send(SPIFFS, "/index.html", String(), false, processor);
     });
 
@@ -90,8 +116,8 @@ int startWebServer()
         else
         {
             IS_EAP =  false;
-        }
-        
+        }        
+
         logPrint(LOG_DEBUG, CAT_WIFI, "isEAP value: %s", IS_EAP ? "True" : "False");                
 
         handleNewConfigs(request);

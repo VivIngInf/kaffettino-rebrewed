@@ -7,6 +7,7 @@
 
 unsigned long lastConnection = timeBetweenConnectionTries; // At start is equal to timeBetweenConnectionTries, so the connections starts right away
 unsigned long lastConnectionAttempt = 0;
+unsigned long connectStartTime = 0;
 int currentConnectionRetry = 0;
 ConnectionState connectionState = CONNECTION_IDLE;
 
@@ -32,8 +33,10 @@ void startConnecting()
 // Tries to connect to wifi and handles all errors
 void handleConnection(unsigned long now)
 {
+    int WiFiStatus = WiFi.status();
+    wl_status_t WiFiStatusEnum = (wl_status_t)WiFiStatus;
 
-    if (WiFi.status() != WL_CONNECTED && connectionState == CONNECTION_CONNECTED)
+    if (WiFiStatus != WL_CONNECTED && connectionState == CONNECTION_CONNECTED)
     {
         disconnectedSound();        
         logPrint(LOG_INFO, CAT_WIFI, "The device was connected, but the connection dropped. Trying to reconnect.");                    
@@ -41,9 +44,9 @@ void handleConnection(unsigned long now)
         connectionState = CONNECTION_CONNECTING;        
     }
 
-    if (connectionState == CONNECTION_FAILED && now - lastConnectionAttempt >= timeBetweenConnectionTries)
+    if ((connectionState == CONNECTION_FAILED || connectionState == CONNECTION_NO_WIFI || connectionState == CONNECTION_WRONG_PASSWORD) && now - lastConnectionAttempt >= timeBetweenConnectionTries)
     {        
-        logPrint(LOG_INFO, CAT_WIFI, "Retrying connecting after the device was unable to.");                    
+        logPrint(LOG_INFO, CAT_WIFI, "Retrying connecting after failure...");                    
 
         connectionState = CONNECTION_CONNECTING;
         currentConnectionRetry = 0;
@@ -53,52 +56,94 @@ void handleConnection(unsigned long now)
     if (connectionState != CONNECTION_CONNECTING)
         return;
 
-    // If the device is connected, change the state and return
-    if (WiFi.status() == WL_CONNECTED) 
+    if (WiFiStatus == WL_CONNECTED)
     {
-        logPrint(LOG_INFO, CAT_WIFI, "Connected successfully!");                    
+        logPrint(LOG_INFO, CAT_WIFI, "Connected successfully!");     
 
         connectionState = CONNECTION_CONNECTED;        
         lastConnection = now;
         currentConnectionRetry = 0;
+        
         displayConnected();
         connectedSound();
+
         return;
     }
 
     displayConnecting(now);
+
+    // If the ESP is negotiating with the AP, do not proceed (this way the device won't spam the access point with connection requests)
+    if (WiFiStatus == WL_IDLE_STATUS && now - connectStartTime > connectTimeout)
+    {
+        logPrint(LOG_ERROR, CAT_WIFI, "Connection timeout — restarting WiFi stack");
+        WiFi.disconnect(true);
+        return;
+    }
 
     // If not enough time has passed between the last connection, do not proceed (this way the device won't spam the access point with connection requests)
     if (now - lastConnectionAttempt < connectionRetryInterval) return;
 
     lastConnectionAttempt = now;
 
-    // If the max retries limit is exceeded, return and wait some time
-    if (currentConnectionRetry >= maxConnectionRetries) 
+    switch (WiFiStatusEnum)
     {
-        logPrint(LOG_INFO, CAT_WIFI, "Maximum retries reached. Retrying in 15s...");                    
-        connectionState = CONNECTION_FAILED;
+        case WL_NO_SSID_AVAIL:
+            logPrint(LOG_ERROR, CAT_WIFI, "Connection failed: No SSID found with name: %s", WIFI_SSID);
+            break;
 
-        displayConnectionError();        
-        disconnectedSound();
-        return;
+        case WL_CONNECT_FAILED: case WL_DISCONNECTED:
+            logPrint(LOG_ERROR, CAT_WIFI, "Connection failed: Unable to connect to WiFi, likely because the password wasn't right");            
+            break;
+     
+        default:
+            logPrint(LOG_INFO, CAT_WIFI, "Connection failed, official WiFi status: %d",  WiFiStatus);
+            break;
     }
 
-    currentConnectionRetry++;
+    // If the max retries limit is exceeded, return and wait some time
+    if (currentConnectionRetry++ >= maxConnectionRetries) 
+    {
+        logPrint(LOG_INFO, CAT_WIFI, "Maximum retries reached. Retrying in 15s...");        
+                    
+
+        switch (WiFiStatusEnum)
+        {
+            case WL_NO_SSID_AVAIL:
+                displayWiFiNotFound();
+                connectionState = CONNECTION_NO_WIFI;
+            break;
+        
+            case WL_CONNECT_FAILED: case WL_DISCONNECTED:
+                displayWrongPassword();
+                connectionState = CONNECTION_WRONG_PASSWORD;
+        
+            break;            
+
+            default:
+                displayConnectionError();     
+                connectionState = CONNECTION_FAILED;
+
+            break;
+            
+        } 
+           
+        disconnectedSound();
+        return;
+    }    
     
     logPrint(LOG_INFO, CAT_WIFI, "Trying to connect. Try number: %d", currentConnectionRetry);                        
-
+    
     int status = connectWifi();
-
+    
     switch (status)
     {
         case -2:  // Config error
-            logPrint(LOG_ERROR, CAT_WIFI, "Could not connect becouse the credentials were not set, plesae change credentials.");                    
-            
+            logPrint(LOG_ERROR, CAT_WIFI, "Could not connect because the credentials were not set, plesae change credentials.");                      
             connectionState = CONNECTION_FAILED;            
             break;
         case -1:  // Network error
             logPrint(LOG_INFO, CAT_WIFI, "A network error happened, retrying connecting...");                             
+            connectionState = CONNECTION_FAILED;            
             break;
         default:            
             break;
@@ -109,6 +154,7 @@ void handleConnection(unsigned long now)
 int connectWifi()
 {
     bool wifiError = false;
+    connectStartTime = millis();
 
     if(IS_EAP)
     {
@@ -152,7 +198,7 @@ int connectWifi()
         WiFi.begin(WIFI_SSID, WIFI_PASSWORD);        
     }
 
-    return 0;
+   return 0;
 }
 
 bool isConnected()

@@ -27,6 +27,8 @@ extern void displayConnecting(unsigned long now);
 extern void displayConnected();
 extern void displayConnectionError();
 extern void displayErrorsAndWarning();
+extern void displayWiFiNotFound();
+extern void displayWrongPassword();
 
 extern void drawErrorDot(int x, int y, ERROR_LABELS error);
 extern void drawWarningDot(int x, int y, WARNING_LABELS warning);

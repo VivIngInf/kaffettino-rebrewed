@@ -121,6 +121,40 @@ void displayConnectionError()
     display.sendBuffer();
 }
 
+void displayWiFiNotFound()
+{
+    dotIndex = 0;
+
+    display.clearBuffer();
+    display.setFont(u8g2_font_t0_11_tr);
+        
+    display.drawStr(76, 15, "VIVERE");
+    display.drawStr(64, 27, "KAFFETTINO");
+    display.drawStr(71, 46, "WIFI NON");
+    display.drawStr(65, 58, "ESISTENTE!");
+
+    display.drawXBM(-2, 0, 64, 64, coffyTriste);
+
+    display.sendBuffer();
+}
+
+void displayWrongPassword()
+{
+    dotIndex = 0;
+
+    display.clearBuffer();
+    display.setFont(u8g2_font_t0_11_tr);
+        
+    display.drawStr(76, 15, "VIVERE");
+    display.drawStr(64, 27, "KAFFETTINO");
+    display.drawStr(68, 46, "POSSIBILE");
+    display.drawStr(62, 58, "PWD ERRATA!");
+
+    display.drawXBM(-2, 0, 64, 64, coffyTriste);
+
+    display.sendBuffer();
+}
+
 void displayErrorsAndWarning()
 {
     dotIndex = 0;
@@ -146,11 +180,11 @@ void displayErrorsAndWarning()
 
     if(hasAnyError())
     {
-        display.drawStr(36, 35, "CERCHI VUOTI == ERRORE");
+        display.drawStr(36, 35, "CERCHI PIENI == ERRORE");
     }
     else
     {
-        display.drawStr(36, 35, "CERCHI VUOTI = WARNING");
+        display.drawStr(36, 35, "CERCHI PIENI = WARNING");
     }
 
     drawErrorDot(7, 44, ERR_SERIAL);
