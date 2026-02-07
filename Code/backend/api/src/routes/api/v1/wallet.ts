@@ -34,7 +34,66 @@ export default async function walletRoutes(fastify: FastifyInstance) {
   // GET https://localhost:3000/api/v1/wallet?userId="uuidv4"&aulettaId=29382893&limit=10&page=1
   fastify.get(
     `${BASE_PATH}`,
-    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.getWallets)] },
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.getWallets)],
+      schema: {
+        description: "Get wallets by user ID or auletta ID with pagination",
+        tags: ["wallet"],
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: "object",
+          properties: {
+            userId: {
+              type: "array",
+              items: { type: "string" },
+              description: "Filter by user IDs",
+            },
+            aulettaId: {
+              type: "array",
+              items: { type: "number" },
+              description: "Filter by auletta IDs",
+            },
+            page: {
+              type: "number",
+              description: "Page number for pagination",
+            },
+            limit: {
+              type: "number",
+              description: "Number of results per page",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallets retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              wallets: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    userId: { type: "string" },
+                    aulettaId: { type: "number" },
+                    balance: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const { userId, aulettaId, page, limit }: IGetWalletQuery =
@@ -54,7 +113,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // GET https://localhost:3000/api/v1/wallet/topups?userId=[]&walletId=[]&limit=10&page=1&range={max=121&min=232}
@@ -62,6 +121,70 @@ export default async function walletRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/topup`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.getWallets)],
+      schema: {
+        description: "Get wallet top-ups with pagination and range filters",
+        tags: ["wallet"],
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: "object",
+          properties: {
+            userId: {
+              type: "array",
+              items: { type: "string" },
+              description: "Filter by user IDs",
+            },
+            walletId: {
+              type: "array",
+              items: { type: "string" },
+              description: "Filter by wallet IDs",
+            },
+            page: {
+              type: "number",
+              description: "Page number for pagination",
+            },
+            limit: {
+              type: "number",
+              description: "Number of results per page",
+            },
+            range: {
+              type: "object",
+              properties: {
+                max: { type: "number" },
+                min: { type: "number" },
+              },
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Top-ups retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              topUps: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    walletId: { type: "string" },
+                    amount: { type: "number" },
+                    description: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -97,7 +220,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // POST https://localhost:3000/api/v1/wallet/topup
@@ -107,6 +230,71 @@ export default async function walletRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/topup`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.topUpWallet)],
+      schema: {
+        description: "Top up a wallet with specified amount",
+        tags: ["wallet"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["walletId", "amount"],
+          properties: {
+            walletId: {
+              type: "string",
+              description: "ID of the wallet to top up",
+            },
+            amount: {
+              type: "number",
+              description: "Amount to add to the wallet",
+            },
+            description: {
+              type: "string",
+              description: "Optional description for the top-up",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallet topped up successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              topUp: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  walletId: { type: "string" },
+                  amount: { type: "number" },
+                  description: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing walletId or amount",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          401: {
+            description: "Unauthorized - cannot top up own wallet",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -123,7 +311,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
         });
 
         const userOwnsWallet = userWallets.filter(
-          (wallet) => wallet.id === body.walletId
+          (wallet) => wallet.id === body.walletId,
         ).length;
 
         if (userOwnsWallet)
@@ -135,7 +323,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
         const topUp = await walletHandler.topUp(
           body.walletId,
           body.amount,
-          body.description
+          body.description,
         );
 
         await auditLog({
@@ -155,7 +343,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // POST https://localhost:3000/api/v1/wallet/create
@@ -163,7 +351,62 @@ export default async function walletRoutes(fastify: FastifyInstance) {
   // { aulettaId: 19283232, userId: "uuidv4" }
   fastify.post(
     `${BASE_PATH}/create`,
-    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.createWallet)] },
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.createWallet)],
+      schema: {
+        description: "Create a new wallet for a user",
+        tags: ["wallet"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["userId", "aulettaId"],
+          properties: {
+            userId: {
+              type: "string",
+              description: "ID of the user",
+            },
+            aulettaId: {
+              type: "number",
+              description: "ID of the auletta",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallet created successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              wallet: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  userId: { type: "string" },
+                  aulettaId: { type: "number" },
+                  balance: { type: "number" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing userId or aulettaId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const body: { userId: string; aulettaId: number } =
@@ -177,7 +420,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
 
         const newWallet = await walletHandler.createWallet(
           body.userId,
-          body.aulettaId
+          body.aulettaId,
         );
 
         await auditLog({
@@ -197,7 +440,7 @@ export default async function walletRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // GET https://localhost:3000/api/v1/wallet/requests?aulettaId=[]&status=[]
@@ -205,6 +448,55 @@ export default async function walletRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/requests`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.createWallet)],
+      schema: {
+        description: "Get wallet creation requests by auletta and status",
+        tags: ["wallet"],
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: "object",
+          properties: {
+            aulettaId: {
+              type: "array",
+              items: { type: "number" },
+              description: "Filter by auletta IDs",
+            },
+            status: {
+              type: "array",
+              items: { type: "string" },
+              description: "Filter by request status",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallet requests retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              walletRequests: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    userId: { type: "string" },
+                    aulettaId: { type: "number" },
+                    status: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -221,11 +513,11 @@ export default async function walletRoutes(fastify: FastifyInstance) {
         return sendSuccess(
           reply,
           { walletRequests: walletRequests },
-          { code: 200 }
+          { code: 200 },
         );
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 }

@@ -29,7 +29,52 @@ export default async function userRoutes(fastify: FastifyInstance) {
   // GET https://localhost:3000/api/v1/user?includeWallets=true
   fastify.get(
     `${BASE_PATH}`,
-    { preHandler: sessionMW },
+    {
+      preHandler: sessionMW,
+      schema: {
+        description: "Get current user data",
+        tags: ["user"],
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: "object",
+          properties: {
+            includeWallets: {
+              type: "boolean",
+              description: "Include user wallets in the response",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "User data retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              user: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  email: { type: "string" },
+                  name: { type: "string" },
+                  wallets: {
+                    type: "array",
+                    items: { type: "object" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const { includeWallets } = request.query as {
@@ -39,14 +84,14 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
         const user: IGetUser = await userHandler.getUser(
           session.user.id,
-          includeWallets
+          includeWallets,
         );
 
         return sendSuccess(reply, { user: user }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // PUT https://localhost:3000/api/v1/user
@@ -54,7 +99,53 @@ export default async function userRoutes(fastify: FastifyInstance) {
   // { birthDate: "2025-01-05T00:00:00.000Z", aulettaId: 19283232 }
   fastify.put(
     `${BASE_PATH}`,
-    { preHandler: sessionMW },
+    {
+      preHandler: sessionMW,
+      schema: {
+        description: "Update current user data",
+        tags: ["user"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          properties: {
+            birthDate: {
+              type: "string",
+              format: "date-time",
+              description: "User's birth date",
+            },
+            aulettaId: {
+              type: "number",
+              description: "ID of the auletta",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "User data updated successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              user: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  birthDate: { type: "string", format: "date-time" },
+                  aulettaId: { type: "number" },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const body: ISetUserData = request.body as ISetUserData;
@@ -79,7 +170,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // PUT https://localhost:3000/api/v1/user/role
@@ -90,6 +181,66 @@ export default async function userRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/role`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.roleChange)],
+      schema: {
+        description: "Update user role (ADMIN only)",
+        tags: ["user"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["role", "targetUserId"],
+          properties: {
+            targetUserId: {
+              type: "string",
+              description: "ID of the user to update",
+            },
+            role: {
+              type: "string",
+              enum: ["USER", "TREASURER", "ADMIN"],
+              description: "New role for the user",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "User role updated successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              user: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  role: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing role or targetUserId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          403: {
+            description: "Forbidden - insufficient permissions",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -107,7 +258,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
         const roleChangeVerification = permissionsHandler.verifyRoleChange(
           request.session,
           body.targetUserId,
-          body.role
+          body.role,
         );
         if (!roleChangeVerification.success)
           return sendError(reply, {
@@ -117,7 +268,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
 
         const setRole = await userHandler.setUserRole(
           request.session.user.id,
-          body.role
+          body.role,
         );
 
         await auditLog({
@@ -137,7 +288,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   // PUT https://localhost:3000/api/v1/user/request-wallet
@@ -147,6 +298,59 @@ export default async function userRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/request-wallet`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.walletRequest)],
+      schema: {
+        description: "Request wallet creation for a user",
+        tags: ["user"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["userId", "aulettaId"],
+          properties: {
+            userId: {
+              type: "string",
+              description: "ID of the user requesting the wallet",
+            },
+            aulettaId: {
+              type: "number",
+              description: "ID of the auletta",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallet request created successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              walletRequest: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  userId: { type: "string" },
+                  aulettaId: { type: "number" },
+                  status: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing userId or aulettaId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -162,7 +366,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
         const newWalletRequest: IRequestWalletCreation =
           await walletHandler.requestWalletCreation(
             body.userId,
-            body.aulettaId
+            body.aulettaId,
           );
 
         await auditLog({
@@ -181,11 +385,11 @@ export default async function userRoutes(fastify: FastifyInstance) {
         return sendSuccess(
           reply,
           { walletRequest: newWalletRequest },
-          { code: 200 }
+          { code: 200 },
         );
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 }

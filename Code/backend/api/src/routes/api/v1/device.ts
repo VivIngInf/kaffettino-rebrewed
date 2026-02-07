@@ -26,74 +26,141 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    *  deviceName: string
    * }
    */
-  fastify.post(`${BASE_PATH}/register`, async (request, reply) => {
-    try {
-      const body = (await request.body) as {
-        deviceName?: string;
-        aulettaId?: number;
-      };
+  fastify.post(
+    `${BASE_PATH}/register`,
+    {
+      schema: {
+        description: "Register a new device and create a registration request",
+        tags: ["device"],
+        body: {
+          type: "object",
+          required: ["deviceName", "aulettaId"],
+          properties: {
+            deviceName: {
+              type: "string",
+              description: "Name of the device to register",
+            },
+            aulettaId: {
+              type: "number",
+              description: "ID of the auletta where device is located",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Device registration request created",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              request: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  deviceName: { type: "string" },
+                  aulettaId: { type: "number" },
+                  status: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing deviceName or aulettaId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          409: {
+            description:
+              "Conflict - device already registered or request pending",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const body = (await request.body) as {
+          deviceName?: string;
+          aulettaId?: number;
+        };
 
-      if (!body.deviceName || !body.aulettaId)
-        return sendError(reply, {
-          code: 400,
-          message: "Mandatory params 'deviceName' or 'aulettaId' are missing!",
+        if (!body.deviceName || !body.aulettaId)
+          return sendError(reply, {
+            code: 400,
+            message:
+              "Mandatory params 'deviceName' or 'aulettaId' are missing!",
+          });
+
+        const device = await deviceHandler.getDevice({
+          deviceName: body.deviceName,
         });
 
-      const device = await deviceHandler.getDevice({
-        deviceName: body.deviceName,
-      });
+        // Check if device is already verified
+        if (device?.verified && device.apiKey)
+          return sendError(
+            reply,
+            {
+              code: 409,
+              responseCode: "DEVICE_ALREADY_REGISTERED",
+            },
+            request,
+          );
 
-      // Check if device is already verified
-      if (device?.verified && device.apiKey)
-        return sendError(
-          reply,
-          {
-            code: 409,
-            responseCode: "DEVICE_ALREADY_REGISTERED",
-          },
-          request
+        const existingRequest = await deviceHandler.checkRequests({
+          deviceId: device?.id,
+        });
+
+        // Check if device already has a pending request
+        if (
+          existingRequest.count.pending > 0 ||
+          existingRequest.count.awaitingClient > 0
+        )
+          return sendError(
+            reply,
+            {
+              code: 409,
+              responseCode: "DEVICE_REQUEST_PENDING",
+            },
+            request,
+          );
+
+        const newDeviceRequest = await deviceHandler.createDeviceRequest(
+          body.deviceName,
+          body.aulettaId,
         );
 
-      const existingRequest = await deviceHandler.checkRequests({
-        deviceId: device?.id,
-      });
-
-      // Check if device already has a pending request
-      if (
-        existingRequest.count.pending > 0 ||
-        existingRequest.count.awaitingClient > 0
-      )
-        return sendError(
-          reply,
-          {
-            code: 409,
-            responseCode: "DEVICE_REQUEST_PENDING",
+        await auditLog({
+          action: "REGISTER_DEVICE_REQUEST",
+          entity: "Device",
+          entityId: newDeviceRequest.id.toString(),
+          actorId: undefined,
+          actorType: AuditActor.DEVICE,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
           },
-          request
-        );
+        });
 
-      const newDeviceRequest = await deviceHandler.createDeviceRequest(
-        body.deviceName,
-        body.aulettaId
-      );
-
-      await auditLog({
-        action: "REGISTER_DEVICE_REQUEST",
-        entity: "Device",
-        entityId: newDeviceRequest.id.toString(),
-        actorId: undefined,
-        actorType: AuditActor.DEVICE,
-        metadata: {
-          ip: request.ip,
-          userAgent: request.headers["user-agent"],
-        },
-      });
-
-      return sendSuccess(reply, { request: newDeviceRequest }, { code: 200 });
-    } catch (error) {
-      return sendError(reply, { code: 500, error });
-    }
-  });
+        return sendSuccess(reply, { request: newDeviceRequest }, { code: 200 });
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    },
+  );
 
   /**
    * POST localhost:3000/api/v1/device/accept
@@ -106,6 +173,66 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/accept`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.acceptRequests)],
+      schema: {
+        description: "Accept a device registration request (ADMIN only)",
+        tags: ["device"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["deviceId"],
+          properties: {
+            deviceId: {
+              type: "string",
+              description: "ID of the device to accept",
+            },
+            deviceName: {
+              type: "string",
+              description: "Name of the device (optional)",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Device request accepted",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              status: { type: "string" },
+              request: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  status: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing deviceId",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          404: {
+            description: "Device request not found",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -146,12 +273,12 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         return sendSuccess(
           reply,
           { status: acceptedRequest.status, request: acceptedRequest.request },
-          { code: 200 }
+          { code: 200 },
         );
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
-    }
+    },
   );
 
   /**
@@ -161,64 +288,123 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    *  deviceName: string
    * }
    */
-  fastify.post(`${BASE_PATH}/request-first-key`, async (request, reply) => {
-    try {
-      const body = (await request.body) as {
-        deviceId: string;
-        deviceName: string;
-      };
+  fastify.post(
+    `${BASE_PATH}/request-first-key`,
+    {
+      schema: {
+        description: "Request the first API key for a newly accepted device",
+        tags: ["device"],
+        body: {
+          type: "object",
+          required: ["deviceId", "deviceName"],
+          properties: {
+            deviceId: {
+              type: "string",
+              description: "ID of the device",
+            },
+            deviceName: {
+              type: "string",
+              description: "Name of the device",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "API key generated successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              status: { type: "string" },
+              device: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  deviceName: { type: "string" },
+                },
+              },
+              apiKey: { type: "string" },
+            },
+          },
+          400: {
+            description: "Bad request - missing params or no accepted request",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const body = (await request.body) as {
+          deviceId: string;
+          deviceName: string;
+        };
 
-      const deviceRequest = (
-        await deviceHandler.checkRequests({
+        const deviceRequest = (
+          await deviceHandler.checkRequests({
+            deviceId: body.deviceId,
+            deviceName: body.deviceName,
+            status: [RequestStatus.AWAITING_CLIENT, RequestStatus.APPROVED],
+          })
+        ).statuses;
+
+        if (!deviceRequest.awaitingClient)
+          return sendError(reply, {
+            code: 400,
+            responseCode: "DEVICE_NO_ACCEPTED_REQUESTS",
+          });
+
+        if (!body.deviceId || !body.deviceName)
+          return sendError(reply, {
+            code: 400,
+            message:
+              "Mandatory params 'deviceId' and 'deviceName' are missing!",
+          });
+
+        const device = await deviceHandler.generateDeviceAccessKey({
           deviceId: body.deviceId,
           deviceName: body.deviceName,
-          status: [RequestStatus.AWAITING_CLIENT, RequestStatus.APPROVED],
-        })
-      ).statuses;
-
-      if (!deviceRequest.awaitingClient)
-        return sendError(reply, {
-          code: 400,
-          responseCode: "DEVICE_NO_ACCEPTED_REQUESTS",
         });
 
-      if (!body.deviceId || !body.deviceName)
-        return sendError(reply, {
-          code: 400,
-          message: "Mandatory params 'deviceId' and 'deviceName' are missing!",
+        if (device)
+          await deviceHandler.completeDeviceRequest(
+            deviceRequest.awaitingClient[0]?.id,
+          );
+
+        await auditLog({
+          action: "REQUEST_DEVICE_API_KEY",
+          entity: "Device",
+          entityId: device.id,
+          actorId: undefined,
+          actorType: AuditActor.DEVICE,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+          },
         });
 
-      const device = await deviceHandler.generateDeviceAccessKey({
-        deviceId: body.deviceId,
-        deviceName: body.deviceName,
-      });
-
-      if (device)
-        await deviceHandler.completeDeviceRequest(
-          deviceRequest.awaitingClient[0]?.id
+        return sendSuccess(
+          reply,
+          { status: "OK", device: device, apiKey: device.apiKey },
+          { code: 200 },
         );
-
-      await auditLog({
-        action: "REQUEST_DEVICE_API_KEY",
-        entity: "Device",
-        entityId: device.id,
-        actorId: undefined,
-        actorType: AuditActor.DEVICE,
-        metadata: {
-          ip: request.ip,
-          userAgent: request.headers["user-agent"],
-        },
-      });
-
-      return sendSuccess(
-        reply,
-        { status: "OK", device: device, apiKey: device.apiKey },
-        { code: 200 }
-      );
-    } catch (error) {
-      return sendError(reply, { code: 500, error });
-    }
-  });
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    },
+  );
 
   /**
    * PUT localhost:3000/api/v1/device/regenerate-access-key
@@ -226,7 +412,39 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    */
   fastify.put(
     `${BASE_PATH}/regenerate-access-key`,
-    { preHandler: deviceMW },
+    {
+      preHandler: deviceMW,
+      schema: {
+        description: "Regenerate API access key for an authenticated device",
+        tags: ["device"],
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            description: "New API key generated successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              device: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  deviceName: { type: "string" },
+                },
+              },
+              apiKey: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const newDeviceKey = await deviceHandler.generateDeviceAccessKey({
@@ -248,28 +466,74 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         return sendSuccess(
           reply,
           { device: newDeviceKey, apiKey: newDeviceKey.apiKey },
-          { code: 200 }
+          { code: 200 },
         );
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
-    }
+    },
   );
 
   /**
    * GET localhost:3000/api/v1/device/aulette
    */
-  fastify.get(`${BASE_PATH}/aulette`, async (request, reply) => {
-    try {
-      const { location } = (await request.query) as { location?: string };
+  fastify.get(
+    `${BASE_PATH}/aulette`,
+    {
+      schema: {
+        description: "Get list of available aulette (locations)",
+        tags: ["device"],
+        querystring: {
+          type: "object",
+          properties: {
+            location: {
+              type: "string",
+              description: "Optional filter by location",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Aulette retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              aulette: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "number" },
+                    name: { type: "string" },
+                    location: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
+    async (request, reply) => {
+      try {
+        const { location } = (await request.query) as { location?: string };
 
-      const aulette = await auletteHandler.getAulette(location);
+        const aulette = await auletteHandler.getAulette(location);
 
-      return sendSuccess(reply, { aulette: aulette }, { code: 200 });
-    } catch (error) {
-      return sendError(reply, { code: 500, error });
-    }
-  });
+        return sendSuccess(reply, { aulette: aulette }, { code: 200 });
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    },
+  );
 
   /**
    * GET localhost:3000/api/v1/device/inventory
@@ -277,7 +541,60 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    */
   fastify.get(
     `${BASE_PATH}/inventory`,
-    { preHandler: deviceMW },
+    {
+      preHandler: deviceMW,
+      schema: {
+        description: "Get inventory and products for device's auletta",
+        tags: ["device"],
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: {
+            description: "Inventory retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              inventories: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    aulettaId: { type: "number" },
+                  },
+                },
+              },
+              products: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "number" },
+                    name: { type: "string" },
+                    price: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+          401: {
+            description: "No auletta assigned to device",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const device = await deviceHandler.getDevice({
@@ -291,7 +608,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           });
 
         const inventories = await inventoryHandler.getInventories(
-          device?.aulettaId
+          device?.aulettaId,
         );
         const inventoryIds = inventories.map((inventory) => inventory.id);
         const products = await inventoryHandler.listItems(inventoryIds);
@@ -300,7 +617,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
-    }
+    },
   );
 
   /**
@@ -310,7 +627,54 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    */
   fastify.get(
     `${BASE_PATH}/wallets`,
-    { preHandler: [deviceMW, cardMW] },
+    {
+      preHandler: [deviceMW, cardMW],
+      schema: {
+        description:
+          "Get all wallets for the user associated with the payment card",
+        tags: ["device"],
+        security: [{ bearerAuth: [] }],
+        headers: {
+          type: "object",
+          required: ["x-paymentcard-id"],
+          properties: {
+            "x-paymentcard-id": {
+              type: "string",
+              description: "NFC card ID",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallets retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              wallets: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    userId: { type: "string" },
+                    aulettaId: { type: "number" },
+                    balance: { type: "number" },
+                  },
+                },
+              },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const wallets = await walletHandler.getWallets({
@@ -321,7 +685,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
-    }
+    },
   );
 
   /**
@@ -331,7 +695,58 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    */
   fastify.get(
     `${BASE_PATH}/wallet-auletta`,
-    { preHandler: [deviceMW, cardMW] },
+    {
+      preHandler: [deviceMW, cardMW],
+      schema: {
+        description: "Get the wallet for the user at the device's auletta",
+        tags: ["device"],
+        security: [{ bearerAuth: [] }],
+        headers: {
+          type: "object",
+          required: ["x-paymentcard-id"],
+          properties: {
+            "x-paymentcard-id": {
+              type: "string",
+              description: "NFC card ID",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Wallet retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              wallet: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  userId: { type: "string" },
+                  aulettaId: { type: "number" },
+                  balance: { type: "number" },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Wallet not found for this auletta",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const walletAuletta = (
@@ -351,7 +766,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
-    }
+    },
   );
 
   /**
@@ -366,7 +781,88 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
    */
   fastify.post(
     `${BASE_PATH}/buy-product`,
-    { preHandler: [deviceMW, cardMW] },
+    {
+      preHandler: [deviceMW, cardMW],
+      schema: {
+        description: "Purchase a product using the NFC card and wallet",
+        tags: ["device"],
+        security: [{ bearerAuth: [] }],
+        headers: {
+          type: "object",
+          required: ["x-paymentcard-id"],
+          properties: {
+            "x-paymentcard-id": {
+              type: "string",
+              description: "NFC card ID",
+            },
+          },
+        },
+        body: {
+          type: "object",
+          required: ["productId"],
+          properties: {
+            productId: {
+              type: "number",
+              description: "ID of the product to purchase",
+            },
+            quantity: {
+              type: "number",
+              description: "Quantity to purchase (default: 1)",
+              default: 1,
+            },
+            discount: {
+              type: "number",
+              description: "Base discount to apply (default: 0)",
+              default: 0,
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Product purchased successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              status: { type: "string" },
+              transaction: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  productId: { type: "number" },
+                  quantity: { type: "number" },
+                  totalPrice: { type: "number" },
+                },
+              },
+              discountApplied: { type: "number" },
+            },
+          },
+          400: {
+            description: "Bad request - no product selected",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          404: {
+            description: "Wallet or product not found",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const body = (await request.body) as {
@@ -423,7 +919,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           request.device,
           wallet.id,
           quantity,
-          totalDiscount
+          totalDiscount,
         );
 
         await auditLog({
@@ -445,11 +941,11 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
             transaction: transaction,
             discountApplied: totalDiscount,
           },
-          { code: 200 }
+          { code: 200 },
         );
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
-    }
+    },
   );
 }

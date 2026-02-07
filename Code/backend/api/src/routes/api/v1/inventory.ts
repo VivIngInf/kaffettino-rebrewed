@@ -13,7 +13,56 @@ const ROLES_NEEDED = {
 export default async function inventoryRoutes(fastify: FastifyInstance) {
   fastify.get(
     `${BASE_PATH}/product`,
-    { preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.inventory)] },
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.inventory)],
+      schema: {
+        description: "Get a product by ID",
+        tags: ["inventory"],
+        security: [{ bearerAuth: [] }],
+        querystring: {
+          type: "object",
+          required: ["productId"],
+          properties: {
+            productId: {
+              type: "number",
+              description: "ID of the product to retrieve",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Product retrieved successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              product: {
+                type: "object",
+                properties: {
+                  id: { type: "number" },
+                  name: { type: "string" },
+                },
+              },
+            },
+          },
+          404: {
+            description: "Product not found",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
+    },
     async (request, reply) => {
       try {
         const { productId } = request.query as {
@@ -31,13 +80,60 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   fastify.post(
     `${BASE_PATH}/product/create`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.productsManagement)],
+      schema: {
+        description: "Create a new product",
+        tags: ["inventory"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["name"],
+          properties: {
+            name: {
+              type: "string",
+              description: "Name of the product",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Product created successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              product: {
+                type: "object",
+                properties: {
+                  id: { type: "number" },
+                  name: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing name",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -68,13 +164,72 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 
   fastify.put(
     `${BASE_PATH}/product/update`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.productsManagement)],
+      schema: {
+        description: "Update an existing product",
+        tags: ["inventory"],
+        security: [{ bearerAuth: [] }],
+        body: {
+          type: "object",
+          required: ["productId", "name"],
+          properties: {
+            productId: {
+              type: "number",
+              description: "ID of the product to update",
+            },
+            name: {
+              type: "string",
+              description: "New name for the product",
+            },
+          },
+        },
+        response: {
+          200: {
+            description: "Product updated successfully",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              product: {
+                type: "object",
+                properties: {
+                  id: { type: "number" },
+                  name: { type: "string" },
+                },
+              },
+            },
+          },
+          400: {
+            description: "Bad request - missing productId or name",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              message: { type: "string" },
+            },
+          },
+          404: {
+            description: "Product not found",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              responseCode: { type: "string" },
+            },
+          },
+          500: {
+            description: "Internal server error",
+            type: "object",
+            properties: {
+              success: { type: "boolean" },
+              error: { type: "object" },
+            },
+          },
+        },
+      },
     },
     async (request, reply) => {
       try {
@@ -98,7 +253,7 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
 
         const updatedProduct = await inventoryHandler.updateProduct(
           body.productId,
-          { name: body.name }
+          { name: body.name },
         );
 
         await auditLog({
@@ -118,6 +273,6 @@ export default async function inventoryRoutes(fastify: FastifyInstance) {
       } catch (error) {
         return sendError(reply, { code: 500, error: error });
       }
-    }
+    },
   );
 }
