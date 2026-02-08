@@ -56,11 +56,13 @@ export default function SignUpPage() {
     });
 
     if (parsed.success) {
-      ///await authClient.signUp.email({
-      //  email: parsed.data.email,
-      //  password: parsed.data.password,
-      //  name: `${name} ${surname}`,
-      //});
+      const { data, error } = await authClient.signUp.email({
+        email: parsed.data.email,
+        password: parsed.data.password,
+        name: `${name} ${surname}`,
+      });
+
+      console.log(data, error);
     } else {
       const errors = parsed.error.flatten();
       setEmailError(errors.fieldErrors.email || []);

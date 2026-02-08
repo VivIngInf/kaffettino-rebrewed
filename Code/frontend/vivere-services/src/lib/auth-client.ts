@@ -4,7 +4,7 @@ import { createAuthClient } from "better-auth/react";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:6969";
 
 export const authClient = createAuthClient({
-  baseURL: API_URL,
+  baseURL: API_URL + "/api/v1/",
 });
 
 // Esporta gli hook pronti all'uso per maggiore comodità
