@@ -22,10 +22,12 @@ model User {
   aulettaId Int?
   auletta   Auletta?  @relation(fields: [aulettaId], references: [id], onDelete: SetNull)
   birthDate DateTime?
+  courseId    String?
+  course    Course?  @relation(fields: [courseId], references: [id], onDelete: SetNull)
   role      Role     @default(GUEST)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
-  
+
   sessions      Session[]
   accounts      Account[]
   cards         Card[]
@@ -80,6 +82,18 @@ model Verification {
   updatedAt  DateTime @default(now()) @updatedAt
 
   @@map("verification")
+}
+
+model Course {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  users     User[]
+
+  @@unique([name])
+  @@map("course")
 }
 
 model TopUp {

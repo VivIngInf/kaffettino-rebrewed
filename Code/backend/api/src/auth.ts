@@ -20,6 +20,9 @@ const auth = betterAuth({
       aulettaId: {
         type: "number",
       },
+      courseId: {
+        type: "string",
+      },
     },
   },
 });

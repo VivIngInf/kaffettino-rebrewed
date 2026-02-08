@@ -15,8 +15,8 @@ export default async function KaffettinoLayout({
   });
 
   if (!session) {
-    redirect("/signin");
+    redirect("/sign-in");
   }
 
-  return <>{children}</>;
+  return <html lang="it">{children}</html>;
 }
