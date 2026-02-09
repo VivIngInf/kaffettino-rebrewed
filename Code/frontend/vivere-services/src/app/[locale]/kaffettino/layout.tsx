@@ -10,7 +10,11 @@ export default async function KaffettinoLayout({
   const headersList = await headers();
   const cookieHeader = headersList.get("cookie") || "";
 
-  console.log("🔍 DEBUG COOKIE:", cookieHeader ? "Presente" : "VUOTO/ASSENTE");
+  console.log(
+    "🔍 DEBUG COOKIE:",
+    cookieHeader ? "Presente" : "VUOTO/ASSENTE",
+    cookieHeader,
+  );
 
   const { data: session, error } = await authClient.getSession({
     fetchOptions: {

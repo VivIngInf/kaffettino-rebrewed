@@ -9,6 +9,10 @@ const auth = betterAuth({
   // Deve coincidere con l'indirizzo del BACKEND (Fastify), non del frontend (Next.js)
   baseURL: process.env.API_BASE_URL || "http://213.210.20.137:6969",
 
+  advanced: {
+    useSecureCookies: false, // temporaneo
+  },
+
   // Devi includere chi fa la chiamata (Next.js) e l'IP del server stesso
   trustedOrigins: [
     "http://localhost:3000", // Sviluppo locale Next.js
