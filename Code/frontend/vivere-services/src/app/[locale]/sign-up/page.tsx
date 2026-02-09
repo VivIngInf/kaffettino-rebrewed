@@ -60,6 +60,14 @@ export default function SignUpPage() {
         email: parsed.data.email,
         password: parsed.data.password,
         name: `${name} ${surname}`,
+        birthDate: new Date(birthdate),
+        course: course,
+      } as {
+        email: string;
+        password: string;
+        name: string;
+        birthDate: Date;
+        course: string;
       });
 
       console.log(data, error);

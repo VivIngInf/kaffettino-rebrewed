@@ -16,12 +16,14 @@ const auth = betterAuth({
       },
       birthDate: {
         type: "date",
+        input: true,
       },
       aulettaId: {
         type: "number",
       },
       courseId: {
         type: "string",
+        input: true,
       },
     },
   },
@@ -31,3 +33,4 @@ export type User = typeof auth.$Infer.Session.user;
 export type Session = typeof auth.$Infer.Session;
 
 export default auth;
+export type Auth = typeof auth;
