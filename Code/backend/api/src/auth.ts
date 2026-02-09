@@ -13,14 +13,6 @@ const auth = betterAuth({
     useSecureCookies: false, // temporaneo
   },
 
-  cookie: {
-    prefix: "better-auth", // Nome semplice
-    secure: false, // <--- FONDAMENTALE SU HTTP
-    httpOnly: true, // Lascia true per sicurezza XSS
-    sameSite: "lax", // Lax va bene per la maggior parte dei casi
-    domain: "", // Lascia vuoto per farlo gestire al browser in automatico sull'IP
-  },
-
   // Devi includere chi fa la chiamata (Next.js) e l'IP del server stesso
   trustedOrigins: [
     "http://localhost:3000", // Sviluppo locale Next.js
