@@ -30,5 +30,9 @@ export default async function KaffettinoLayout({
     redirect("/sign-in");
   }
 
-  return <html lang="it">{children}</html>;
+  return (
+    <div className="h-screen flex items-center justify-center w-full">
+      {children}
+    </div>
+  );
 }
