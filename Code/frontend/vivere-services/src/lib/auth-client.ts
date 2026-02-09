@@ -5,7 +5,8 @@ import type { Auth } from "../../../../shared/auth";
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:6969";
 
 export const authClient = createAuthClient({
-  baseURL: API_URL + "/api/auth",
+  // baseURL: API_URL + "/api/auth", <- in production
+  baseURL: "http://localhost:3000",
 });
 
 // Hooks

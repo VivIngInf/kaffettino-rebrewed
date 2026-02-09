@@ -12,6 +12,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    // togliere in production
+    return [
+      {
+        source: "/api/auth/:path*", // Il browser chiama qui (localhost)
+        destination: "http://213.210.20.137:6969/api/auth/:path*", // Next.js gira qui (VPS)
+      },
+    ];
+  },
 };
 
 const withNextIntl = createNextIntlPlugin();
