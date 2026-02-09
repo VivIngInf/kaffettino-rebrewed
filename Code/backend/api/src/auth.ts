@@ -5,9 +5,16 @@ import { Role } from "./generated/prisma/client";
 
 const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
-  trustedOrigins: ["http://localhost:3000"],
   emailAndPassword: { enabled: true },
-  baseURL: "http://localhost:3000",
+  // Deve coincidere con l'indirizzo del BACKEND (Fastify), non del frontend (Next.js)
+  baseURL: process.env.API_BASE_URL || "http://213.210.20.137:6969",
+
+  // Devi includere chi fa la chiamata (Next.js) e l'IP del server stesso
+  trustedOrigins: [
+    "http://localhost:3000", // Sviluppo locale Next.js
+    "http://213.210.20.137:3000",
+    "http://213.210.20.137:6969", // Il backend
+  ],
   user: {
     additionalFields: {
       role: {

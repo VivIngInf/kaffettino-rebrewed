@@ -60,14 +60,10 @@ export default function SignUpPage() {
         email: parsed.data.email,
         password: parsed.data.password,
         name: `${name} ${surname}`,
-        birthDate: new Date(birthdate),
-        course: course,
       } as {
         email: string;
         password: string;
         name: string;
-        birthDate: Date;
-        course: string;
       });
 
       console.log(data, error);
@@ -115,7 +111,7 @@ export default function SignUpPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-2">
+            {/*<div className="grid grid-cols-2 gap-2">
               <div className="grid gap-2">
                 <Label htmlFor="birthdate">Data di nascita</Label>
                 <Input
@@ -144,7 +140,7 @@ export default function SignUpPage() {
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+            </div>*/}
 
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>

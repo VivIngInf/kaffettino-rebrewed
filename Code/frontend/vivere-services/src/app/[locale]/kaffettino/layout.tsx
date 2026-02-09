@@ -7,12 +7,20 @@ export default async function KaffettinoLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const reqHeaders = await headers();
-  const { data: session } = await authClient.getSession({
+  const headersList = await headers();
+  const cookieHeader = headersList.get("cookie") || "";
+
+  console.log("🔍 DEBUG COOKIE:", cookieHeader ? "Presente" : "VUOTO/ASSENTE");
+
+  const { data: session, error } = await authClient.getSession({
     fetchOptions: {
-      headers: reqHeaders,
+      headers: {
+        cookie: cookieHeader,
+      },
     },
   });
+
+  console.log("Session in layout:", session);
 
   if (!session) {
     redirect("/sign-in");
