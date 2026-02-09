@@ -7,7 +7,7 @@ const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: { enabled: true },
   // Deve coincidere con l'indirizzo del BACKEND (Fastify), non del frontend (Next.js)
-  baseURL: "localhost:3000",
+  baseURL: "http://localhost:3000",
 
   advanced: {
     useSecureCookies: false, // temporaneo
