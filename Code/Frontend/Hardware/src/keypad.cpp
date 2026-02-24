@@ -1,5 +1,6 @@
 #include "keypad.h"
 #include "logger.h"
+#include "keyEvents.h"
 
 volatile bool keypadInterrupt = false; 
 
@@ -45,27 +46,32 @@ void IRAM_ATTR readKeypad()
 void handleKeypad()
 {
 
-    if(keypadInterrupt)
-    {     
-        uint8_t index = keyPad.getKey();
+    if(!keypadInterrupt)
+        return;
+
+    uint8_t index = keyPad.getKey();
+    
+    //  ignore key bounces
+    if (index == I2C_KEYPAD_THRESHOLD)
+        return;
+
+    //  only after keyChange is handled it is time to reset the flag
+    keypadInterrupt = false;
+
+    if (index != 16)
+    {
+        logPrint(LOG_DEBUG, CAT_KEYPAD, "Pressed: %c", keys[index]);     
         
-        //  ignore key bounces
-        if (index == I2C_KEYPAD_THRESHOLD)
-            return;
-
-        //  only after keyChange is handled it is time reset the flag
-        keypadInterrupt = false;
-
-        if (index != 16)
-        {
-            logPrint(LOG_DEBUG, CAT_KEYPAD, "Pressed: %c", keys[index]);       
-        }
-        else
-        {
-            logPrint(LOG_DEBUG, CAT_KEYPAD, "Released");
-        }
-
+        char key = keys[index];
+        
+        KeyEvent evt = { key, KEY_PRESSED };
+        dispatchKeyEvent(evt);  
     }
+    else
+    {
+        logPrint(LOG_DEBUG, CAT_KEYPAD, "Released");
+    }
+    
 }
 
 void measurePolling()

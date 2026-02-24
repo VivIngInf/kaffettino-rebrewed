@@ -15,7 +15,7 @@ enum LED_STATUS
     LED_OFF = 0 // Only for init
 };
 
-extern LED_STATUS currentStatus;
+extern LED_STATUS currentLEDStatus;
 
 extern bool isBlinking;
 extern bool ledState;
@@ -26,7 +26,7 @@ extern void initLEDs();
 extern void startBlinking();
 extern void stopBlinking();
 
-extern void changeStatus(LED_STATUS status);
+extern void changeLEDStatus(LED_STATUS status);
 
 extern void handleBlink(unsigned long now);
 

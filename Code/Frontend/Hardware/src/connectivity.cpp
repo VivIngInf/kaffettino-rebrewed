@@ -4,6 +4,7 @@
 #include "display.h"
 #include "buzzer.h"
 #include "logger.h"
+#include "statusIndicator.h"
 
 unsigned long lastConnection = timeBetweenConnectionTries; // At start is equal to timeBetweenConnectionTries, so the connections starts right away
 unsigned long lastConnectionAttempt = 0;
@@ -25,6 +26,7 @@ void startConnecting()
 
     logPrint(LOG_INFO, CAT_WIFI, "Starting WiFi connection...");                    
 
+    changeLEDStatus(LED_WAIT);
     
     currentConnectionRetry = 0;
     connectionState = CONNECTION_CONNECTING;
@@ -40,14 +42,14 @@ void handleConnection(unsigned long now)
     {
         disconnectedSound();        
         logPrint(LOG_INFO, CAT_WIFI, "The device was connected, but the connection dropped. Trying to reconnect.");                    
-
+        changeLEDStatus(LED_WAIT);
         connectionState = CONNECTION_CONNECTING;        
     }
 
     if ((connectionState == CONNECTION_FAILED || connectionState == CONNECTION_NO_WIFI || connectionState == CONNECTION_WRONG_PASSWORD) && now - lastConnectionAttempt >= timeBetweenConnectionTries)
     {        
         logPrint(LOG_INFO, CAT_WIFI, "Retrying connecting after failure...");                    
-
+        changeLEDStatus(LED_WAIT);
         connectionState = CONNECTION_CONNECTING;
         currentConnectionRetry = 0;
     }
@@ -64,6 +66,7 @@ void handleConnection(unsigned long now)
         lastConnection = now;
         currentConnectionRetry = 0;
         
+        changeLEDStatus(LED_IDLE);
         displayConnected();
         connectedSound();
 
@@ -76,6 +79,7 @@ void handleConnection(unsigned long now)
     if (WiFiStatus == WL_IDLE_STATUS && now - connectStartTime > connectTimeout)
     {
         logPrint(LOG_ERROR, CAT_WIFI, "Connection timeout — restarting WiFi stack");
+        changeLEDStatus(LED_ERROR);
         WiFi.disconnect(true);
         return;
     }
@@ -104,7 +108,7 @@ void handleConnection(unsigned long now)
     if (currentConnectionRetry++ >= maxConnectionRetries) 
     {
         logPrint(LOG_INFO, CAT_WIFI, "Maximum retries reached. Retrying in 15s...");        
-                    
+        changeLEDStatus(LED_ERROR);
 
         switch (WiFiStatusEnum)
         {
@@ -139,11 +143,13 @@ void handleConnection(unsigned long now)
     {
         case -2:  // Config error
             logPrint(LOG_ERROR, CAT_WIFI, "Could not connect because the credentials were not set, plesae change credentials.");                      
-            connectionState = CONNECTION_FAILED;            
+            connectionState = CONNECTION_FAILED;    
+            changeLEDStatus(LED_ERROR);
             break;
         case -1:  // Network error
             logPrint(LOG_INFO, CAT_WIFI, "A network error happened, retrying connecting...");                             
             connectionState = CONNECTION_FAILED;            
+            changeLEDStatus(LED_ERROR);
             break;
         default:            
             break;

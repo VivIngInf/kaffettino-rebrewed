@@ -16,6 +16,8 @@
 #include "errorHandler.h"
 #include "utility.h"
 #include "logger.h"
+#include "menu.h"
+#include "keyEvents.h"
 
 /* ----- Functions ----- */
 
@@ -34,7 +36,7 @@ void setup()
     Wire.begin(GEN_SDA, GEN_SCL);
     
     initLEDs();
-    changeStatus(LED_WAIT);
+    changeLEDStatus(LED_WAIT);
     startBlinking();
 
     // Scan I2C network, outputs avaiable devices, mostly for debugging, expected 0x20 (keyboard), 0x3C (display) and ??? (Mp3)
@@ -69,6 +71,9 @@ void setup()
 
     // Handles errors and warnings. Warnings are non blocking, meaning the ESP can proceed after showing them. Errors are blocking and the ESP will be restarted.
     handleErrors();
+
+    initKeyEventBus();
+    initMenu();
 
     // If no error was found, play a joyful sound and start connecting
     bootSound();    

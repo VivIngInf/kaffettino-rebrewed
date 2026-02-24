@@ -2,6 +2,7 @@
 #include "errorHandler.h"
 #include "buzzer.h"
 #include "logger.h"
+#include "statusIndicator.h"
 
 // 8 bit array for memorizing error flags
 uint8_t errorFlags = 0; 
@@ -105,8 +106,16 @@ void handleErrors()
 
     displayErrorsAndWarning();
 
-    delay(10000);
-
     if(hasAnyError())
+    {
+        changeLEDStatus(LED_ERROR);    
+        delay(10000);
         ESP.restart();
+    }
+    
+    if(hasAnyWarning())
+    {
+        changeLEDStatus(LED_WAIT);
+        delay(10000);
+    }
 }
