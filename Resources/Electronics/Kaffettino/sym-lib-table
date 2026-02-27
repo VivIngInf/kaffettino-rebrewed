@@ -11,4 +11,5 @@
   (lib (name "2025-11-11_17-54-51")(type "KiCad")(uri "${KIPRJMOD}/libs/PCF8574AN/2025-11-11_17-54-51.kicad_sym")(options "")(descr ""))
   (lib (name "2025-11-13_14-58-24")(type "KiCad")(uri "${KIPRJMOD}/libs/OSTVN04A150/2025-11-13_14-58-24.kicad_sym")(options "")(descr ""))
   (lib (name "26052")(type "KiCad")(uri "${KIPRJMOD}/libs/26052 matrix keypad 4x4/26052.kicad_sym")(options "")(descr ""))
+  (lib (name "2026-02-27_14-49-47")(type "KiCad")(uri "${KIPRJMOD}/libs/OSTVN05A150/2026-02-27_14-49-47.kicad_sym")(options "")(descr ""))
 )
