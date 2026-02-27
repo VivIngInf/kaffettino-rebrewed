@@ -6205,17 +6205,6 @@
 		)
 		(uuid "0becf0d7-5fc9-40d6-9b14-dc847ace1d53")
 	)
-	(text "Can be used"
-		(exclude_from_sim no)
-		(at 220.726 130.81 0)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "18272089-3de8-4bf5-bdbc-8f5ad76a3269")
-	)
 	(text "EXPANSION PINS"
 		(exclude_from_sim no)
 		(at 159.766 126.492 0)
@@ -6328,7 +6317,7 @@
 		)
 		(uuid "98dcd15b-7249-48de-b2ff-203a54a65ded")
 	)
-	(text "We should remember that we cannot use:\n- 34, 35, 36, 39: Are only input pins without an internal resistor (Good for interrupts though)\n- 6, 7, 8, 9, 10, 11: Flash memory, do not use\n- 0, 2: Strapping pin (booting the esp32)\n- 1, 3: Serial line for debugging\n- 4, 12, 13, 14, 25, 26, 27: Only digital reads and writes work with wifi"
+	(text "We should remember that we cannot use:\n- 34, 35, 36, 39: Are only input pins without an internal resistor (Good for interrupts though)\n- 6, 7, 8, 9, 10, 11: Flash memory, do not use\n- 0, 2, 15: Strapping pin (booting the esp32)\n- 1, 3: Serial line for debugging\n- 4, 12, 13, 14, 25, 26, 27: Only digital reads and writes work with wifi"
 		(exclude_from_sim no)
 		(at 302.006 126.746 0)
 		(effects
@@ -6418,6 +6407,10 @@
 		(uuid "0ee895c5-7262-4d19-ad4c-0d4c7780f0d9")
 	)
 	(no_connect
+		(at 261.62 151.13)
+		(uuid "111fd152-4c73-482f-aebc-46237eb6a951")
+	)
+	(no_connect
 		(at 226.06 143.51)
 		(uuid "1b844e63-0ec1-4d04-b152-c30832a688e4")
 	)
@@ -6488,10 +6481,6 @@
 	(no_connect
 		(at 256.54 64.77)
 		(uuid "af04eb8a-ded2-471a-81ba-49be6c16a47f")
-	)
-	(no_connect
-		(at 226.06 130.81)
-		(uuid "b5f73531-8c93-4e19-9ce5-19556aaeb905")
 	)
 	(no_connect
 		(at 261.62 143.51)
@@ -6604,6 +6593,16 @@
 	)
 	(wire
 		(pts
+			(xy 261.62 151.13) (xy 259.08 151.13)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "11525153-a583-4413-aae1-f9f97320afa8")
+	)
+	(wire
+		(pts
 			(xy 259.08 113.03) (xy 261.62 113.03)
 		)
 		(stroke
@@ -6704,16 +6703,6 @@
 			(type default)
 		)
 		(uuid "1e312bed-cd80-44fe-a93d-d72bf34a9da8")
-	)
-	(wire
-		(pts
-			(xy 259.08 151.13) (xy 266.7 151.13)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1e4b5dd3-2769-478b-b38d-c29383d94670")
 	)
 	(wire
 		(pts
@@ -7401,16 +7390,6 @@
 	)
 	(wire
 		(pts
-			(xy 226.06 130.81) (xy 228.6 130.81)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "776dc80f-c628-4292-8938-9c841a3d3d03")
-	)
-	(wire
-		(pts
 			(xy 43.18 181.61) (xy 43.18 184.15)
 		)
 		(stroke
@@ -7750,6 +7729,16 @@
 			(type default)
 		)
 		(uuid "a6e98219-21e2-4da7-84b9-32ad0929613a")
+	)
+	(wire
+		(pts
+			(xy 220.98 130.81) (xy 228.6 130.81)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "a77a671f-abfa-44ee-a760-93028be2324b")
 	)
 	(wire
 		(pts
@@ -8419,13 +8408,13 @@
 		(uuid "22d8cbe0-def4-4fb7-bc02-fa20321667c8")
 	)
 	(label "BUZZER"
-		(at 266.7 151.13 0)
+		(at 220.98 130.81 180)
 		(effects
 			(font
 				(size 1.27 1.27)
 				(color 0 0 0 1)
 			)
-			(justify left)
+			(justify right)
 		)
 		(uuid "2a348713-6f2c-4a53-ba47-351a59cc676f")
 	)

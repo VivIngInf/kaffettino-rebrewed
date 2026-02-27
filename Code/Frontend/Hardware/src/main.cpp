@@ -35,6 +35,8 @@ void setup()
     // Start wire for I2C connection
     Wire.begin(GEN_SDA, GEN_SCL);
     
+    initBuzzer();
+
     initLEDs();
     changeLEDStatus(LED_WAIT);
     startBlinking();

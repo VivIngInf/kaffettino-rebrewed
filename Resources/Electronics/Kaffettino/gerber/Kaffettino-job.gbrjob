@@ -5,13 +5,13 @@
       "Application": "Pcbnew",
       "Version": "9.0.7"
     },
-    "CreationDate": "2026-02-27T02:06:39+01:00"
+    "CreationDate": "2026-02-27T13:32:51+01:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
       "Name": "Kaffettino",
       "GUID": "4b616666-6574-4746-996e-6f2e6b696361",
-      "Revision": "rev?"
+      "Revision": "1.0"
     },
     "Size": {
       "X": 150.05,
@@ -90,6 +90,7 @@
     },
     {
       "Type": "SolderMask",
+      "Color": "Blue",
       "Thickness": 0.01,
       "Name": "Top Solder Mask"
     },
@@ -112,6 +113,7 @@
     },
     {
       "Type": "SolderMask",
+      "Color": "Blue",
       "Thickness": 0.01,
       "Name": "Bottom Solder Mask"
     },
