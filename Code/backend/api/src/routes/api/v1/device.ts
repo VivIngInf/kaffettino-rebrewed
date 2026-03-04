@@ -12,6 +12,12 @@ import {
   sendSuccess,
 } from "@/utils/handlers";
 import auditLog, { AuditActor } from "@/utils/audit";
+import {
+  deviceRegistrationSchema,
+  deviceValidateId,
+  IDeviceRegistrationSchema,
+  IDeviceValidateId,
+} from "@/zod/schema/device.schema";
 
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
@@ -93,12 +99,9 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       try {
-        const body = (await request.body) as {
-          deviceName?: string;
-          aulettaId?: number;
-        };
+        const body = (await request.body) as IDeviceRegistrationSchema;
 
-        if (!body.deviceName || !body.aulettaId)
+        if (!deviceRegistrationSchema.safeParse(body).success)
           return sendError(reply, {
             code: 400,
             message:
@@ -185,10 +188,6 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
               type: "string",
               description: "ID of the device to accept",
             },
-            deviceName: {
-              type: "string",
-              description: "Name of the device (optional)",
-            },
           },
         },
         response: {
@@ -236,12 +235,9 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     },
     async (request, reply) => {
       try {
-        const body = (await request.body) as {
-          deviceName?: string;
-          deviceId?: string;
-        };
+        const body = (await request.body) as IDeviceValidateId;
 
-        if (!body.deviceId)
+        if (!deviceValidateId.safeParse(body).success)
           return sendError(reply, {
             code: 400,
             message: "Mandatory param 'deviceId' is missing!",
@@ -348,8 +344,8 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
     async (request, reply) => {
       try {
         const body = (await request.body) as {
-          deviceId: string;
-          deviceName: string;
+          deviceId?: string;
+          deviceName?: string;
         };
 
         const deviceRequest = (
