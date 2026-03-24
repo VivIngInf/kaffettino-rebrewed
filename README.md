@@ -90,8 +90,8 @@ Realizzato **con amore**, debug e decisamente **troppa caffeina** dai ragazzi di
       <th>Antonio Murabito</th>      
   </tr>
   <tr>
-      <td><img src="./Resources/Foto/Daniele Orazio Susino.jpg" alt="Daniele Orazio Susino" width="150"></td>
-      <td><img src="./Resources/Foto/Antonio Murabito.webp" alt="Antonio Murabito" width="150"></td>
+      <td><img src="./Resources/Images/Foto/Daniele Orazio Susino.jpg" alt="Daniele Orazio Susino" width="150"></td>
+      <td><img src="./Resources/Images/Foto/Antonio Murabito.webp" alt="Antonio Murabito" width="150"></td>
   </tr>
   <tr>
       <td>Embedded</td>
