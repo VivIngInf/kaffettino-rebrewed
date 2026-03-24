@@ -114,4 +114,5 @@ Realizzato **con amore**, debug e decisamente **troppa caffeina** dai ragazzi di
 ---
 
 Si ringrazia, per l'aiuto dato, Nicolas Bruno di [Objex Labs](https://objexlabs.com/)
+<br>
 Basato su: [Vivere Kaffettino](https://github.com/VivIngInf/VivereKaffettino)
