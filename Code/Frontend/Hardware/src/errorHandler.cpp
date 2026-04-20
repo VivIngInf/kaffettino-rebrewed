@@ -108,14 +108,14 @@ void handleErrors()
 
     if(hasAnyError())
     {
-        changeLEDStatus(LED_ERROR);    
-        delay(10000);
+        changeLEDStatus(LED_ERROR);
+        delay(ERROR_RESTART_DELAY_MS);
         ESP.restart();
     }
-    
+
     if(hasAnyWarning())
     {
         changeLEDStatus(LED_WAIT);
-        delay(10000);
+        delay(WARNING_DISPLAY_DELAY_MS);
     }
 }

@@ -1,5 +1,4 @@
-#ifndef CONFIG_H
-#define CONFIG_H
+#pragma once
 
 /* ----- Storage libs ----- */
 
@@ -29,5 +28,3 @@ extern Preferences preferences;
 
 void initConfigs();
 void saveConfigs();
-
-#endif

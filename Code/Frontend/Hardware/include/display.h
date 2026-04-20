@@ -1,5 +1,4 @@
-#ifndef DISPLAY_H
-#define DISPLAY_H
+#pragma once
 
 #include <U8g2lib.h>
 #include <Wire.h>
@@ -29,6 +28,7 @@ extern void displayConnectionError();
 extern void displayErrorsAndWarning();
 extern void displayWiFiNotFound();
 extern void displayWrongPassword();
+extern void displayConfigError();
 
 extern void drawErrorDot(int x, int y, ERROR_LABELS error);
 extern void drawWarningDot(int x, int y, WARNING_LABELS warning);
@@ -272,5 +272,3 @@ static const unsigned char coffyFelice[] PROGMEM = {
 	0x00,0xC0,0xFF,0xFF,0xFF,0xFF,0x03,0x00,
 	0x00,0xC0,0xFF,0xFF,0xFF,0xFF,0x03,0x00
 };
-
-#endif

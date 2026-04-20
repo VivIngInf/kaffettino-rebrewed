@@ -1,5 +1,4 @@
-#ifndef NFCREADER_H
-#define NFCREADER_H
+#pragma once
 
 #include <MFRC522.h>
 
@@ -19,5 +18,3 @@ extern void dump_byte_array(byte *buffer, byte bufferSize);
 
 const unsigned long NFCScanInterval = 200;   // scan delay
 extern unsigned long lastScanTime;
-
-#endif

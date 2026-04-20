@@ -1,5 +1,4 @@
-#ifndef MP3PLAYER_H
-#define MP3PLAYER_H
+#pragma once
 
 #include <DFRobotDFPlayerMini.h>
 #include <SoftwareSerial.h>
@@ -11,5 +10,3 @@ extern HardwareSerial mp3HwSerial;
 extern DFRobotDFPlayerMini mp3Player;
 
 extern bool initMP3Player();
-
-#endif

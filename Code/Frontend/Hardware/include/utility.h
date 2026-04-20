@@ -1,5 +1,4 @@
-#ifndef UTILITY_H
-#define UTILITY_H
+#pragma once
 
 #include "stdint.h"
 #include "Wire.h"
@@ -14,5 +13,3 @@ extern void scanI2CBus();
 
 typedef bool (*spiProbeFn_t)();
 bool probeSPI(spiProbeFn_t testFn, uint8_t retries = 3);
-
-#endif

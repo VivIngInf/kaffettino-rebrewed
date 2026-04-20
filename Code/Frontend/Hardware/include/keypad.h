@@ -1,23 +1,25 @@
-#ifndef KEYPAD_H
-#define KEYPAD_H
+#pragma once
 
 #include <Wire.h>
-//#include <PCF8574.h>
 #include <I2CKeyPad.h>
+#include "keyEvents.h"
 
-//extern PCF8574 gpioExtender;
-const int IRQ_KEYPAD = 36;
+// ─── Pin & I2C ───────────────────────────────────────────────────
+const int     IRQ_KEYPAD        = 36;
+const uint8_t KEYPAD_ADDRESS    = 0x20;
 
-extern bool initKeypad();
-extern void readKeypad();
-extern void handleKeypad();
-extern void measurePolling();
+// ─── Timing ──────────────────────────────────────────────────────
+const unsigned long DEBOUNCE_DELAY_KEYPAD  = 100;   // ISR-level debounce (ms)
+const unsigned long HOLD_THRESHOLD_MS      = 800;  // Time before KEY_HELD fires (ms)
+const unsigned long RELEASE_TIMEOUT_MS     = 5000; // Safety timeout if release is missed (ms)
+const uint8_t       KEYPAD_LIB_DEBOUNCE_MS = 50;   // Library-level debounce passed to I2CKeyPad
 
-extern volatile bool keypadInterrupt; 
+// ─── Shared state ────────────────────────────────────────────────
+extern volatile bool  keypadInterrupt;
+extern unsigned long  lastInterruptTimeKeypad;
 
-extern unsigned long lastInterruptTimeKeypad;      // Timestamp for debounce mechanism
-const unsigned long debounceDelayKeypad = 20;    // 200ms debounce delay
-
-const uint8_t keypadI2CAddress = 0x20;
-
-#endif
+// ─── API ─────────────────────────────────────────────────────────
+bool initKeypad();
+void IRAM_ATTR readKeypad();
+void handleKeypad();
+void measurePolling();

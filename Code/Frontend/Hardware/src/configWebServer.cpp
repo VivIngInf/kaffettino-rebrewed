@@ -26,7 +26,7 @@ int startWebServer()
     
     IPAddress IP = WiFi.softAPIP();
 
-    logPrint(LOG_INFO, CAT_WIFI, "Gateway IP address: %s", IP.toString());
+    logPrint(LOG_INFO, CAT_WIFI, "Gateway IP address: %s", IP.toString().c_str());
 
     if(!SPIFFS.begin(true))
     {
@@ -36,6 +36,40 @@ int startWebServer()
 
         return 0; // Internal error
     }
+
+    if(!SPIFFS.exists("/index.html")) 
+    {
+        logPrint(LOG_ERROR, CAT_SYS, "%s", "SPIFFS HTML file not found!");
+        return 0;
+    }
+
+    if(!SPIFFS.exists("/js/main.js"))
+    {
+        logPrint(LOG_ERROR, CAT_SYS, "%s", "SPIFFS JS file not found!");
+        return 0;
+    }
+
+    if(!SPIFFS.exists("/css/output.css"))
+    {
+        logPrint(LOG_ERROR, CAT_SYS, "%s", "SPIFFS CSS file not found!");
+        return 0;
+    }
+
+    #ifdef DEBUG_BUILD
+
+        logPrint(LOG_DEBUG, CAT_SYS, "SPIFFS Total Bytes: %lu", SPIFFS.totalBytes());        
+        logPrint(LOG_DEBUG, CAT_SYS, "SPIFFS Used Bytes: %lu", SPIFFS.usedBytes()); 
+
+        File root = SPIFFS.open("/");
+        File file = root.openNextFile();
+
+        while(file)
+        {
+            logPrint(LOG_DEBUG, CAT_SYS, "SPIFFS file on path %s, has name: %s", file.path(), file.name());            
+            file = root.openNextFile();
+        }
+
+    #endif
 
     server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
 
@@ -53,7 +87,7 @@ int startWebServer()
         {
             logPrint(LOG_DEBUG, CAT_WIFI, "Number of WiFi networks found: %d", scanStatus);
 
-            for (int i = 0; i <= scanStatus; i++) 
+            for (int i = 0; i < scanStatus; i++) 
             {
 
                 Serial.print(i);
@@ -195,8 +229,7 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("wifiSSID", true))
     {
         WIFI_SSID = request->getParam("wifiSSID", true)->value();
-        logPrint(LOG_DEBUG, CAT_WIFI, "WiFi SSID value: %s", WIFI_SSID);    
-
+        logPrint(LOG_DEBUG, CAT_WIFI, "WiFi SSID value: %s", WIFI_SSID.c_str());    
 
         atLeastOneChange = true;
     }
@@ -204,7 +237,7 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("eapUsername", true))
     {
         EAP_USERNAME = request->getParam("eapUsername", true)->value();
-        logPrint(LOG_DEBUG, CAT_WIFI, "EAP username value: %s", EAP_USERNAME);            
+        logPrint(LOG_DEBUG, CAT_WIFI, "EAP username value: %s", EAP_USERNAME.c_str());            
 
         atLeastOneChange = true;
     }
@@ -212,7 +245,7 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("eapPassword", true))
     {
         EAP_PASSWORD = request->getParam("eapPassword", true)->value();        
-        logPrint(LOG_DEBUG, CAT_WIFI, "EAP password value: %s", EAP_PASSWORD);            
+        logPrint(LOG_DEBUG, CAT_WIFI, "EAP password value: %s", EAP_PASSWORD.c_str());            
 
         atLeastOneChange = true;
     }
@@ -220,7 +253,7 @@ void handleNewConfigs(AsyncWebServerRequest *request)
     if(request->hasParam("wifiPassword", true))
     {
         WIFI_PASSWORD = request->getParam("wifiPassword", true)->value();
-        logPrint(LOG_DEBUG, CAT_WIFI, "Wifi password value: %s", WIFI_PASSWORD);                    
+        logPrint(LOG_DEBUG, CAT_WIFI, "Wifi password value: %s", WIFI_PASSWORD.c_str());                    
 
         atLeastOneChange = true;
     }

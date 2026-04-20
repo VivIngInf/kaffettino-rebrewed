@@ -6,7 +6,7 @@
 #include "logger.h"
 #include "statusIndicator.h"
 
-unsigned long lastConnection = timeBetweenConnectionTries; // At start is equal to timeBetweenConnectionTries, so the connections starts right away
+unsigned long lastConnection = timeBetweenConnectionTries; // Pre-loaded so first attempt fires immediately
 unsigned long lastConnectionAttempt = 0;
 unsigned long connectStartTime = 0;
 int currentConnectionRetry = 0;
@@ -145,11 +145,14 @@ void handleConnection(unsigned long now)
             logPrint(LOG_ERROR, CAT_WIFI, "Could not connect because the credentials were not set, plesae change credentials.");                      
             connectionState = CONNECTION_FAILED;    
             changeLEDStatus(LED_ERROR);
+            displayConfigError();
+            errorSound();
             break;
         case -1:  // Network error
             logPrint(LOG_INFO, CAT_WIFI, "A network error happened, retrying connecting...");                             
             connectionState = CONNECTION_FAILED;            
             changeLEDStatus(LED_ERROR);
+            errorSound();
             break;
         default:            
             break;
@@ -180,10 +183,10 @@ int connectWifi()
         }
     }    
 
-    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi EAP Username: %s", EAP_USERNAME);
-    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi EAP_PASSWORD: %s", EAP_PASSWORD);
-    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi SSID: %s", WIFI_SSID);
-    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi PASSWORD: %s", WIFI_PASSWORD);
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi EAP Username: %s", EAP_USERNAME.c_str());
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi EAP_PASSWORD: %s", EAP_PASSWORD.c_str());
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi SSID: %s", WIFI_SSID.c_str());
+    logPrint(LOG_DEBUG, CAT_WIFI, "Wifi PASSWORD: %s", WIFI_PASSWORD.c_str());
 
     // If credentials are not set
     if(wifiError)

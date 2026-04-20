@@ -29,13 +29,20 @@ void setup()
     if(!Serial)
         setError(ERR_SERIAL);
 
-    // Inits custom loggin with colors, timestamp and debug set as true
-    logInit(true, true, true); 
+    #ifdef DEBUG_BUILD
+        logInit(true, true, true);
+    #else
+        logInit(true, true);
+    #endif
 
     // Start wire for I2C connection
     Wire.begin(GEN_SDA, GEN_SCL);
     
-    initBuzzer();
+    #ifdef DEBUG_BUILD
+        initBuzzer(false);
+    #else
+        initBuzzer(true);
+    #endif
 
     initLEDs();
     changeLEDStatus(LED_WAIT);
@@ -63,9 +70,11 @@ void setup()
     if(!initNFCScanner())
         setError(ERR_NFC);
 
+    initKeyEventBus();
+
     // Starts the keypad using the PCF8574-keypad lib, checks if correctly connected to I2C
     if(!initKeypad())
-        setError(ERR_KEYPAD);    
+        setError(ERR_KEYPAD);
 
     // Starts the DFRobotMini MP3 player, checks if correctly connected to I2C
     if (!initMP3Player())
@@ -74,7 +83,6 @@ void setup()
     // Handles errors and warnings. Warnings are non blocking, meaning the ESP can proceed after showing them. Errors are blocking and the ESP will be restarted.
     handleErrors();
 
-    initKeyEventBus();
     initMenu();
 
     // If no error was found, play a joyful sound and start connecting

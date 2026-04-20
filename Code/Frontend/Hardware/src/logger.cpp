@@ -1,9 +1,9 @@
 #include "logger.h"
 #include <stdarg.h>
 
-bool colorsEnabled = true;
+bool colorsEnabled    = true;
 bool timestampEnabled = true;
-bool debugMode = true;
+bool debugMode        = false; // Enabled by logInit only in DEBUG_BUILD
 
 void logInit(bool enableColors, bool enableTimestamp, bool enableDebugMode)
 {

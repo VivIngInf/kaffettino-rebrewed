@@ -32,11 +32,11 @@ void initConfigs()
     EAP_USERNAME = preferences.getString("EAP_USERNAME", "");
     EAP_PASSWORD = preferences.getString("EAP_PASSWORD", "");
 
-    logPrint(LOG_INFO, CAT_SYS, "WIFI_SSID start value: %s", WIFI_SSID);
+    logPrint(LOG_INFO, CAT_SYS, "WIFI_SSID start value: %s", WIFI_SSID.c_str());
     logPrint(LOG_INFO, CAT_SYS, "IS_EAP start value: : %s", IS_EAP ? "True" : "False");
-    logPrint(LOG_INFO, CAT_SYS, "WIFI_PASSWORD start value: %s", WIFI_PASSWORD);
-    logPrint(LOG_INFO, CAT_SYS, "EAP_USERNAME start value: %s", EAP_USERNAME);
-    logPrint(LOG_INFO, CAT_SYS, "EAP_PASSWORD start value: %s", EAP_PASSWORD);
+    logPrint(LOG_INFO, CAT_SYS, "WIFI_PASSWORD start value: %s", WIFI_PASSWORD.c_str());
+    logPrint(LOG_INFO, CAT_SYS, "EAP_USERNAME start value: %s", EAP_USERNAME.c_str());
+    logPrint(LOG_INFO, CAT_SYS, "EAP_PASSWORD start value: %s", EAP_PASSWORD.c_str());
 
     preferences.end();
 }

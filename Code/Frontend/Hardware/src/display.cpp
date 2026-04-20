@@ -155,6 +155,23 @@ void displayWrongPassword()
     display.sendBuffer();
 }
 
+void displayConfigError()
+{
+    dotIndex = 0;
+
+    display.clearBuffer();
+    display.setFont(u8g2_font_t0_11_tr);
+        
+    display.drawStr(76, 15, "VIVERE");
+    display.drawStr(64, 27, "KAFFETTINO");
+    display.drawStr(68, 46, "ERRORE DI");
+    display.drawStr(68, 58, "CONFIGUR.");
+
+    display.drawXBM(-2, 0, 64, 64, coffyTriste);
+
+    display.sendBuffer();
+}
+
 void displayErrorsAndWarning()
 {
     dotIndex = 0;

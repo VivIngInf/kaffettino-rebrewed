@@ -44,12 +44,18 @@ static const char *levelColor[] = {
     "\033[1;31m"  // ERROR
 };
 
-extern bool debugMode; // Debug mode is used to see more info in the serial monitor
+extern bool debugMode;
 
-void logInit(bool enableColors = true, bool enableTimestamp = true, bool enableDebugMode = true);
+// In DEBUG_BUILD, logInit enables debug output and LOGD calls are compiled in.
+// In release builds, LOGD is a no-op: zero flash, zero stack, zero serial overhead.
+void logInit(bool enableColors = true, bool enableTimestamp = true, bool enableDebugMode = false);
 void logPrint(LogLevel level, LogCategory category, const char *fmt, ...);
 
-#define LOGD(cat, ...) logPrint(LOG_DEBUG, cat, __VA_ARGS__)
+#ifdef DEBUG_BUILD
+  #define LOGD(cat, ...) logPrint(LOG_DEBUG, cat, __VA_ARGS__)
+#else
+  #define LOGD(cat, ...) ((void)0)
+#endif
 #define LOGI(cat, ...) logPrint(LOG_INFO,  cat, __VA_ARGS__)
 #define LOGW(cat, ...) logPrint(LOG_WARN,  cat, __VA_ARGS__)
 #define LOGE(cat, ...) logPrint(LOG_ERROR, cat, __VA_ARGS__)

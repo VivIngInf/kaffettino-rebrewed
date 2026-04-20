@@ -1,5 +1,4 @@
-#ifndef CONFIGWEBSERVER_H
-#define CONFIGWEBSERVER_H
+#pragma once
 
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
@@ -26,5 +25,3 @@ extern DNSServer dnsServer;
 
 extern void startCaptiveDNS();
 extern void handleDNS();
-
-#endif 

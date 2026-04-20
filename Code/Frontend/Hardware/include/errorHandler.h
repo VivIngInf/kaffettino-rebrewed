@@ -1,7 +1,9 @@
-#ifndef ERRORHANDLER_H
-#define ERRORHANDLER_H
+#pragma once
 
 #include <stdint.h>
+
+const unsigned long ERROR_RESTART_DELAY_MS  = 10000;
+const unsigned long WARNING_DISPLAY_DELAY_MS = 10000;
 
 // 8 bit array for memorizing error and flags
 extern uint8_t errorFlags;      // If even a single bit is set, the ESP will try to restart after displaying the error screen
@@ -39,5 +41,3 @@ extern bool hasAnyWarning();
 
 extern void printErrors();
 extern void handleErrors();
-
-#endif

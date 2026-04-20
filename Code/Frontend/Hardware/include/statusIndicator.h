@@ -1,5 +1,4 @@
-#ifndef STATUSINDICATOR_H
-#define STATUSINDICATOR_H
+#pragma once
 
 const int GREEN_LED = 25;
 const int YELLOW_LED = 26;
@@ -29,5 +28,3 @@ extern void stopBlinking();
 extern void changeLEDStatus(LED_STATUS status);
 
 extern void handleBlink(unsigned long now);
-
-#endif

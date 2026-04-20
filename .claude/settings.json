@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs -I {} basename {})",
+      "Bash(wc -l /home/daniele/Scrivania/kaffettino-rebrewed/Code/Frontend/Hardware/src/*.cpp /home/daniele/Scrivania/kaffettino-rebrewed/Code/Frontend/Hardware/include/*.h)",
+      "Read(//home/daniele/.platformio/packages/**)"
+    ]
+  }
+}
