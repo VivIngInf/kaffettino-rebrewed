@@ -29,6 +29,7 @@ extern void displayErrorsAndWarning();
 extern void displayWiFiNotFound();
 extern void displayWrongPassword();
 extern void displayConfigError();
+extern void displayMainMenu();
 
 extern void drawErrorDot(int x, int y, ERROR_LABELS error);
 extern void drawWarningDot(int x, int y, WARNING_LABELS warning);

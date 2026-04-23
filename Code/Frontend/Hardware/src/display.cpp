@@ -224,3 +224,26 @@ void displayErrorsAndWarning()
 
     display.sendBuffer();
 }
+
+/*
+    MENU ZONE
+*/
+
+void displayMainMenu()
+{
+    display.clearBuffer();
+
+    display.setFontMode(1);
+    display.setBitmapMode(1);
+    display.setFont(u8g2_font_t0_11_tr);
+    display.drawStr(64, 27, "PASSA CARD");
+
+    display.drawStr(64, 40, "O PREMI UN");
+
+    display.drawXBM(0, 0, 64, 64, coffyNormale);
+
+    display.drawStr(79, 53, "TASTO");
+
+    display.sendBuffer();    
+
+}

@@ -104,6 +104,8 @@ void loop()
     if(!isConnected())
         return;
         
+    displayMainMenu();
+
     handleScanner(now);
     
     handleKeypad();
