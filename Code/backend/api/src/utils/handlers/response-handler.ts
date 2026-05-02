@@ -102,7 +102,7 @@ export function sendSuccess(
 ) {
   return reply.status(code ?? 200).send({
     success: true,
-    data: data,
+    ...(data || {}),
     error: null,
   });
 }
