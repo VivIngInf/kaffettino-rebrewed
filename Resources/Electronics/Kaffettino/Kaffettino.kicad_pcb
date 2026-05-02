@@ -3534,7 +3534,7 @@
 			(uuid "f1bc3da6-43c3-46b0-a7a5-331a09067a22")
 		)
 		(embedded_fonts no)
-		(model "${KIPRJMOD}/libs/Buzzer /Buzzer.step"
+		(model "${KIPRJMOD}/libs/Buzzer/Buzzer.step"
 			(offset
 				(xyz 3.8 0 0.5)
 			)
