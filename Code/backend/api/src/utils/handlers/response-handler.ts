@@ -91,7 +91,7 @@ export function sendError(
   return reply.status(code).send({
     success: false,
     data: null,
-    error: errorObject,
+    ...(errorObject ?? {}),
   });
 }
 

@@ -356,7 +356,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
           })
         ).statuses;
 
-        if (!deviceRequest.awaitingClient)
+        if (!deviceRequest.awaitingClient.length)
           return sendError(reply, {
             code: 400,
             responseCode: "DEVICE_NO_ACCEPTED_REQUESTS",
