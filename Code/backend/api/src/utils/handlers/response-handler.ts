@@ -9,6 +9,10 @@ interface IError {
   message?: string;
 }
 
+interface ErrorMessage {
+  [key: string]: string;
+}
+
 export const statusCodes: Record<number, string> = {
   200: "OK - Request successful",
   201: "Created - Resource created successfully",
@@ -27,7 +31,7 @@ export const statusCodes: Record<number, string> = {
 export type SupportedLanguages = "en" | "it";
 
 export const responseCodes = (lang: SupportedLanguages) =>
-  JSON.parse(fs.readFileSync(`messages/${lang}.json`, "utf-8"));
+  JSON.parse(fs.readFileSync(`messages/${lang}.json`, "utf-8")) as ErrorMessage;
 
 /**
  * Sends a standardized error response using Fastify's reply object.

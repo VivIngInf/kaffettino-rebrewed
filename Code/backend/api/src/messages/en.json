@@ -1,7 +1,7 @@
 {
   "MISSING_PARAMS": "Mandatory params are missing!",
   "DEVICE_ALREADY_REGISTERED": "Device already registered!",
-  "DEVICE_REQUEST_PENDING": "A request for this device is pending.",
+  "DEVICE_REQUEST_PENDING": "A request for this device or auletta is pending.",
   "CANNOT_TOPUP_YOURSELF": "Cannot top up yourself!",
   "DEVICE_REQUEST_NOT_FOUND": "Device request not found!",
   "DEVICE_NOT_REGISTERED": "Device not registered!",

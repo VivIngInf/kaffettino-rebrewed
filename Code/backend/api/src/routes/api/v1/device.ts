@@ -22,6 +22,7 @@ import {
 const BASE_PATH = "/device";
 const ROLES_NEEDED = {
   acceptRequests: [Role.ADMIN],
+  registrationRequests: [Role.ADMIN],
 };
 
 export default async function deviceRoutes(fastify: FastifyInstance) {
@@ -125,6 +126,7 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
 
         const existingRequest = await deviceHandler.checkRequests({
           deviceId: device?.id,
+          aulettaId: body.aulettaId,
         });
 
         // Check if device already has a pending request
@@ -943,5 +945,19 @@ export default async function deviceRoutes(fastify: FastifyInstance) {
         return sendError(reply, { code: 500, error });
       }
     },
+  );
+
+  fastify.get(
+    `${BASE_PATH}/registration-requests`, 
+    { 
+      preHandler: [ sessionMW, permissionsMW(ROLES_NEEDED.registrationRequests) ] 
+    },
+    async (request, reply) => {
+      try {
+        
+      } catch(error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
   );
 }
