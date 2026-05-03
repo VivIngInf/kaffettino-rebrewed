@@ -1,7 +1,7 @@
 import { RequestStatus, Role } from "@/generated/prisma/enums";
 import { FastifyInstance } from "fastify";
 import { permissionsMW, sessionMW } from "@/middlewares/mws";
-import { cardHandler, cardId, sendError, sendSuccess } from "@/utils/handlers";
+import { cardHandler, auletteHandler, cardId, sendError, sendSuccess, ICreateAuletta } from "@/utils/handlers";
 import auditLog, { AuditActor } from "@/utils/audit";
 
 const BASE_PATH = "/aulette";
@@ -22,82 +22,53 @@ export default async function auletteRoutes(fastify: FastifyInstance) {
     `${BASE_PATH}/create`,
     {
       preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.createCard)],
-      schema: {
-        description: "Create a new NFC card for a user",
-        tags: ["card"],
-        security: [{ bearerAuth: [] }],
-        body: {
-          type: "object",
-          required: ["userId"],
-          properties: {
-            userId: {
-              type: "string",
-              description: "ID of the user to assign the card to",
-            },
-          },
-        },
-        response: {
-          200: {
-            description: "Card created successfully",
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-              card: {
-                type: "object",
-                properties: {
-                  id: { type: "string" },
-                  userId: { type: "string" },
-                  blocked: { type: "boolean" },
-                  createdAt: { type: "string", format: "date-time" },
-                },
-              },
-            },
-          },
-          400: {
-            description: "Bad request - missing userId",
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-              message: { type: "string" },
-            },
-          },
-          500: {
-            description: "Internal server error",
-            type: "object",
-            properties: {
-              success: { type: "boolean" },
-              error: { type: "object" },
-            },
-          },
-        },
-      },
     },
     async (request, reply) => {
       try {
-        const body = (await request.body) as { userId: string };
+        const body = (await request.body) as ICreateAuletta;
 
-        if (!body.userId)
+        if (!body.location || !body.name || !body.telegramId || !body.number)
           return sendError(reply, {
             code: 400,
-            message: "Missing mandatory param 'userId'.",
+            message: "Missing mandatory param 'location', 'name', 'telegramId' or 'number'.",
           });
 
-        const newCard = await cardHandler.createCard(body.userId);
+        const newAuletta = await auletteHandler.createAuletta({
+          name: body.name,
+          location: body.location,
+          telegramId: body.telegramId,
+          number: body.number
+        });
 
         await auditLog({
-          action: "CREATE_CARD",
-          entity: "Card",
-          entityId: newCard.id,
+          action: "CREATE_AULETTA",
+          entity: "Aulette",
+          entityId: newAuletta.id.toString(),
           actorId: request.session.user.id,
           actorType: AuditActor.USER,
           metadata: {
             ip: request.ip,
             userAgent: request.headers["user-agent"],
-            new: { card: newCard },
+            new: { card: newAuletta },
           },
         });
 
-        return sendSuccess(reply, { card: newCard }, { code: 200 });
+        return sendSuccess(reply, { card: newAuletta }, { code: 200 });
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
+
+  fastify.get(
+    `${BASE_PATH}/list`,
+    async (request, reply) => {
+      try {
+        const { location } = request.query as { location?: string };
+
+        const aulette = await auletteHandler.getAulette(location);
+
+        return sendSuccess(reply, { aulette }, { code: 200 });
       } catch (error) {
         return sendError(reply, { code: 500, error });
       }
