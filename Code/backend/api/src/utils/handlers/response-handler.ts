@@ -27,7 +27,7 @@ export const statusCodes: Record<number, string> = {
 export type SupportedLanguages = "en" | "it";
 
 export const responseCodes = (lang: SupportedLanguages) =>
-  JSON.parse(fs.readFileSync(`../messages/${lang}on`, "utf-8"));
+  JSON.parse(fs.readFileSync(`../messages/${lang}.json`, "utf-8"));
 
 /**
  * Sends a standardized error response using Fastify's reply object.
@@ -73,8 +73,7 @@ export function sendError(
   { code, error, responseCode, message }: IError,
   request?: FastifyRequest
 ): FastifyReply {
-  const language = (request?.headers["accept-language"] ??
-    "en") as SupportedLanguages;
+  const language = (request?.headers["accept-language"] ?? "en") as SupportedLanguages;
 
   const errorMessage = error instanceof Error ? error.message : String(error);
   const errorObject: IError = {
@@ -91,7 +90,7 @@ export function sendError(
   return reply.status(code).send({
     success: false,
     data: null,
-    ...(errorObject ?? {}),
+    error: errorObject,
   });
 }
 
