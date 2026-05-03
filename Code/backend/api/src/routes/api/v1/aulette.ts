@@ -74,4 +74,35 @@ export default async function auletteRoutes(fastify: FastifyInstance) {
       }
     }
   );
+
+  fastify.put(
+    `${BASE_PATH}/:id`,
+    {
+      preHandler: [sessionMW, permissionsMW(ROLES_NEEDED.updatePin)],
+    },
+    async (request, reply) => {
+      try {
+        const { id } = request.params as { id: number };
+        const body = (await request.body) as Partial<ICreateAuletta>;
+
+        const updatedAuletta = await auletteHandler.updateAuletta(id, body);
+
+        await auditLog({
+          action: "UPDATE_AULETTA",
+          entity: "Aulette",
+          entityId: id.toString(),
+          actorId: request.session.user.id,
+          actorType: AuditActor.USER,
+          metadata: {
+            ip: request.ip,
+            userAgent: request.headers["user-agent"],
+            new: { card: updatedAuletta },
+          },
+        });
+        return sendSuccess(reply, { aulette: updatedAuletta }, { code: 200 });
+      } catch (error) {
+        return sendError(reply, { code: 500, error });
+      }
+    }
+  );
 }

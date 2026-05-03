@@ -52,6 +52,14 @@ class AuletteHandler {
     })
     return newAuletta;
   }
+
+  async updateAuletta(id: number, data: Partial<ICreateAuletta>): Promise<Auletta> {
+    const updatedAuletta = await this.prisma.auletta.update({
+      where: { id },
+      data,
+    });
+    return updatedAuletta;
+  }
 }
 
 const auletteHandler = new AuletteHandler();
